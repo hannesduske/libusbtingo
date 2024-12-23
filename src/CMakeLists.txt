@@ -1,6 +1,7 @@
 add_library(usbtingo SHARED
   bus/Bus.cpp
   bus/BusImpl.cpp
+  bus/Status.cpp
   device/Device.cpp
 )
 

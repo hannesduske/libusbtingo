@@ -7,7 +7,7 @@ using usbtingo::device::SerialNumber;
 
 TEST_CASE("Integration Test Device", "[device]"){
 
-    SECTION("Instantiate a valid device"){
+    SECTION("Instantiate a real device"){
         auto sn_vec = Device::detect_available_devices();
 
         if(sn_vec.size() == 0){
@@ -15,10 +15,10 @@ TEST_CASE("Integration Test Device", "[device]"){
         }
 
         for(const auto sn : sn_vec){
-            auto dev = Device::get_device(sn);
+            auto dev = Device(sn);
 
-            CHECK(dev != nullptr);
-            CHECK(dev->get_serial() == sn);
+            CHECK(dev.is_valid());
+            CHECK(dev.get_serial() == sn);
         }
     }
 }

@@ -8,13 +8,13 @@ Device::Device(SerialNumber sn) : m_sn(sn){
     
 }
 
+bool Device::is_valid(){
+    return false;
+}
+
 SerialNumber Device::get_serial(){
     return m_sn;
 }
-
-std::unique_ptr<Device> Device::get_device(SerialNumber){
-    return nullptr;
-};
 
 std::vector<device::SerialNumber> Device::detect_available_devices()
 {
