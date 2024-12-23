@@ -9,6 +9,12 @@ enum class BusState{
     PASSIVE
 };
 
+enum class Protocol{
+    CAN_2_0,
+    CAN_FD,
+    CAN_FD_NON_ISO
+};
+
 class Filter{
 
 };
@@ -17,6 +23,6 @@ class Message{
 
 };
 
-};
+}
 
-};
+}

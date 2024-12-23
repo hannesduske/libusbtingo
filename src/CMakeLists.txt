@@ -1,5 +1,7 @@
 add_library(usbtingo SHARED
-  usbtingo.cpp
+  bus/Bus.cpp
+  bus/BusImpl.cpp
+  device/Device.cpp
 )
 
 target_include_directories(usbtingo

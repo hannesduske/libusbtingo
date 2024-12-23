@@ -4,6 +4,8 @@
 
 namespace usbtingo{
 
+namespace device{
+
 namespace protocol{
 
 	constexpr std::uint16_t USB_VID					= 0x1FC9;
@@ -36,4 +38,6 @@ namespace protocol{
 
 };
 
-};
+}
+
+}
