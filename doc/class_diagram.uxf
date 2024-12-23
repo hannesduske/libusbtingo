@@ -1,0 +1,71 @@
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>822</x><y>114</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::Bus
+--
+m_pimpl : usbtingo::BusImpl*
+
+--
++ Bus(device : usbtingo::usb::Device, bitrate : uint, data_bitrate : uint, protocol :  usbtingo::can::Protocol, receive_own_message = false : bool )
+
++ start() : bool
++ stop() : bool
+
++ get_state() : BusState
++ set_state(state : BusState) : bool
+
++ clear_filters()
++ add_filter(filter : Filter)
+
++ add_listener(listener : Listener*) : bool
++ remove_listener(listener : Listener*) : bool
+
++ send(msg : Message, timeout = 0 : chrono::milliseconds)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1582</x><y>114</y><w>272</w><h>280</h></coordinates><panel_attributes>usbtingo::Listener
+--
+
+
+--
++ on_can_receive(msg : usbtingo::can::Message)
++ on_status_update(status : Status)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1454</x><y>178</y><w>144</w><h>32</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-&gt;
+m1=1
+m2=n</panel_attributes><additional_attributes>10;10;160;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>834</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::Device
+--
+m_serial : device::SerialNumber
+
+--
+/+ send data()/
+/+ receive data()/
+
+
+_+ get_device(sn : SerialNumber) : std::unique_ptr&lt;Device&gt;_
+_+ detect_available_devices() : std::vector&lt;device::SerialNumber&gt;_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>1194</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::WinDevice
+--
+
+
+--
++ send data()
++ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1150</x><y>1194</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::LinuxDevice
+--
+
+
+--
++ send data()
++ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1134</x><y>746</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>966</x><y>1106</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>1294</x><y>1106</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>474</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::BusImpl
+--
+m_device : usbtingo::usb::Device
+
+--
++ BusImpl(device : usbtingo::usb::Device, bitrate : uint, data_bitrate : uint, protocol : usbtingo::can::Protocol, receive_own_message = false : bool )
+
++ start() : bool
++ stop() : bool
+
++ get_state() : BusState
++ set_state(state : BusState) : bool
+
++ clear_filters()
++ add_filter(filter : Filter)
+
++ add_listener(listener : Listener*) : bool
++ remove_listener(listener : Listener*) : bool
+
++ send(msg : Message, timeout = 0 : chrono::milliseconds)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1134</x><y>386</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element></diagram>
