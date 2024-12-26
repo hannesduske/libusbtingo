@@ -30,22 +30,22 @@ bool BusImpl::set_state(const can::BusState state)
     return false;
 }
 
-bool BusImpl::add_listener(Listener* listener)
+bool BusImpl::add_listener(can::CanListener* listener)
 {
     return false;
 }
 
-bool BusImpl::remove_listener(Listener* listener)
+bool BusImpl::add_listener(StatusListener* listener)
 {
     return false;
 }
 
-bool BusImpl::add_filter(can::Filter)
+bool BusImpl::remove_listener(can::CanListener* listener)
 {
     return false;
 }
 
-bool BusImpl::clear_filters()
+bool BusImpl::remove_listener(StatusListener* listener)
 {
     return false;
 }

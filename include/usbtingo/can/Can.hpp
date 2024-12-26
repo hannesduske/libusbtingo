@@ -1,8 +1,13 @@
 #pragma once
 
+#include <vector>
+#include <cstdint>
+
 namespace usbtingo{
 
 namespace can{
+
+using canid = std::uint32_t;
 
 enum class BusState{
     ACTIVE,
@@ -15,12 +20,9 @@ enum class Protocol{
     CAN_FD_NON_ISO
 };
 
-class Filter{
-
-};
-
-class Message{
-
+struct Message{
+    can::canid m_id = 0;
+    std::vector<std::uint8_t> m_data;
 };
 
 }

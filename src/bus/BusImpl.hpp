@@ -10,9 +10,10 @@
 #include <atomic>
 #include <mutex>
 
-#include "usbtingo/bus/Listener.hpp"
 #include "usbtingo/bus/Status.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/CanListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
 namespace usbtingo{
@@ -29,11 +30,10 @@ public:
 	can::BusState get_state() const;
 	bool set_state(const can::BusState state);
 
-	bool add_listener(Listener* listener);
-	bool remove_listener(Listener* listener);
-
-	bool add_filter(can::Filter);
-	bool clear_filters();
+	bool add_listener(can::CanListener* listener);
+	bool add_listener(StatusListener* listener);
+	bool remove_listener(can::CanListener* listener);
+	bool remove_listener(StatusListener* listener);
 
 	std::future<bool> send(const can::Message msg, std::chrono::milliseconds timeout);
 
@@ -51,14 +51,14 @@ private:
 
 	device::Device		 			m_device;
 	can::Protocol 					m_protocol;
-	std::vector<can::Filter>   		m_can_filters;
 	can::BusState 	            	m_state;
 
 	unsigned int               		m_bitrate;
 	unsigned int                	m_data_bitrate;
 	bool                        	m_receive_own_message;
 	
-	std::vector<Listener*>			m_listeners;
+	std::vector<can::CanListener*>	m_can_listener_vec;
+	std::vector<StatusListener*>	m_status_listener_vec;
 
 	std::mutex						m_mutex;
 	std::atomic<bool>				m_is_running;

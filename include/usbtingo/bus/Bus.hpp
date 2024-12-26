@@ -1,12 +1,12 @@
 #pragma once
 
 #include <chrono>
-#include <memory>
 #include <future>
 
-#include "usbtingo/bus/Listener.hpp"
 #include "usbtingo/bus/Status.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/CanListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
 using namespace std::literals::chrono_literals;
@@ -34,11 +34,10 @@ public:
 	can::BusState get_state() const;
 	bool set_state(const can::BusState state);
 
-	bool add_listener(Listener* listener);
-	bool remove_listener(Listener* listener);
-
-	bool add_filter(can::Filter filter);
-	bool clear_filters();
+	bool add_listener(can::CanListener* listener);
+	bool add_listener(StatusListener* listener);
+	bool remove_listener(can::CanListener* listener);
+	bool remove_listener(StatusListener* listener);
 	
 	std::future<bool> send(const can::Message msg, std::chrono::milliseconds timeout = 0ms);
 

@@ -22,11 +22,10 @@ bool Bus::stop() { return m_pimpl->stop(); }
 can::BusState Bus::get_state()  const { return m_pimpl->get_state(); }
 bool Bus::set_state(const can::BusState state) {return m_pimpl->set_state(state); }
 
-bool Bus::add_listener(Listener* listener){ return m_pimpl->add_listener(listener); }
-bool Bus::remove_listener(Listener* listener){ return m_pimpl->remove_listener(listener); }
-
-bool Bus::add_filter(can::Filter filter){ return m_pimpl->add_filter(filter); }
-bool Bus::clear_filters(){ return m_pimpl->clear_filters(); }
+bool Bus::add_listener(can::CanListener* listener){ return m_pimpl->add_listener(listener); }
+bool Bus::add_listener(StatusListener* listener){ return m_pimpl->add_listener(listener); }
+bool Bus::remove_listener(can::CanListener* listener){ return m_pimpl->remove_listener(listener); }
+bool Bus::remove_listener(StatusListener* listener){ return m_pimpl->remove_listener(listener); }
 
 std::future<bool> Bus::send(const can::Message msg, std::chrono::milliseconds timeout){ return m_pimpl->send(msg, timeout); }
 
