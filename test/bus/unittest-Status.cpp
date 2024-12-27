@@ -1,7 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
-
 #include "usbtingo/bus/Status.hpp"
 
 using usbtingo::bus::Status;

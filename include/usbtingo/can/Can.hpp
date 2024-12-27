@@ -20,9 +20,13 @@ enum class Protocol{
     CAN_FD_NON_ISO
 };
 
-struct Message{
-    can::canid m_id = 0;
-    std::vector<std::uint8_t> m_data;
+class Message{
+public:
+    Message() : id(0) {};
+    Message(can::canid id, const std::vector<std::uint8_t>& data) : id(id), data(data) {}
+
+    canid id;
+    std::vector<std::uint8_t> data;
 };
 
 }

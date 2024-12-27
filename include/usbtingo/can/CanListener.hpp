@@ -17,7 +17,7 @@ public:
 	
 	void forward_can_message(Message msg);
 
-private:
+protected:
 	std::vector<can::canid> m_id_vec;
 
 };

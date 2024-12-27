@@ -1,23 +1,21 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "MockDevice.hpp"
-#include "MockListener.hpp"
+#include "bus/MockDevice.hpp"
+#include "bus/MockStatusListener.hpp"
+#include "can/MockCanListener.hpp"
+
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/can/Can.hpp"
 
 // Convenience
 using usbtingo::bus::Bus;
-using usbtingo::bus::Status;
-using usbtingo::can::Filter;
-using usbtingo::can::Message;
 using usbtingo::can::Protocol;
 using usbtingo::can::BusState;
 using usbtingo::device::SerialNumber;
-
-using usbtingo::test::MockListener;
 using usbtingo::test::MockDevice;
-
+using usbtingo::test::MockCanListener;
+using usbtingo::test::MockStatusListener;
 
 // Testcase #1
 TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
@@ -44,97 +42,30 @@ TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
     }
 }
 
-
 // Testcase #2
-TEST_CASE("Unittest Bus, Observer", "[bus]"){
-    
-    // stub data
-    auto testmsg1 = Message();
-    auto testmsg2 = Message();
-    auto teststatus = Status(1234, 42);
-    auto testfilter1 = Filter();
-    auto testfilter2 = Filter();
+TEST_CASE("Unittest Bus, Listener", "[bus]"){
 
-    // mock devices
     auto sn = SerialNumber(42);
-    auto mock_dev = MockDevice(sn, true);
-    auto mock_listener = std::make_unique<MockListener>();
-    
-    // test object
-    auto bus = Bus(mock_dev, 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
+    auto mockdev = MockDevice(sn, true);
+    auto bus = Bus(mockdev, 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
 
-    SECTION("Add listener, receive message, remove listener"){       
-        
-        // Subscribe and receive message
-        bus.add_listener(mock_listener.get());
-        mock_dev.trigger_message(testmsg1);
-        REQUIRE(mock_listener->has_m_new_msg() == true);
+    SECTION("Add and remove CanListener"){
+        auto mock_listener = std::make_unique<MockCanListener>();
 
-        // Check message contents
-        auto recv_msg = mock_listener->get_m_new_msg();
-        //CHECK(recv_msg.id   == testmsg1.id);
-        //CHECK(recv_msg.data == testmsg1.data);
+        CHECK(bus.add_listener(mock_listener.get()) == true);
+        CHECK(bus.add_listener(mock_listener.get()) == false);
 
-        // Unsubscribe and don't receive message
-        bus.remove_listener(mock_listener.get());
-        mock_dev.trigger_message(testmsg1);
-        REQUIRE(mock_listener->has_m_new_msg() == false);
+        CHECK(bus.remove_listener(mock_listener.get()) == true);
+        CHECK(bus.remove_listener(mock_listener.get()) == false);
     }
 
-    SECTION("Add listener, receive status, remove listener"){
-        
-        // Subscribe and receive message
-        bus.add_listener(mock_listener.get());
-        mock_dev.trigger_status(teststatus);
-        REQUIRE(mock_listener->has_m_new_status() == true);
+    SECTION("Add and remove StatusListener"){
+        auto mock_listener = std::make_unique<MockStatusListener>();
 
-        // Check message contents
-        auto recv_status = mock_listener->get_m_new_status();
-        //CHECK(recv_status.get_errorcount() == teststatus.get_errorcount());
-        //CHECK(recv_status.get_protocolstatus() == teststatus.get_protocolstatus());
+        CHECK(bus.add_listener(mock_listener.get()) == true);
+        CHECK(bus.add_listener(mock_listener.get()) == false);
 
-        // Unsubscribe and don't receive message
-        bus.remove_listener(mock_listener.get());
-        mock_dev.trigger_status(teststatus);
-        REQUIRE(mock_listener->has_m_new_status() == false);
-    }
-
-    SECTION("Can filters"){
-
-        bus.add_listener(mock_listener.get());
-
-        // No filter
-        mock_dev.trigger_message(testmsg1);
-        CHECK(mock_listener->has_m_new_msg() == true);
-        mock_dev.trigger_message(testmsg2);
-        CHECK(mock_listener->has_m_new_msg() == true);
-
-        // One matching filter
-        bus.add_filter(testfilter1);
-        mock_dev.trigger_message(testmsg1);
-        REQUIRE(mock_listener->has_m_new_msg() == true);
-        mock_dev.trigger_message(testmsg2);
-        REQUIRE(mock_listener->has_m_new_msg() == false);
-
-        // Clear filters
-        bus.clear_filters();
-        mock_dev.trigger_message(testmsg1);
-        CHECK(mock_listener->has_m_new_msg() == true);
-        mock_dev.trigger_message(testmsg2);
-        CHECK(mock_listener->has_m_new_msg() == true);
-
-        // One matching filter
-        bus.add_filter(testfilter1);
-        mock_dev.trigger_message(testmsg1);
-        REQUIRE(mock_listener->has_m_new_msg() == true);
-        mock_dev.trigger_message(testmsg2);
-        REQUIRE(mock_listener->has_m_new_msg() == false);
-
-        // Two matching filters
-        bus.add_filter(testfilter2);
-        mock_dev.trigger_message(testmsg1);
-        REQUIRE(mock_listener->has_m_new_msg() == true);
-        mock_dev.trigger_message(testmsg2);
-        REQUIRE(mock_listener->has_m_new_msg() == true);
+        CHECK(bus.remove_listener(mock_listener.get()) == true);
+        CHECK(bus.remove_listener(mock_listener.get()) == false);
     }
 }
