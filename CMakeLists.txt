@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Options
 option(TEST "Build with tests. Requires catch2. Default value is OFF." off)
-option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is built. Default value is ON." on)
+option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is built. Default value is OFF." off)
 
 # Library
 add_subdirectory(src)

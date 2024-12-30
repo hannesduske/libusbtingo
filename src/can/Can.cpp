@@ -10,7 +10,7 @@ Message::Message()
 
 }
 
-Message::Message(can::canid id, const std::vector<std::uint8_t>& data)
+Message::Message(can::canid id, std::vector<std::uint8_t> data)
     : id(id), data(data)
 {
 

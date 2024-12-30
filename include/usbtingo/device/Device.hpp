@@ -4,13 +4,15 @@
 #include<cstdint>
 #include<memory>
 
+#include "usbtingo/platform/UsbtingoExport.hpp"
+
 namespace usbtingo{
 
 namespace device{
 
 using SerialNumber = unsigned long;
 
-class Device{
+class USBTINGO_API Device{
 public:
 	Device(SerialNumber sn);
 
@@ -23,11 +25,11 @@ private:
 	SerialNumber m_sn;
 };
 
-class Command{
+class USBTINGO_API Command{
 
 };
 
-class Register{
+class USBTINGO_API Register{
 public:
 	std::uint8_t addr;
 	std::uint8_t value;

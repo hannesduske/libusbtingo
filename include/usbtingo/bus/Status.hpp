@@ -2,11 +2,13 @@
 
 #include<cstdint>
 
+#include "usbtingo/platform/UsbtingoExport.hpp"
+
 namespace usbtingo{
 
 namespace bus{
 
-class Status{
+class USBTINGO_API Status{
 public:
 	Status(std::uint16_t errorcount, std::uint8_t protocolstatus);
 

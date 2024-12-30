@@ -3,6 +3,7 @@
 #include <chrono>
 #include <future>
 
+#include "usbtingo/platform/UsbtingoExport.hpp"
 #include "usbtingo/bus/Status.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/can/Can.hpp"
@@ -17,7 +18,7 @@ namespace bus{
 
 class BusImpl;
 
-class Bus{
+class USBTINGO_API Bus{
 public:
 	Bus(device::Device device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
 	~Bus() noexcept;

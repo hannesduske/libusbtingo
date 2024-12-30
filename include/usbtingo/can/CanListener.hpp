@@ -2,13 +2,14 @@
 
 #include <vector>
 
+#include "usbtingo/platform/UsbtingoExport.hpp"
 #include "usbtingo/can/Can.hpp"
 
 namespace usbtingo{
 
 namespace can{
 
-class CanListener{
+class USBTINGO_API CanListener{
 public:
 	bool clear_ids();
 	bool add_id(canid filter);
