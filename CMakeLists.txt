@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
-message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # Set build type Release if not specified otherwise (-DCMAKE_BUILD_TYPE=...). Has to be checked before project() is declared.
 if(NOT DEFINED CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ..." FORCE)
 endif()
-message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # Project version
 set(CMAKE_PROJECT_VERSION_MAJOR 0)

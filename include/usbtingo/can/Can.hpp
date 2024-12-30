@@ -22,8 +22,8 @@ enum class Protocol{
 
 class Message{
 public:
-    Message() : id(0) {};
-    Message(can::canid id, const std::vector<std::uint8_t>& data) : id(id), data(data) {}
+    Message();
+    Message(canid id, const std::vector<std::uint8_t>& data);
 
     canid id;
     std::vector<std::uint8_t> data;

@@ -2,6 +2,7 @@ add_library(usbtingo
   bus/Bus.cpp
   bus/BusImpl.cpp
   bus/Status.cpp
+  can/Can.cpp
   can/CanListener.cpp
   device/Device.cpp
 )

@@ -14,13 +14,13 @@ public:
 	std::uint8_t getREC();
 	bool isReceiveErrorPassive();
 	bool isErrorPassive();
-	bool isBusOff();
 	bool isWarningStatus();
+	bool isBusOff();
 
 	std::uint16_t get_errorcount() const;
 	std::uint8_t get_protocolstatus() const;
-private:
 
+private:
 	std::uint16_t m_errorcount;
 	std::uint8_t  m_protocolstatus;
 };

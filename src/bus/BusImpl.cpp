@@ -1,5 +1,7 @@
 #include "BusImpl.hpp"
 
+#include <algorithm>
+
 namespace usbtingo{
 
 namespace bus{
@@ -22,32 +24,51 @@ bool BusImpl::stop()
 
 can::BusState BusImpl::get_state() const
 {
-    return can::BusState::PASSIVE;
+    return m_state;
 }
 
 bool BusImpl::set_state(const can::BusState state)
 {
-    return false;
+    m_state = state;
+    return true;
 }
 
 bool BusImpl::add_listener(can::CanListener* listener)
 {
-    return false;
+    // check if listener is registered
+    bool success = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener) == m_can_listener_vec.end();
+
+    if(success) m_can_listener_vec.push_back(listener);
+    return success;
 }
 
 bool BusImpl::add_listener(StatusListener* listener)
 {
-    return false;
+    // check if listener is registered
+    bool success = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) == m_status_listener_vec.end();
+
+    if(success) m_status_listener_vec.push_back(listener);
+    return success;
 }
 
 bool BusImpl::remove_listener(can::CanListener* listener)
 {
-    return false;
+    // check if listener is registered
+    auto it = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
+    bool success = it != m_can_listener_vec.end();
+
+    if(success) m_can_listener_vec.erase(it);
+    return success;
 }
 
 bool BusImpl::remove_listener(StatusListener* listener)
 {
-    return false;
+    // check if listener is registered
+    auto it = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);
+    bool success = it != m_status_listener_vec.end();
+
+    if(success) m_status_listener_vec.erase(it);
+    return success;
 }
 
 std::future<bool> BusImpl::send(const can::Message msg, std::chrono::milliseconds timeout)
