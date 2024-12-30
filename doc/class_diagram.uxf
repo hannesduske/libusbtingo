@@ -1,71 +1,85 @@
-<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>822</x><y>114</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::Bus
+<diagram program="umletino" version="15.1"><zoom_level>8</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>0</x><y>112</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::bus::Bus
 --
-m_pimpl : usbtingo::BusImpl*
+m_pimpl : std::unique_ptr&lt;bus::BusImpl&gt;
 
 --
-+ Bus(device : usbtingo::usb::Device, bitrate : uint, data_bitrate : uint, protocol :  usbtingo::can::Protocol, receive_own_message = false : bool )
++ Bus(device : device::Device, bitrate : unsigned int, data_bitrate : unsigned int, protocol :  can::Protocol, receive_own_message = false : bool )
 
 + start() : bool
 + stop() : bool
 
-+ get_state() : BusState
-+ set_state(state : BusState) : bool
++ get_state() : can::BusState
++ set_state(state : can::BusState) : bool
 
-+ clear_filters()
-+ add_filter(filter : Filter)
++ add_listener(listener : can::CanListener*) : bool
++ add_listener(listener : bus::StatusListener*) : bool
++ remove_listener(listener : can::CanListener*) : bool
++ remove_listener(listener : bus::StatusListener*) : bool
 
-+ add_listener(listener : Listener*) : bool
-+ remove_listener(listener : Listener*) : bool
-
-+ send(msg : Message, timeout = 0 : chrono::milliseconds)
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1582</x><y>114</y><w>272</w><h>280</h></coordinates><panel_attributes>usbtingo::Listener
++ send(msg : can::Message, timeout = 0 : std::chrono::milliseconds) : std::future&lt;bool&gt;
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>760</x><y>112</y><w>272</w><h>128</h></coordinates><panel_attributes>usbtingo::can::CanListener
 --
-
+m_id_vec : std::vector&lt;canid&gt;
 
 --
-+ on_can_receive(msg : usbtingo::can::Message)
-+ on_status_update(status : Status)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1454</x><y>178</y><w>144</w><h>32</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-&gt;
+__+ on_can_receive(msg : can::Message)__
+
++clear_ids() : bool
++add_id(id : can::canid) : bool
++removeid(id : can::canid) : bool
++ forward_can_message(msg : can::Message)
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>632</x><y>176</y><w>144</w><h>32</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-&gt;
 m1=1
-m2=n</panel_attributes><additional_attributes>10;10;160;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>834</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::Device
+m2=n</panel_attributes><additional_attributes>10;10;160;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>832</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::device::Device
 --
 m_serial : device::SerialNumber
 
 --
++ Device (sn : device::SerialNumber)
+
++ is_valid() : bool
++ get_serial() : device::SerialNumber
+
 /+ send data()/
 /+ receive data()/
 
-
 _+ get_device(sn : SerialNumber) : std::unique_ptr&lt;Device&gt;_
-_+ detect_available_devices() : std::vector&lt;device::SerialNumber&gt;_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>1194</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::WinDevice
+_+ detect_available_devices() : std::vector&lt;device::SerialNumber&gt;_</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>1192</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::device::WinDevice
 --
 
 
 --
 + send data()
-+ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1150</x><y>1194</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::usb::LinuxDevice
++ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>328</x><y>1192</y><w>304</w><h>280</h></coordinates><panel_attributes>usbtingo::device::LinuxDevice
 --
 
 
 --
 + send data()
-+ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1134</x><y>746</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>966</x><y>1106</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>1294</x><y>1106</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>822</x><y>474</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::BusImpl
++ receive data()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>312</x><y>744</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>144</x><y>1104</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>Relation</id><coordinates><x>472</x><y>1104</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;.</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>472</y><w>640</w><h>280</h></coordinates><panel_attributes>usbtingo::bus::BusImpl
 --
-m_device : usbtingo::usb::Device
+m_device : device::Device
 
 --
-+ BusImpl(device : usbtingo::usb::Device, bitrate : uint, data_bitrate : uint, protocol : usbtingo::can::Protocol, receive_own_message = false : bool )
++ Bus(device : device::Device, bitrate : unsigned int, data_bitrate : unsigned int, protocol :  can::Protocol, receive_own_message = false : bool )
 
 + start() : bool
 + stop() : bool
 
-+ get_state() : BusState
-+ set_state(state : BusState) : bool
++ get_state() : can::BusState
++ set_state(state : can::BusState) : bool
 
-+ clear_filters()
-+ add_filter(filter : Filter)
++ add_listener(listener : can::CanListener*) : bool
++ add_listener(listener : bus::StatusListener*) : bool
++ remove_listener(listener : can::CanListener*) : bool
++ remove_listener(listener : bus::StatusListener*) : bool
 
-+ add_listener(listener : Listener*) : bool
-+ remove_listener(listener : Listener*) : bool
++ send(msg : can::Message, timeout = 0 : std::chrono::milliseconds) : std::future&lt;bool&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>312</x><y>384</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLClass</id><coordinates><x>760</x><y>264</y><w>272</w><h>128</h></coordinates><panel_attributes>usbtingo::bus::StatusListener
+--
 
-+ send(msg : Message, timeout = 0 : chrono::milliseconds)
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1134</x><y>386</y><w>24</w><h>104</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element></diagram>
+
+--
+__+ on_status_update(msg : bus::Status)__</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>632</x><y>320</y><w>144</w><h>32</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-&gt;
+m1=1
+m2=n</panel_attributes><additional_attributes>10;10;160;10</additional_attributes></element></diagram>
