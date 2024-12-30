@@ -12,7 +12,7 @@ TEST_CASE("Unittest Device", "[device]"){
 
         for(const auto sn : sn_vec){
             auto dev = Device(sn);
-            CHECK( dev.get_serial() == 0 );
+            CHECK( dev.get_serial() == sn );
         }
     }
 }

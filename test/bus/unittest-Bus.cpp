@@ -33,10 +33,10 @@ TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
 
             CHECK(bus.get_state() == state);
 
-            bus.set_state(BusState::ACTIVE);
+            CHECK(bus.set_state(BusState::ACTIVE) == true);
             CHECK(bus.get_state() == BusState::ACTIVE);
 
-            bus.set_state(BusState::PASSIVE);
+            CHECK(bus.set_state(BusState::PASSIVE) == true);
             CHECK(bus.get_state() == BusState::PASSIVE);
         }
     }

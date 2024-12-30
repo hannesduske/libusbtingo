@@ -41,8 +41,8 @@ TEST_CASE("Unittest Status", "[status]"){
                 CHECK(status.getREC() == rec_result);
 
                 // isReceiveErrorPassive() Method
-                bool err_result = ((err >> 15) & 0x1) == 1;
-                CHECK(status.isReceiveErrorPassive() == err_result);   
+                bool result = ((err >> 15) & 0x1) == 1;
+                CHECK(status.isReceiveErrorPassive() == result);   
             }
         }
     }
@@ -53,19 +53,19 @@ TEST_CASE("Unittest Status", "[status]"){
 
         for(const auto protocol : protocol_vec){
 
-               Status status(0, protocol);
+            Status status(0, protocol);
 
-                // isErrorPassive() Method
-                bool result = ((protocol >> 5) & 0x01) == 1;
-                CHECK(status.isReceiveErrorPassive() == result);                
+            // isErrorPassive() Method
+            bool result = ((protocol >> 5) & 0x01) == 1;
+            CHECK(status.isErrorPassive() == result); 
 
-                // isWarningStatus() Method
-                result = ((protocol >> 6) & 0x01) == 1;
-                CHECK(status.isWarningStatus() == result);  
+            // isWarningStatus() Method
+            result = ((protocol >> 6) & 0x01) == 1;
+            CHECK(status.isWarningStatus() == result);
 
-                // isBusOff() Method
-                result = ((protocol >> 7) & 0x01) == 1;
-                CHECK(status.isBusOff() == result);
+            // isBusOff() Method
+            result = ((protocol >> 7) & 0x01) == 1;
+            CHECK(status.isBusOff() == result);
         }
     }
 }

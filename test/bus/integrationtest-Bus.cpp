@@ -74,7 +74,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     auto sn_vec = Device::detect_available_devices();
     if(sn_vec.size() == 0){
-        FAIL("At least one usbtingo device must be connected to run this test.");
+        SKIP("At least one usbtingo device must be connected to run this test.");
     }
 
     auto device = Device(sn_vec.front());
