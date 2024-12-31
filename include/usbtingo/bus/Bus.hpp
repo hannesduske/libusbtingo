@@ -20,7 +20,7 @@ class BusImpl;
 
 class USBTINGO_API Bus{
 public:
-	Bus(device::Device device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
+	Bus(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
 	~Bus() noexcept;
 
 	Bus(Bus&&);

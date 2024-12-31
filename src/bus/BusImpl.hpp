@@ -22,7 +22,7 @@ namespace bus{
 
 class BusImpl{
 public:
-	BusImpl(device::Device device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
+	BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
 
 	bool start();
 	bool stop();
@@ -49,7 +49,7 @@ private:
 	// bool deviceinfo_read();
 	// bool apply_filters(std::vector<can::Filter> filter);
 
-	device::Device		 			m_device;
+	std::unique_ptr<device::Device>	m_device;
 	can::Protocol 					m_protocol;
 	can::BusState 	            	m_state;
 

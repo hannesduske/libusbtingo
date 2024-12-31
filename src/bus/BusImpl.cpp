@@ -6,8 +6,8 @@ namespace usbtingo{
 
 namespace bus{
 
-BusImpl::BusImpl(device::Device device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message)
-    : m_device(device), m_bitrate(bitrate), m_data_bitrate(data_bitrate), m_protocol(protocol), m_state(state), m_receive_own_message(receive_own_message), m_is_running(false)
+BusImpl::BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message)
+    : m_device(std::move(device)), m_bitrate(bitrate), m_data_bitrate(data_bitrate), m_protocol(protocol), m_state(state), m_receive_own_message(receive_own_message), m_is_running(false)
 {
 
 }

@@ -14,14 +14,11 @@ using SerialNumber = unsigned long;
 
 class USBTINGO_API Device{
 public:
-	Device(SerialNumber sn);
-
-	bool is_valid();
 	SerialNumber get_serial();
+	virtual bool is_valid() = 0;
 	
-	static std::vector<device::SerialNumber> detect_available_devices();
-
-private:
+protected:
+	Device(SerialNumber sn);
 	SerialNumber m_sn;
 };
 
