@@ -7,12 +7,12 @@ using usbtingo::device::SerialNumber;
 
 TEST_CASE("Unittest Device", "[device]"){
 
-    SECTION("Instantiate devices"){
-        std::vector<SerialNumber> sn_vec = {0, 1, 42};
+    // SECTION("Instantiate devices"){
+    //     std::vector<SerialNumber> sn_vec = {0, 1, 42};
 
-        for(const auto sn : sn_vec){
-            auto dev = Device(sn);
-            CHECK( dev.get_serial() == sn );
-        }
-    }
+    //     for(const auto sn : sn_vec){
+    //         auto dev = Device(sn);
+    //         CHECK( dev.get_serial() == sn );
+    //     }
+    // }
 }

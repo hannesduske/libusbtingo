@@ -8,6 +8,7 @@ add_executable( unittest-usbtingo
     can/unittest-Can.cpp
     can/unittest-CanListener.cpp
     device/unittest-Device.cpp
+    device/unittest-DeviceFactory.cpp
 )
 
 target_include_directories( unittest-usbtingo
@@ -26,6 +27,7 @@ target_link_libraries( unittest-usbtingo
 add_executable( integrationtest-usbtingo
     bus/integrationtest-Bus.cpp    
     device/integrationtest-Device.cpp
+    device/integrationtest-DeviceFactory.cpp
 )
 
 target_include_directories( integrationtest-usbtingo

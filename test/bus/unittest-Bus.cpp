@@ -21,7 +21,7 @@ using usbtingo::test::MockStatusListener;
 TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
     
     auto sn = SerialNumber(42);
-    auto mockdev = MockDevice(sn, true);
+    auto mockdev = std::make_unique<MockDevice>(sn, true);
 
     SECTION("Instantiate Bus, check state"){
         
@@ -29,7 +29,7 @@ TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
 
         for(const auto state : state_vec){
 
-            auto bus = Bus(mockdev, 1000000, 1000000, Protocol::CAN_FD, state);
+            auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, state);
 
             CHECK(bus.get_state() == state);
 
@@ -46,8 +46,8 @@ TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
 TEST_CASE("Unittest Bus, Listener", "[bus]"){
 
     auto sn = SerialNumber(42);
-    auto mockdev = MockDevice(sn, true);
-    auto bus = Bus(mockdev, 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
+    auto mockdev = std::make_unique<MockDevice>(sn, true);
+    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
 
     SECTION("Add and remove CanListener"){
         auto mock_listener = std::make_unique<MockCanListener>();
