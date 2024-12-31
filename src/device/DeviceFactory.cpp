@@ -1,7 +1,7 @@
 #include "usbtingo/device/DeviceFactory.hpp"
 
-#include "WinDevice.hpp"
-#include "LinuxDevice.hpp"
+#include "windows/WinDevice.hpp"
+#include "linux/LinuxDevice.hpp"
 
 namespace usbtingo{
 

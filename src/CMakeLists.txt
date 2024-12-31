@@ -6,8 +6,8 @@ add_library(usbtingo
   can/CanListener.cpp
   device/Device.cpp
   device/DeviceFactory.cpp
-  device/WinDevice.cpp
-  device/LinuxDevice.cpp
+  device/linux/LinuxDevice.cpp
+  device/windows/WinDevice.cpp
 )
 
 # Add macro definitions for windows dll export
