@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "bus/MockDevice.hpp"
-#include "bus/MockStatusListener.hpp"
+#include "device/MockDevice.hpp"
+#include "device/MockStatusListener.hpp"
 #include "can/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
@@ -10,9 +10,8 @@
 
 // Convenience
 using usbtingo::bus::Bus;
-using usbtingo::can::Protocol;
-using usbtingo::can::BusState;
-using usbtingo::device::SerialNumber;
+using usbtingo::device::Mode;
+using usbtingo::device::Protocol;
 using usbtingo::test::MockDevice;
 using usbtingo::test::MockCanListener;
 using usbtingo::test::MockStatusListener;
@@ -20,24 +19,33 @@ using usbtingo::test::MockStatusListener;
 // Testcase #1
 TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
     
-    auto sn = SerialNumber(42);
+    uint32_t sn = 42;
     auto mockdev = std::make_unique<MockDevice>(sn, true);
 
+    SECTION("Instantiate default Bus, check state"){
+
+        auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD);
+        CHECK(bus.get_mode() == Mode::ACTIVE);
+    }
+    
     SECTION("Instantiate Bus, check state"){
         
-        std::vector<BusState> state_vec = {BusState::ACTIVE, BusState::PASSIVE};
+        std::vector<Mode> state_vec = {Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY};
 
         for(const auto state : state_vec){
 
             auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, state);
 
-            CHECK(bus.get_state() == state);
+            CHECK(bus.get_mode() == state);
 
-            CHECK(bus.set_state(BusState::ACTIVE) == true);
-            CHECK(bus.get_state() == BusState::ACTIVE);
+            CHECK(bus.set_mode(Mode::OFF) == true);
+            CHECK(bus.get_mode() == Mode::OFF);
 
-            CHECK(bus.set_state(BusState::PASSIVE) == true);
-            CHECK(bus.get_state() == BusState::PASSIVE);
+            CHECK(bus.set_mode(Mode::ACTIVE) == true);
+            CHECK(bus.get_mode() == Mode::ACTIVE);
+
+            CHECK(bus.set_mode(Mode::LISTEN_ONLY) == true);
+            CHECK(bus.get_mode() == Mode::LISTEN_ONLY);
         }
     }
 }
@@ -45,9 +53,9 @@ TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
 // Testcase #2
 TEST_CASE("Unittest Bus, Listener", "[bus]"){
 
-    auto sn = SerialNumber(42);
+    std::uint32_t sn = 42;
     auto mockdev = std::make_unique<MockDevice>(sn, true);
-    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
+    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, Mode::ACTIVE);
 
     SECTION("Add and remove CanListener"){
         auto mock_listener = std::make_unique<MockCanListener>();

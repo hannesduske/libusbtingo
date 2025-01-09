@@ -32,25 +32,27 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
 
     // mock devices
     std::uint32_t sn = 42;
-    auto mock_dev = std::make_unique<MockDevice>(sn, true);
+    auto mockdev = std::make_unique<MockDevice>(sn, true);
+
+    // save the raw pointer of the MockDeivce so that the trigger() methods can be called after moving the object.
+    auto mockdev_raw = mockdev.get();
     
     // test object
-    auto bus = Bus(std::move(mock_dev), 1000000, 1000000, Protocol::CAN_FD);
+    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD);
 
     SECTION("Can message forwarding"){
         auto mock_listener = std::make_unique<MockCanListener>();
-        REQUIRE(mock_dev);
         bus.add_listener(mock_listener.get());
 
         //Subscribe and receive message
-        mock_dev->trigger_message(testmsg);
+        mockdev_raw->trigger_message(testmsg);
         REQUIRE(mock_listener->has_new_msg() == true);
         CHECK(mock_listener->get_new_msg().id == testmsg.id);
         CHECK(mock_listener->get_new_msg().data == testmsg.data);
 
         //Unsubscribe and don't receive message
         bus.remove_listener(mock_listener.get());
-        mock_dev->trigger_message(testmsg);
+        mockdev_raw->trigger_message(testmsg);
         REQUIRE(mock_listener->has_new_msg() == false);
     }
 
@@ -60,14 +62,14 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         bus.add_listener(mock_listener.get());
 
         // Subscribe and receive status
-        mock_dev->trigger_status(teststatus);
+        mockdev_raw->trigger_status(teststatus);
         REQUIRE(mock_listener->has_new_status() == true);
         CHECK(mock_listener->get_new_status().get_errorcount() == teststatus.get_errorcount());
         CHECK(mock_listener->get_new_status().get_protocolstatus() == teststatus.get_protocolstatus());
 
         // Unsubscribe and don't receive status
         bus.remove_listener(mock_listener.get());
-        mock_dev->trigger_status(teststatus);
+        mockdev_raw->trigger_status(teststatus);
         REQUIRE(mock_listener->has_new_status() == false);
     }
 }

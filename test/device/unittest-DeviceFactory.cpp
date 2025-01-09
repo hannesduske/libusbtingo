@@ -5,16 +5,16 @@
 
 using usbtingo::device::Device;
 using usbtingo::device::DeviceFactory;
-using usbtingo::device::SerialNumber;
 
 TEST_CASE("Unittest DeviceFactory", "[device_factory]"){
 
-    SECTION("Instantiate device through factory"){
-        std::vector<SerialNumber> sn_vec = {0, 1, 42};
+    SECTION("Instantiate invalid device through factory"){
+        std::vector<std::uint32_t> sn_vec = {0, 1, 42};
 
         for(const auto sn : sn_vec){
             auto dev = DeviceFactory::create(sn);
-            CHECK( dev->get_serial() == sn );
+            
+            CHECK( dev == nullptr);
         }
     }
 }

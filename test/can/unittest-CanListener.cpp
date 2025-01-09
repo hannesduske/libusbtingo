@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "bus/MockDevice.hpp"
+#include "device/MockDevice.hpp"
 #include "can/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
@@ -9,16 +9,15 @@
 
 // Convenience
 using usbtingo::bus::Bus;
-using usbtingo::can::canid;
 using usbtingo::can::Message;
 using usbtingo::test::MockCanListener;
 
 // Testcase #1
 TEST_CASE("Unittest CanListener", "[can]"){
     
-    const auto testid_0 = canid(0);
-    const auto testid_1 = canid(42);
-    const auto testid_2 = canid(1234);
+    const std::uint32_t testid_0 = 0;
+    const std::uint32_t testid_1 = 42;
+    const std::uint32_t testid_2 = 1234;
     const auto testmsg_0 = Message(testid_0, {0x0, 0x00, 0xff});
     const auto testmsg_1 = Message(testid_1, {0x0, 0x01, 0xff});
     const auto testmsg_2 = Message(testid_2, {0x0, 0x02, 0xff});

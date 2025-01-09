@@ -1,9 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cstdint>
-#include "usbtingo/bus/Status.hpp"
+#include "usbtingo/device/Status.hpp"
 
-using usbtingo::bus::Status;
+using usbtingo::device::Status;
 
 TEST_CASE("Unittest Status", "[status]"){
 

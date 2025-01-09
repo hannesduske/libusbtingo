@@ -36,5 +36,9 @@ release/
 *.out
 *.app
 
-# Misc
+# VS Code
 .vscode/
+
+# VS
+.vs/
+CMakeSettings.json

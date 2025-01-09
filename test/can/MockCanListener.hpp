@@ -2,7 +2,7 @@
 
 #include "usbtingo/can/Can.hpp"
 #include "usbtingo/can/CanListener.hpp"
-#include "usbtingo/bus/Status.hpp"
+#include "usbtingo/device/Status.hpp"
 
 namespace usbtingo{
 
@@ -33,7 +33,7 @@ public:
         return m_last_msg;
     };
 
-    std::vector<can::canid> get_ids(){
+    std::vector<std::uint32_t> get_ids(){
         return m_id_vec;
     }
 

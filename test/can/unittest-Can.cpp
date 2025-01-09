@@ -5,7 +5,6 @@
 #include "usbtingo/can/Can.hpp"
 
 // Convenience
-using usbtingo::can::canid;
 using usbtingo::can::Message;
 
 // Testcase #1
@@ -26,7 +25,7 @@ TEST_CASE("Unittest Message", "[can]"){
     }
 
     SECTION("Instantiate generic Message #1"){
-        auto testid = canid(42);
+        std::uint32_t testid = 42;
         auto testdata = std::vector<std::uint8_t>({0x00, 0x01, 0x02, 0xff});
         auto msg = Message(testid, testdata);
 

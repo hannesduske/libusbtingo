@@ -5,7 +5,6 @@
 
 using usbtingo::device::Device;
 using usbtingo::device::DeviceFactory;
-using usbtingo::device::SerialNumber;
 
 TEST_CASE("Integration Test DeviceFactory", "[device_factory]"){
 
@@ -16,10 +15,10 @@ TEST_CASE("Integration Test DeviceFactory", "[device_factory]"){
             SKIP("At least one usbtingo device must be connected to run this test.");
         }
 
-        for(const auto sn : sn_vec){
+        for(const auto& sn : sn_vec){
             auto dev = DeviceFactory::create(sn);
 
-            CHECK(dev->is_valid());
+            CHECK(dev->is_alive());
             CHECK(dev->get_serial() == sn);
         }
     }

@@ -3,7 +3,6 @@
 #include "usbtingo/device/Device.hpp"
 
 using usbtingo::device::Device;
-using usbtingo::device::SerialNumber;
 
 TEST_CASE("Unittest Device", "[device]"){
 

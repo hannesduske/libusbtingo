@@ -1,10 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "bus/MockStatusListener.hpp"
+#include "device/MockStatusListener.hpp"
 
 // Convenience
-using usbtingo::bus::Status;
+using usbtingo::device::Status;
 using usbtingo::test::MockStatusListener;
 
 // Testcase #1
