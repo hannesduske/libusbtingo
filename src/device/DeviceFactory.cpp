@@ -7,15 +7,15 @@ namespace usbtingo{
 
 namespace device{
 
-std::unique_ptr<Device> DeviceFactory::create(SerialNumber sn){
+std::unique_ptr<Device> DeviceFactory::create(std::uint32_t serial){
     #if defined(_WIN32) || defined(_WIN64)
-        return std::make_unique<WinDevice>(sn);
+        return WinDevice::create_device(serial);
     #else
-        return std::make_unique<LinuxDevice>(sn);
+        return LinuxDevice::create_device(serial);
     #endif
 }
 
-std::vector<SerialNumber> DeviceFactory::detect_available_devices()
+std::vector<std::uint32_t> DeviceFactory::detect_available_devices()
 {
     #if defined(_WIN32) || defined(_WIN64)
         return WinDevice::detect_available_devices();

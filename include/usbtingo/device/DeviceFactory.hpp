@@ -9,11 +9,13 @@ namespace usbtingo{
 
 namespace device{
 
-class DeviceFactory{
+class USBTINGO_API DeviceFactory{
 public:
     DeviceFactory() = delete;
-    static std::unique_ptr<Device> create(SerialNumber sn);
-    static std::vector<SerialNumber> detect_available_devices();
+    static std::unique_ptr<Device> create(std::uint32_t sn);
+    static std::vector<std::uint32_t> detect_available_devices();
+
+private:
 };
 
 }

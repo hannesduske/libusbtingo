@@ -5,7 +5,7 @@ namespace usbtingo{
 
 namespace bus{
 
-Bus::Bus(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message)
+Bus::Bus(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode state, bool receive_own_message)
 	: m_pimpl(std::make_unique<BusImpl>(std::move(device), bitrate, data_bitrate, protocol, state, receive_own_message))
 {
 
@@ -19,13 +19,13 @@ Bus& Bus::operator=(Bus&&) = default;
 bool Bus::start() { return m_pimpl->start(); }
 bool Bus::stop() { return m_pimpl->stop(); }
 
-can::BusState Bus::get_state()  const { return m_pimpl->get_state(); }
-bool Bus::set_state(const can::BusState state) {return m_pimpl->set_state(state); }
+device::Mode Bus::get_mode()  const { return m_pimpl->get_mode(); }
+bool Bus::set_mode(device::Mode mode) {return m_pimpl->set_mode(mode); }
 
 bool Bus::add_listener(can::CanListener* listener){ return m_pimpl->add_listener(listener); }
-bool Bus::add_listener(StatusListener* listener){ return m_pimpl->add_listener(listener); }
-bool Bus::remove_listener(can::CanListener* listener){ return m_pimpl->remove_listener(listener); }
-bool Bus::remove_listener(StatusListener* listener){ return m_pimpl->remove_listener(listener); }
+bool Bus::add_listener(device::StatusListener* listener){ return m_pimpl->add_listener(listener); }
+bool Bus::remove_listener(const can::CanListener* listener){ return m_pimpl->remove_listener(listener); }
+bool Bus::remove_listener(const device::StatusListener* listener){ return m_pimpl->remove_listener(listener); }
 
 std::future<bool> Bus::send(const can::Message msg, std::chrono::milliseconds timeout){ return m_pimpl->send(msg, timeout); }
 

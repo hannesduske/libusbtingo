@@ -6,8 +6,8 @@ namespace usbtingo{
 
 namespace bus{
 
-BusImpl::BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message)
-    : m_device(std::move(device)), m_bitrate(bitrate), m_data_bitrate(data_bitrate), m_protocol(protocol), m_state(state), m_receive_own_message(receive_own_message), m_is_running(false)
+BusImpl::BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode mode, bool receive_own_message)
+    : m_device(std::move(device)), m_bitrate(bitrate), m_data_bitrate(data_bitrate), m_protocol(protocol), m_mode(mode), m_receive_own_message(receive_own_message), m_is_running(false)
 {
 
 }
@@ -22,14 +22,14 @@ bool BusImpl::stop()
      return false;
 }
 
-can::BusState BusImpl::get_state() const
+device::Mode BusImpl::get_mode() const
 {
-    return m_state;
+    return m_mode;
 }
 
-bool BusImpl::set_state(const can::BusState state)
+bool BusImpl::set_mode(const device::Mode mode)
 {
-    m_state = state;
+    m_mode = mode;
     return true;
 }
 
@@ -42,7 +42,7 @@ bool BusImpl::add_listener(can::CanListener* listener)
     return success;
 }
 
-bool BusImpl::add_listener(StatusListener* listener)
+bool BusImpl::add_listener(device::StatusListener* listener)
 {
     // check if listener is registered
     bool success = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) == m_status_listener_vec.end();
@@ -51,7 +51,7 @@ bool BusImpl::add_listener(StatusListener* listener)
     return success;
 }
 
-bool BusImpl::remove_listener(can::CanListener* listener)
+bool BusImpl::remove_listener(const can::CanListener* listener)
 {
     // check if listener is registered
     auto it = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
@@ -61,7 +61,7 @@ bool BusImpl::remove_listener(can::CanListener* listener)
     return success;
 }
 
-bool BusImpl::remove_listener(StatusListener* listener)
+bool BusImpl::remove_listener(const device::StatusListener* listener)
 {
     // check if listener is registered
     auto it = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);

@@ -5,12 +5,12 @@ namespace usbtingo{
 namespace can{
 
 Message::Message()
-    : id(0)
+    : id(0), data()
 {
 
 }
 
-Message::Message(can::canid id, std::vector<std::uint8_t> data)
+Message::Message(std::uint32_t id, std::vector<std::uint8_t> data)
     : id(id), data(data)
 {
 

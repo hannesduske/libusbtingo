@@ -14,7 +14,7 @@ bool CanListener::clear_ids()
     return success;
 }
 
-bool CanListener::add_id(canid id)
+bool CanListener::add_id(std::uint32_t id)
 {
     // check if id is already registered
     bool success = std::find( m_id_vec.begin(), m_id_vec.end(), id) == m_id_vec.end();
@@ -23,7 +23,7 @@ bool CanListener::add_id(canid id)
     return success;
 }
 
-bool CanListener::remove_id(canid id)
+bool CanListener::remove_id(std::uint32_t id)
 {
     // check if id is registered before removing
     auto it = std::find( m_id_vec.begin(), m_id_vec.end(), id);

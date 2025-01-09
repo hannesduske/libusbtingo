@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "bus/MockDevice.hpp"
-#include "bus/MockStatusListener.hpp"
+#include "device/MockDevice.hpp"
+#include "device/MockStatusListener.hpp"
 #include "can/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
@@ -12,13 +12,12 @@
 
 // Convenience
 using usbtingo::bus::Bus;
-using usbtingo::bus::Status;
 using usbtingo::can::Message;
-using usbtingo::can::Protocol;
-using usbtingo::can::BusState;
+using usbtingo::device::Mode;
 using usbtingo::device::Device;
+using usbtingo::device::Status;
+using usbtingo::device::Protocol;
 using usbtingo::device::DeviceFactory;
-using usbtingo::device::SerialNumber;
 
 using usbtingo::test::MockDevice;
 using usbtingo::test::MockCanListener;
@@ -32,23 +31,24 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
     auto teststatus = Status(1234, 42);
 
     // mock devices
-    auto sn = SerialNumber(42);
+    std::uint32_t sn = 42;
     auto mock_dev = std::make_unique<MockDevice>(sn, true);
     
     // test object
-    auto bus = Bus(std::move(mock_dev), 1000000, 1000000, Protocol::CAN_FD, BusState::ACTIVE);
+    auto bus = Bus(std::move(mock_dev), 1000000, 1000000, Protocol::CAN_FD);
 
     SECTION("Can message forwarding"){
         auto mock_listener = std::make_unique<MockCanListener>();
+        REQUIRE(mock_dev);
         bus.add_listener(mock_listener.get());
 
-        // Subscribe and receive message
+        //Subscribe and receive message
         mock_dev->trigger_message(testmsg);
         REQUIRE(mock_listener->has_new_msg() == true);
         CHECK(mock_listener->get_new_msg().id == testmsg.id);
         CHECK(mock_listener->get_new_msg().data == testmsg.data);
 
-        // Unsubscribe and don't receive message
+        //Unsubscribe and don't receive message
         bus.remove_listener(mock_listener.get());
         mock_dev->trigger_message(testmsg);
         REQUIRE(mock_listener->has_new_msg() == false);
@@ -56,6 +56,7 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
 
     SECTION("Status forwarding"){
         auto mock_listener = std::make_unique<MockStatusListener>();
+        REQUIRE(mock_listener);
         bus.add_listener(mock_listener.get());
 
         // Subscribe and receive status
@@ -81,7 +82,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
     }
 
     auto device = DeviceFactory::create(sn_vec.front());
-    REQUIRE(device->is_valid());
+    REQUIRE(device->is_alive());
 
     auto testmsg = Message{42, {0x00, 0x01, 0x02, 0x03}};
     auto mock_listener = std::make_unique<MockCanListener>();
@@ -90,7 +91,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     for (const auto protocol : std::vector<Protocol>{Protocol::CAN_2_0, Protocol::CAN_FD, Protocol::CAN_FD_NON_ISO}){
         
-            auto bus = Bus(std::move(device), 1000000, 1000000, protocol, BusState::ACTIVE, true);
+            auto bus = Bus(std::move(device), 1000000, 1000000, protocol, Mode::ACTIVE, true);
             bus.add_listener(mock_listener.get());
 
             // Subscribe and receive message

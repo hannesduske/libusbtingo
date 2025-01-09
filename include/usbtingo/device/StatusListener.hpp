@@ -1,15 +1,15 @@
 #pragma once
 
 #include "usbtingo/platform/UsbtingoExport.hpp"
-#include "usbtingo/bus/Status.hpp"
+#include "usbtingo/device/Status.hpp"
 
 namespace usbtingo{
 
-namespace bus{
+namespace device{
 
 class USBTINGO_API StatusListener{
 public:
-	virtual void on_status_update([[maybe_unused]] bus::Status status) = 0;
+	virtual void on_status_update([[maybe_unused]] device::Status status) = 0;
 
 };
 

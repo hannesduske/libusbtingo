@@ -4,20 +4,15 @@ namespace usbtingo{
 
 namespace device{
 
-LinuxDevice::LinuxDevice(SerialNumber sn) :
-    Device(sn)
+LinuxDevice::LinuxDevice(std::uint32_t serial) :
+    Device(serial)
 {
     
 }
 
-bool LinuxDevice::is_valid()
+std::vector<std::uint32_t> LinuxDevice::detect_available_devices()
 {
-    return false;
-}
-
-std::vector<device::SerialNumber> LinuxDevice::detect_available_devices()
-{
-    return std::vector<device::SerialNumber>();
+    return std::vector<std::uint32_t>();
 }
 
 }

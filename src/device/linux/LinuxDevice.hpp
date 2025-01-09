@@ -10,11 +10,9 @@ namespace device{
 
 class LinuxDevice : public Device{
 public:
-    LinuxDevice(SerialNumber sn);
-    
-    bool is_valid() override;
+    LinuxDevice(std::uint32_t serial);
 
-    static std::vector<device::SerialNumber> detect_available_devices();
+    static std::vector<std::uint32_t> detect_available_devices();
 
 };
 

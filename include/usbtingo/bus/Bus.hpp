@@ -4,10 +4,10 @@
 #include <future>
 
 #include "usbtingo/platform/UsbtingoExport.hpp"
-#include "usbtingo/bus/Status.hpp"
-#include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/can/Can.hpp"
 #include "usbtingo/can/CanListener.hpp"
+#include "usbtingo/device/Status.hpp"
+#include "usbtingo/device/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
 using namespace std::literals::chrono_literals;
@@ -20,7 +20,7 @@ class BusImpl;
 
 class USBTINGO_API Bus{
 public:
-	Bus(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, can::Protocol protocol, can::BusState state, bool receive_own_message = false);
+	Bus(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode mode = device::Mode::ACTIVE, bool receive_own_message = false);
 	~Bus() noexcept;
 
 	Bus(Bus&&);
@@ -32,13 +32,13 @@ public:
 	bool start();
 	bool stop();
 
-	can::BusState get_state() const;
-	bool set_state(const can::BusState state);
+	device::Mode get_mode() const;
+	bool set_mode(device::Mode state);
 
 	bool add_listener(can::CanListener* listener);
-	bool add_listener(StatusListener* listener);
-	bool remove_listener(can::CanListener* listener);
-	bool remove_listener(StatusListener* listener);
+	bool add_listener(device::StatusListener* listener);
+	bool remove_listener(const can::CanListener* listener);
+	bool remove_listener(const device::StatusListener* listener);
 	
 	std::future<bool> send(const can::Message msg, std::chrono::milliseconds timeout = 0ms);
 

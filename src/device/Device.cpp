@@ -4,17 +4,18 @@ namespace usbtingo{
 
 namespace device{
 
-Device::Device(SerialNumber sn) : m_sn(sn){
+Device::Device(std::uint32_t serial) : m_serial(serial){
     
 }
 
-bool Device::is_valid(){
-    return false;
+std::uint32_t Device::get_serial() const{
+    return m_serial;
 }
 
-SerialNumber Device::get_serial(){
-    return m_sn;
+DeviceInfo Device::get_device_info() const{
+    return m_device_info;
 }
+
 
 }
 

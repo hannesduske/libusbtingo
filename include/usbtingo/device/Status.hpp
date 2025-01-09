@@ -6,11 +6,11 @@
 
 namespace usbtingo{
 
-namespace bus{
+namespace device{
 
 class USBTINGO_API Status{
 public:
-	Status(std::uint16_t errorcount, std::uint8_t protocolstatus);
+	Status(std::uint16_t errorcount = 0, std::uint8_t protocolstatus = 0);
 
 	std::uint8_t getTEC();
 	std::uint8_t getREC();
