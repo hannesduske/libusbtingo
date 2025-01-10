@@ -26,6 +26,18 @@ public:
         m_new_status=true;
     }
 
+    bool open() override {
+        return false;
+    }
+
+    bool close() override {
+        return false;
+    }
+
+    bool is_open() override {
+        return false;
+    }
+
 	bool is_alive() const override {
         return m_is_alive;
     }

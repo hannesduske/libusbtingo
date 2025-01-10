@@ -58,7 +58,6 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
 
     SECTION("Status forwarding"){
         auto mock_listener = std::make_unique<MockStatusListener>();
-        REQUIRE(mock_listener);
         bus.add_listener(mock_listener.get());
 
         // Subscribe and receive status
@@ -80,11 +79,8 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if(sn_vec.size() == 0){
-        SKIP("At least one usbtingo device must be connected to run this test.");
+        SKIP("At least one USBtingo device must be connected to run this test.");
     }
-
-    auto device = DeviceFactory::create(sn_vec.front());
-    REQUIRE(device->is_alive());
 
     auto testmsg = Message{42, {0x00, 0x01, 0x02, 0x03}};
     auto mock_listener = std::make_unique<MockCanListener>();
@@ -93,6 +89,11 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     for (const auto protocol : std::vector<Protocol>{Protocol::CAN_2_0, Protocol::CAN_FD, Protocol::CAN_FD_NON_ISO}){
         
+            auto device = DeviceFactory::create(sn_vec.front());
+            auto device_raw = device.get();
+
+            REQUIRE(device->is_alive());
+
             auto bus = Bus(std::move(device), 1000000, 1000000, protocol, Mode::ACTIVE, true);
             bus.add_listener(mock_listener.get());
 
@@ -106,7 +107,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
             bus.remove_listener(mock_listener.get());
             bus.send(testmsg);
             REQUIRE(mock_listener->has_new_msg() == false);
-        }
 
+        }
     }
 }
