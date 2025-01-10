@@ -23,16 +23,22 @@ struct DeviceData{
     std::string             DevicePath;
 };
 
-typedef std::array<std::uint8_t, USB_BULK_BUFFER_SIZE> BulkBuffer, * PBULK_BUFFER;
-
 class WinDevice : public Device{
 public:
     WinDevice(std::uint32_t serial, std::string path);
+    
+    ~WinDevice();
 
     static std::unique_ptr<Device> create_device(std::uint32_t serial);
 
     static std::vector<std::uint32_t> detect_available_devices();
 
+    bool open() override;
+
+    bool close() override;
+
+    bool is_open() override;
+    
     bool is_alive() const override;
 
     bool set_mode(Mode mode) override;
@@ -92,7 +98,7 @@ private:
 
     static bool write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::uint8_t* data, std::uint16_t len);
 
-    static bool read_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, _Out_ std::vector<std::uint8_t>& data, std::uint16_t len);
+    static bool read_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
 
 };
 

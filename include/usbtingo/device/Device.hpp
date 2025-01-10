@@ -36,6 +36,8 @@ struct USBTINGO_API DeviceInfo{
 
 class USBTINGO_API Device{
 public:
+    virtual ~Device() = default; // important so that the destuctor of derived classes will be called
+
 	std::uint32_t get_serial() const;
 
     DeviceInfo get_device_info() const;
@@ -43,8 +45,14 @@ public:
     bool get_status(Status& status) const;
 
     // virtual bool reconnect() = 0;
+    
+    virtual bool open() = 0;
+    
+    virtual bool close() = 0;
 
-	virtual bool is_alive() const = 0;
+    virtual bool is_open() = 0;
+    
+    virtual bool is_alive() const = 0;
 
 	virtual bool set_protocol(Protocol protocol) = 0;
 
@@ -86,10 +94,6 @@ protected:
 	std::uint32_t m_serial;
 
 	DeviceInfo m_device_info;
-
-    bool serialize_can_frame_message();
-
-    bool deserialize_can_frame();
 };
 
 }

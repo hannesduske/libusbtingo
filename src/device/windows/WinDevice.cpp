@@ -15,8 +15,13 @@ WinDevice::WinDevice(std::uint32_t serial, std::string path) :
     Device(serial)
 {
     m_device_data.DevicePath = path;
-    WinDevice::open_usb_device(m_device_data);
+    open();
     WinDevice::read_usbtingo_info(m_device_data, m_device_info);
+}
+
+WinDevice::~WinDevice()
+{
+    close();
 }
 
 std::unique_ptr<Device> WinDevice::create_device(std::uint32_t serial)
@@ -38,9 +43,45 @@ std::unique_ptr<Device> WinDevice::create_device(std::uint32_t serial)
     }
 }
 
+bool  WinDevice::open()
+{
+    if (!m_device_data.HandlesOpen) {
+        if (SUCCEEDED(WinDevice::open_usb_device(m_device_data))) {
+            m_device_data.HandlesOpen = TRUE;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+bool  WinDevice::close()
+{
+    if (m_device_data.HandlesOpen) {
+        set_mode(Mode::OFF);
+        if (SUCCEEDED(WinDevice::close_usb_device(m_device_data))) {
+            m_device_data.HandlesOpen = FALSE;
+            return true;
+        }
+        else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+bool WinDevice::is_open()
+{
+    return static_cast<bool>(m_device_data.HandlesOpen);
+}
+
 bool WinDevice::is_alive() const
 {
-    if (!static_cast<bool>(m_device_data.HandlesOpen)) return false;
+    if (!m_device_data.HandlesOpen) return false;
 
     std::uint32_t serial = 0;
 
@@ -101,10 +142,7 @@ std::vector<std::uint32_t> WinDevice::detect_available_devices()
 {
     std::vector<std::uint32_t> serial_vec;
 
-    HRESULT hr = S_OK;
-    hr = WinDevice::detect_usbtingos();
-    
-    if(FAILED(hr)) return serial_vec;
+   if(!WinDevice::detect_usbtingos()) return serial_vec;
 
     for (const auto& usbtingo : m_usbtingos) {
         serial_vec.push_back(usbtingo.first);
@@ -134,17 +172,33 @@ bool WinDevice::detect_usbtingos()
     for (const auto& dev : devices) {
         std::uint32_t serial = 0;
 
-        DeviceData device_data;
+        // read serial number from device path (sn is located between the 2nd and 3rd '#' character)
+        const std::size_t sn_pos0 = dev.find("#");
+        const std::size_t sn_pos1 = dev.find("#", sn_pos0 + 1);
+        const std::size_t sn_pos2 = dev.find("#", sn_pos1 + 1);
+
+        if ((sn_pos1 != std::string::npos) && (sn_pos2 != std::string::npos)) {
+            try {
+                std::uint32_t serial = static_cast<uint32_t>(std::stoi(dev.substr(sn_pos1 + 1, sn_pos2 - sn_pos1 - 1)));
+                m_usbtingos.emplace(serial, dev);
+            }
+            catch (...) {
+
+            }
+        }
+
+        // read serial number from device memory. only works if no other device handle of this device is currently active.
+        /*DeviceData device_data;
         device_data.DevicePath = dev;
 
         hr &= WinDevice::open_usb_device(device_data);
         hr &= WinDevice::read_usbtingo_serial(device_data, serial);
         hr &= WinDevice::close_usb_device(device_data);
 
-        if (SUCCEEDED(hr)) m_usbtingos.emplace(serial, dev);
+        if (SUCCEEDED(hr)) m_usbtingos.emplace(serial, dev);*/
     }
 
-    return false;
+    return true;
 }
 
 /**
@@ -405,8 +459,8 @@ HRESULT WinDevice::read_usbtingo_info(const DeviceData& device_data, DeviceInfo&
     device_info.fw_major = data.at(1);
     device_info.hw_model = data.at(2);
     device_info.channels = data.at(3);
-    device_info.uniqe_id = (data.at(4) << 0) | (data.at(5) << 8) | (data.at(6) << 16) | (data.at(7) << 24);
-    device_info.clock_hz = (data.at(8) << 0) | (data.at(9) << 8) | (data.at(10) << 16) | (data.at(11) << 24);
+    device_info.uniqe_id = serialize_uint32(data.at(4), data.at(5), data.at(6), data.at(7));
+    device_info.clock_hz = serialize_uint32(data.at(8), data.at(9), data.at(10), data.at(11));
 
     return S_OK;
 }
