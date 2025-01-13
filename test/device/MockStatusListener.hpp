@@ -1,7 +1,7 @@
 #pragma once
 
-#include "usbtingo/device/StatusListener.hpp"
-#include "usbtingo/device/Status.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
+#include "usbtingo/device/Device.hpp"
 
 namespace usbtingo{
 
@@ -9,12 +9,12 @@ namespace test{
 
 class MockStatusListener : public device::StatusListener{
 public:
-    MockStatusListener() : StatusListener(), m_new_status(false), m_last_status(0,0)
+    MockStatusListener() : StatusListener(), m_new_status(false), m_last_status()
     {
 
     };
 
-    void on_status_update([[maybe_unused]] device::Status status) override
+    void on_status_update([[maybe_unused]] device::StatusFrame status) override
     {
         m_new_status = true;
         m_last_status = status;
@@ -27,14 +27,14 @@ public:
         return val;
     };
 
-    device::Status get_new_status() const
+    device::StatusFrame get_new_status() const
     {
         return m_last_status;
     };
 
 private:
     bool m_new_status;
-    device::Status m_last_status;
+    device::StatusFrame m_last_status;
 
 };
 

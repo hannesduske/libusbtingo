@@ -1,8 +1,7 @@
 #pragma once
 
-#include "usbtingo/can/Can.hpp"
-#include "usbtingo/can/CanListener.hpp"
-#include "usbtingo/device/Status.hpp"
+#include "usbtingo/bus/CanListener.hpp"
+//#include "usbtingo/device/Device.hpp"
 
 namespace usbtingo{
 

@@ -3,12 +3,13 @@ find_package(Catch2 3 REQUIRED)
 # Unit Tests
 add_executable( unittest-usbtingo
     bus/unittest-Bus.cpp
+    bus/unittest-StatusListener.cpp
+    bus/unittest-CanListener.cpp
     can/unittest-Can.cpp
-    can/unittest-CanListener.cpp
     device/unittest-Device.cpp
     device/unittest-DeviceFactory.cpp
-    device/unittest-Status.cpp
-    device/unittest-StatusListener.cpp
+    device/unittest-DeviceHelper.cpp
+    
 )
 
 target_include_directories( unittest-usbtingo

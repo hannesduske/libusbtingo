@@ -15,8 +15,8 @@ using usbtingo::bus::Bus;
 using usbtingo::can::Message;
 using usbtingo::device::Mode;
 using usbtingo::device::Device;
-using usbtingo::device::Status;
 using usbtingo::device::Protocol;
+using usbtingo::device::StatusFrame;
 using usbtingo::device::DeviceFactory;
 
 using usbtingo::test::MockDevice;
@@ -28,7 +28,9 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         
     // stub data
     auto testmsg = Message{42, {0x00, 0x01, 0x02, 0x03}};
-    auto teststatus = Status(1234, 42);
+    StatusFrame teststatus;
+    teststatus.tec = 42;
+    teststatus.rec = 99;
 
     // mock devices
     std::uint32_t sn = 42;
@@ -63,8 +65,8 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         // Subscribe and receive status
         mockdev_raw->trigger_status(teststatus);
         REQUIRE(mock_listener->has_new_status() == true);
-        CHECK(mock_listener->get_new_status().get_errorcount() == teststatus.get_errorcount());
-        CHECK(mock_listener->get_new_status().get_protocolstatus() == teststatus.get_protocolstatus());
+        CHECK(mock_listener->get_new_status().get_tx_error_count() == teststatus.get_tx_error_count());
+        CHECK(mock_listener->get_new_status().get_rx_error_count() == teststatus.get_rx_error_count());
 
         // Unsubscribe and don't receive status
         bus.remove_listener(mock_listener.get());
