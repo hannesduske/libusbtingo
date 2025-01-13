@@ -71,7 +71,7 @@ bool StatusFrame::deserialize_status(const uint8_t* buf, StatusFrame& status) {
 bool CanTxFrame::serialize_can_frame(uint8_t* buf_out, const CanTxFrame& buf) {
 	if (buf.message_type != USBTINGO_TXMSG_TYPE_CAN) return false;
 
-	std::uint32_t id_tmp = (buf.xtd) ? buf.id : buf.id << 18;
+	std::uint32_t id_tmp = (buf.xtd) ? buf.id : (buf.id << 18) & 0x7ff;
 
 	buf_out[0] = buf.message_type;
 	buf_out[1] = (buf.dlc > 0) ? 2 + (dlc_to_bytes_aligned(buf.dlc) / 4) : 2;
@@ -100,10 +100,15 @@ bool TxEventFrame::deserialize_tx_event(const uint8_t* buf, TxEventFrame& buf_ou
 	buf_out.message_type = buf[0];
 	buf_out.message_size = buf[1];
 	buf_out.procts = serialize_uint32(buf[4], buf[5], buf[6], buf[7]);
-	buf_out.id = serialize_uint32(buf[8], buf[9], buf[10], static_cast<uint8_t>(buf[11] & 0x1f));
 	buf_out.esi = (buf[11] >> 7) & 0x01;
 	buf_out.xtd = (buf[11] >> 6) & 0x01;
 	buf_out.rtr = (buf[11] >> 5) & 0x01;
+	if (buf_out.xtd) {
+		buf_out.id = serialize_uint32(buf[8], buf[9], buf[10], static_cast<std::uint8_t>(buf[11] & 0x1f));
+	}
+	else {
+		buf_out.id = (serialize_uint32(0, 0, buf[10] & 0x3f, static_cast<std::uint8_t>(buf[11] & 0x1f)) >> 18) & 0x7ff;
+	}
 	buf_out.txts = serialize_uint16(buf[12], buf[13]);
 	buf_out.et = (buf[14] >> 6) & 0x02;
 	buf_out.fdf = (buf[14] >> 5) & 0x01;
@@ -114,15 +119,20 @@ bool TxEventFrame::deserialize_tx_event(const uint8_t* buf, TxEventFrame& buf_ou
 	return true;
 };
 
-bool CanRxFrame::deserialize_can_frame(const uint8_t* buf, CanRxFrame& buf_out) {
+bool CanRxFrame::deserialize_can_frame(const std::uint8_t* buf, CanRxFrame& buf_out) {
 	if (buf[0] != USBTINGO_RXMSG_TYPE_CAN) return false;
 
 	buf_out.message_type = buf[0];
 	buf_out.message_size = buf[1];
 	buf_out.procts = serialize_uint32(buf[4], buf[5], buf[6], buf[7]);
-	buf_out.id = serialize_uint32(buf[8], buf[9], buf[10], static_cast<uint8_t>(buf[11] & 0x1f));
 	buf_out.esi = (buf[11] >> 7) & 0x01;
 	buf_out.xtd = (buf[11] >> 6) & 0x01;
+	if (buf_out.xtd) {
+		buf_out.id = serialize_uint32(buf[8], buf[9], buf[10], static_cast<std::uint8_t>(buf[11] & 0x1f));
+	}
+	else {
+		buf_out.id = (serialize_uint32(0, 0, buf[10] & 0x3f, static_cast<std::uint8_t>(buf[11] & 0x1f)) >> 18) & 0x7ff;
+	}
 	buf_out.rtr = (buf[11] >> 5) & 0x01;
 	buf_out.rxts = serialize_uint16(buf[12], buf[13]);
 	buf_out.fdf = (buf[14] >> 5) & 0x01;
@@ -130,7 +140,8 @@ bool CanRxFrame::deserialize_can_frame(const uint8_t* buf, CanRxFrame& buf_out) 
 	buf_out.dlc = (buf[14] >> 0) & 0x0f;
 	buf_out.anmf = (buf[15] >> 7) & 0x01;
 	buf_out.fidx = (buf[15] >> 0) & 0x7f;
-	std::copy(&buf[16], &buf[84], buf_out.data.data());
+	std::fill(buf_out.data.begin(), buf_out.data.end(), 0);
+	std::copy_n(&buf[16], dlc_to_bytes(buf_out.dlc), buf_out.data.data());
 
 	return true;
 };
