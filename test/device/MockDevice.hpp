@@ -66,6 +66,11 @@ public:
         return false;
     }
 
+    bool clear_errors() override
+    {
+        return false;
+    }
+
     bool read_status(device::StatusFrame& status) override
     {
         return false;

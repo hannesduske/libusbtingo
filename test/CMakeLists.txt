@@ -42,3 +42,9 @@ target_link_libraries( integrationtest-usbtingo
     Catch2::Catch2WithMain
     usbtingo
 )
+
+if(INTERACTIVE_TESTS)
+    target_compile_definitions(integrationtest-usbtingo PRIVATE
+        INTERACTIVE_TESTS
+    )
+endif(INTERACTIVE_TESTS)

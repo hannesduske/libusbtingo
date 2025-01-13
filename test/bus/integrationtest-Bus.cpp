@@ -94,6 +94,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
             auto device = DeviceFactory::create(sn_vec.front());
             auto device_raw = device.get();
 
+            REQUIRE(device);
             REQUIRE(device->is_alive());
 
             auto bus = Bus(std::move(device), 1000000, 1000000, protocol, Mode::ACTIVE, true);
