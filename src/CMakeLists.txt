@@ -2,13 +2,23 @@ add_library(usbtingo
   bus/Bus.cpp
   bus/BusImpl.cpp
   can/Can.cpp
-  can/CanListener.cpp
-  device/Status.cpp
+  bus/CanListener.cpp
   device/Device.cpp
+  device/DeviceHelper.cpp
   device/DeviceFactory.cpp
-  device/linux/LinuxDevice.cpp
-  device/windows/WinDevice.cpp
 )
+
+if(WIN32)
+    list(APPEND SOURCES
+        device/windows/WinDevice.cpp
+    )
+else(WIN32)
+    list(APPEND SOURCES
+        device/linux/LinuxDevice.cpp
+    )
+endif(WIN32)
+
+target_sources(usbtingo PRIVATE ${SOURCES})
 
 # Add macro definitions for windows dll export
 target_compile_definitions(usbtingo PRIVATE

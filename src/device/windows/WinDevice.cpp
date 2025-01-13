@@ -74,7 +74,7 @@ bool  WinDevice::close()
     }
 }
 
-bool WinDevice::is_open()
+bool WinDevice::is_open() const
 {
     return static_cast<bool>(m_device_data.HandlesOpen);
 }
@@ -95,12 +95,12 @@ bool WinDevice::is_alive() const
 
 bool WinDevice::set_mode(Mode mode)
 {
-    return write_control(m_device_data, USBTINGO_CMD_SET_MODE, static_cast<std::uint8_t>(mode), 0);
+    return write_control(m_device_data, USBTINGO_CMD_SET_MODE, static_cast<std::uint16_t>(mode), 0);
 }
 
-bool WinDevice::set_protocol(Protocol protocol)
+bool WinDevice::set_protocol(Protocol protocol, std::uint8_t flags)
 {
-    return write_control(m_device_data, USBTINGO_CMD_SET_PROTOCOL, static_cast<std::uint8_t>(protocol), 0);
+    return write_control(m_device_data, USBTINGO_CMD_SET_PROTOCOL, static_cast<std::uint16_t>(static_cast<std::uint8_t>(protocol) | flags << 8), 0);
 }
 
 bool WinDevice::set_baudrate(std::uint32_t baudrate)
@@ -119,19 +119,77 @@ bool WinDevice::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data
     return success;
 }
 
-void WinDevice::send_can(const can::Message& msg)
+bool WinDevice::read_status(StatusFrame& status)
 {
-
+    std::vector<std::uint8_t> status_buffer(64);
+    if(!read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, status_buffer.size())) return false;
+    return StatusFrame::deserialize_status(status_buffer.data(), status);
 }
 
-void WinDevice::receive_can(can::Message& msg)
+void WinDevice::receive_status(StatusFrame& status)
 {
-
+    std::vector<std::uint8_t> status_buffer(64);
+    read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, status_buffer.size());
 }
 
-void WinDevice::receive_status(Status& status)
+bool WinDevice::send_can(const device::CanTxFrame& tx_frame)
 {
+    const std::size_t msg_size = CanTxFrame::buffer_size_bytes(tx_frame);
 
+    BulkBuffer tx_buffer = { 0 };
+    if (!CanTxFrame::serialize_can_frame(tx_buffer.data(), tx_frame)) return false;
+    return write_bulk(m_device_data, USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size);
+}
+
+bool WinDevice::send_can(const std::vector<device::CanTxFrame>& tx_frames)
+{
+    std::size_t msg_size = 0, current_msg_size = 0;
+    BulkBuffer tx_buffer = { 0 };
+
+    for (const auto& tx_frame : tx_frames) {
+        current_msg_size = CanTxFrame::buffer_size_bytes(tx_frame);
+
+        // Send current buffer if the next message doesn't fit in
+        if ((msg_size + current_msg_size) > USB_BULK_BUFFER_SIZE) {
+            if(!write_bulk(m_device_data, USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size)) return false;
+            msg_size = 0;
+        }
+
+        // Add next message to the buffer
+        if (!CanTxFrame::serialize_can_frame(tx_buffer.data() + msg_size, tx_frame)) return false;
+        msg_size += current_msg_size;
+    }
+    
+    return write_bulk(m_device_data, USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size);
+}
+
+bool WinDevice::receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames)
+{
+    std::size_t rx_len = 64, msg_idx = 0, package_counter = 0;
+    BulkBuffer rx_buffer = { 0 };
+
+    if(!read_bulk(m_device_data, USBTINGO_EP3_CANMSG_IN, rx_buffer, rx_len)) return false;
+
+    // package_counter as timeout, theroretically max. 42 tx_event messages per transfer
+    while (msg_idx < rx_len && package_counter < 50) {
+        
+        if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_CAN) {
+            CanRxFrame rx_frame;
+            if(CanRxFrame::deserialize_can_frame(&rx_buffer[msg_idx], rx_frame)) rx_frames.push_back(rx_frame);
+        }
+        else if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_TXEVENT) {
+            TxEventFrame tx_event_frame;
+            if (TxEventFrame::deserialize_tx_event(&rx_buffer[msg_idx], tx_event_frame)) tx_event_frames.push_back(tx_event_frame);
+        }
+        else if(rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_PADDING) {
+
+        }
+
+        msg_idx += USBTINGO_HEADER_SIZE_BYTES + (rx_buffer[msg_idx + 1] * 4);
+        package_counter++;
+    }
+
+    return (package_counter < 50) ? true : false;
 }
 
 /**
@@ -561,6 +619,7 @@ bool WinDevice::read_control(const DeviceData& device_data, std::uint8_t cmd, st
 
 /**
  * @brief Write data to the bulk endpoint of a WinUsb Device
+ * @param[in] device_data Struct containing the WinusbHandle
  * @param[in] endpoint Endpoint ID bEndpoint
  * @param[in] buffer Data buffer to transmit to control endpoint
  * @param[in] len Number of bytes to transmit from data buffer
@@ -569,17 +628,19 @@ bool WinDevice::read_control(const DeviceData& device_data, std::uint8_t cmd, st
 bool WinDevice::write_bulk(const DeviceData& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len)
 {
     if(!device_data.HandlesOpen) return false;
-    return static_cast<bool>(WinUsb_ReadPipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), NULL, NULL));
+    ULONG lengthReceived = 0;
+    return static_cast<bool>(WinUsb_WritePipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), &lengthReceived, NULL));
 }
 
 /**
  * @brief Read data from the bulk endpoint of a WinUsb Device
+ * @param[in] device_data Struct containing the WinusbHandle
  * @param[in] endpoint Endpoint ID bEndpoint
- * @param[in] buffer Data buffer to store data from bulk endpoint
- * @param[in] len Number of bytes to transmit from data buffer
+ * @param[out] buffer Data buffer to store data from bulk endpoint
+ * @param[inout] len Number of bytes to read from data buffer
  * @return true if operation succeeded
  */
-bool WinDevice::read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len)
+bool WinDevice::read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
 {
     if(!device_data.HandlesOpen) return false;
     ULONG lengthReceived = 0;

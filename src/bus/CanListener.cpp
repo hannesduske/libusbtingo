@@ -1,4 +1,4 @@
-#include "usbtingo/can/CanListener.hpp"
+#include "usbtingo/bus/CanListener.hpp"
 #include <algorithm>
 
 namespace usbtingo{

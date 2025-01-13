@@ -1,6 +1,8 @@
 #pragma once
 
 #include "usbtingo/device/Device.hpp"
+
+#include "DeviceData.hpp"
 #include "../DeviceProtocol.hpp"
 
 #include <Windows.h>
@@ -11,17 +13,9 @@
 #include <array>
 #include <map>
 
-
 namespace usbtingo{
 
 namespace device{
-
-struct DeviceData{
-    BOOL                    HandlesOpen = 0;
-    WINUSB_INTERFACE_HANDLE WinusbHandle = {0};
-    HANDLE                  DeviceHandle = {0};
-    std::string             DevicePath;
-};
 
 class WinDevice : public Device{
 public:
@@ -37,13 +31,13 @@ public:
 
     bool close() override;
 
-    bool is_open() override;
+    bool is_open() const override;
     
     bool is_alive() const override;
 
     bool set_mode(Mode mode) override;
 
-    bool set_protocol(Protocol protocol) override;
+    bool set_protocol(Protocol protocol, std::uint8_t flags = 0) override;
 
     bool set_baudrate(std::uint32_t baudrate) override;
 
@@ -59,11 +53,15 @@ public:
     bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) override;
 */
 
-    void send_can(const can::Message& msg) override;
+    bool read_status(StatusFrame& status) override;
 
-    void receive_can(can::Message& msg) override;
+    void receive_status(StatusFrame& status) override;
 
-    void receive_status(Status& status) override;
+    bool send_can(const CanTxFrame& tx_frame) override;
+    
+    bool send_can(const std::vector<CanTxFrame>& tx_frames) override;
+
+    bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
 
 private:
     DeviceData m_device_data;
@@ -71,10 +69,6 @@ private:
     static std::map<unsigned long, std::string> m_usbtingos;
 
     static bool detect_usbtingos();
-
-
-
-
 
     static HRESULT detect_usb_devices(std::vector<std::string>& devices, std::uint16_t vid, std::uint16_t pid);
 
@@ -90,7 +84,7 @@ private:
 
     static bool write_bulk(const DeviceData& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len) ;
 
-    static bool read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) ;
+    static bool read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) ;
 
     static bool write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
 

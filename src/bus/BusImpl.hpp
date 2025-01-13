@@ -10,11 +10,10 @@
 #include <atomic>
 #include <mutex>
 
-#include "usbtingo/device/Device.hpp"
-#include "usbtingo/device/Status.hpp"
-#include "usbtingo/device/StatusListener.hpp"
 #include "usbtingo/can/Can.hpp"
-#include "usbtingo/can/CanListener.hpp"
+#include "usbtingo/device/Device.hpp"
+#include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
 
 namespace usbtingo{
 
