@@ -5,34 +5,12 @@
 #include<cstdint>
 #include<memory>
 
-#include "usbtingo/can/Can.hpp"
-#include "usbtingo/device/Status.hpp"
+#include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
 namespace usbtingo{
 
 namespace device{
-
-enum class USBTINGO_API Mode{
-    OFF         = 0x00,
-    ACTIVE      = 0x01,
-    LISTEN_ONLY = 0x02
-};
-
-enum class USBTINGO_API Protocol{
-    CAN_2_0         = 0x00,
-    CAN_FD          = 0x01,
-    CAN_FD_NON_ISO  = 0x02
-};
-
-struct USBTINGO_API DeviceInfo{
-    std::uint8_t    fw_minor = 0;
-    std::uint8_t    fw_major = 0;
-    std::uint8_t    hw_model = 0;
-    std::uint8_t    channels = 0;
-    std::uint32_t   uniqe_id = 0;
-    std::uint32_t   clock_hz = 0;
-};
 
 class USBTINGO_API Device{
 public:
@@ -42,19 +20,17 @@ public:
 
     DeviceInfo get_device_info() const;
 
-    bool get_status(Status& status) const;
-
-    // virtual bool reconnect() = 0;
+    bool get_status(StatusFrame& status) const;
     
     virtual bool open() = 0;
     
     virtual bool close() = 0;
 
-    virtual bool is_open() = 0;
+    virtual bool is_open() const = 0;
     
     virtual bool is_alive() const = 0;
 
-	virtual bool set_protocol(Protocol protocol) = 0;
+	virtual bool set_protocol(Protocol protocol, std::uint8_t flags = 0) = 0;
 
     virtual bool set_baudrate(std::uint32_t baudrate) = 0;
 
@@ -82,12 +58,16 @@ public:
     bool get_logic_errors();
 */
 
-    virtual void send_can(const can::Message& msg) = 0;
+    virtual bool read_status(StatusFrame& status) = 0;
 
-    virtual void receive_can(can::Message& msg) = 0;
+    virtual void receive_status(StatusFrame& status) = 0;
 
-    virtual void receive_status(Status& status) = 0;
-	
+    virtual bool send_can(const CanTxFrame& tx_frame) = 0;
+
+    virtual bool send_can(const std::vector<CanTxFrame>& tx_frames) = 0;
+
+    virtual bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) = 0;
+
 protected:
 	Device(std::uint32_t serial);
 

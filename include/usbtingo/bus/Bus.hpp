@@ -3,12 +3,11 @@
 #include <chrono>
 #include <future>
 
-#include "usbtingo/platform/UsbtingoExport.hpp"
 #include "usbtingo/can/Can.hpp"
-#include "usbtingo/can/CanListener.hpp"
-#include "usbtingo/device/Status.hpp"
-#include "usbtingo/device/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
+#include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
+#include "usbtingo/platform/UsbtingoExport.hpp"
 
 using namespace std::literals::chrono_literals;
 
