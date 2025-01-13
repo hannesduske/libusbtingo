@@ -10,8 +10,17 @@
 
 #include <string>
 #include <vector>
+#include <thread>
+#include <atomic>
 #include <array>
 #include <map>
+
+enum class AsyncIoState {
+    IDLE,
+    REQUEST_ACTIVE,
+    DATA_AVAILABLE,
+    SHUTDOWN
+};
 
 namespace usbtingo{
 
@@ -43,6 +52,8 @@ public:
 
     bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) override;
 
+    bool clear_errors() override;
+
 /*
     bool clear_errors() override;
 
@@ -63,12 +74,34 @@ public:
 
     bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
 
+    bool cancel_async_can_request() override;
+
+    std::future<bool> request_can_async() override;
+
+    bool receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
+
 private:
     DeviceData m_device_data;
 
     static std::map<unsigned long, std::string> m_usbtingos;
 
     static bool detect_usbtingos();
+
+    OVERLAPPED m_async_status;
+    OVERLAPPED m_async_logic;
+    OVERLAPPED m_async_can;
+
+    std::thread m_thread_status;
+    std::thread m_thread_logic;
+    std::thread m_thread_can;
+
+    std::atomic<AsyncIoState> m_shutdown_status;
+    std::atomic<AsyncIoState> m_shutdown_logic;
+    std::atomic<AsyncIoState> m_shutdown_can;
+
+    BulkBuffer m_buffer_status; // Can be smaller, 64 byte?
+    BulkBuffer m_buffer_logic;
+    BulkBuffer m_buffer_can;
 
     static HRESULT detect_usb_devices(std::vector<std::string>& devices, std::uint16_t vid, std::uint16_t pid);
 
@@ -85,6 +118,10 @@ private:
     static bool write_bulk(const DeviceData& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len) ;
 
     static bool read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) ;
+
+    static bool request_bulk_async(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async);
+
+    static bool read_bulk_async(const DeviceData& device_data, std::size_t& len, OVERLAPPED& async);
 
     static bool write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
 

@@ -4,6 +4,7 @@
 #include<vector>
 #include<cstdint>
 #include<memory>
+#include<future>
 
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
@@ -38,6 +39,8 @@ public:
 
     virtual bool set_mode(Mode mode) = 0;
 
+    virtual bool clear_errors() = 0;
+
 /*
     virtual bool clear_errors() = 0;
 
@@ -68,12 +71,22 @@ public:
 
     virtual bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) = 0;
 
+    virtual bool cancel_async_can_request() = 0;
+
+    virtual std::future<bool> request_can_async() = 0;
+
+    virtual bool receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) = 0;
+
 protected:
 	Device(std::uint32_t serial);
 
 	std::uint32_t m_serial;
 
 	DeviceInfo m_device_info;
+
+    // ToDo: Move to implementation class and use BulkBuffer instead of pointer
+    bool process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames);
+
 };
 
 }

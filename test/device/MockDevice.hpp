@@ -96,6 +96,18 @@ public:
         return false;
     }
 
+    bool cancel_async_can_request() override {
+        return false;
+    }
+
+    std::future<bool> request_can_async() override {
+        return std::future<bool>();
+    }
+
+    bool receive_can_async(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) override {
+        return false;
+    }
+
 private:
     bool m_is_alive;
 

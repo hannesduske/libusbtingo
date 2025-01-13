@@ -7,6 +7,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <future>
 
 // Convenience
 using usbtingo::device::Mode;
@@ -295,5 +296,27 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         //    rx_frames.clear();
         //    tx_event_frames.clear();
         //}
+
+        // Only works if a device acknowledges the transmission
+        std::vector<CanRxFrame> rx_frames;
+        std::vector<TxEventFrame> tx_event_frames;
+
+        do {
+            auto future = dev->request_can_async();
+            REQUIRE(future.valid());
+
+            future.wait();
+            if (future.get()) {
+                dev->receive_can_async(rx_frames, tx_event_frames);
+            }else {
+                dev->cancel_async_can_request();
+            }
+
+        } while (true);
+
+        /*while (dev->receive_can(rx_frames, tx_event_frames)) {
+            rx_frames.clear();
+            tx_event_frames.clear();
+        }*/
     }
 }

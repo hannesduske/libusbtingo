@@ -21,6 +21,7 @@ WinDevice::WinDevice(std::uint32_t serial, std::string path) :
 
 WinDevice::~WinDevice()
 {
+    cancel_async_can_request();
     close();
 }
 
@@ -119,6 +120,10 @@ bool WinDevice::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data
     return success;
 }
 
+bool WinDevice::clear_errors() {
+    return write_control(m_device_data, USBTINGO_CMD_CLEAR_ERRORFLAGS, 0xffff, 0);
+}
+
 bool WinDevice::read_status(StatusFrame& status)
 {
     std::vector<std::uint8_t> status_buffer(64);
@@ -165,31 +170,58 @@ bool WinDevice::send_can(const std::vector<device::CanTxFrame>& tx_frames)
 
 bool WinDevice::receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames)
 {
-    std::size_t rx_len = 64, msg_idx = 0, package_counter = 0;
     BulkBuffer rx_buffer = { 0 };
-
+    std::size_t rx_len = USB_BULK_BUFFER_SIZE;
+    
+    // synchronous operation, blocks until data is available
     if(!read_bulk(m_device_data, USBTINGO_EP3_CANMSG_IN, rx_buffer, rx_len)) return false;
 
-    // package_counter as timeout, theroretically max. 42 tx_event messages per transfer
-    while (msg_idx < rx_len && package_counter < 50) {
-        
-        if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_CAN) {
-            CanRxFrame rx_frame;
-            if(CanRxFrame::deserialize_can_frame(&rx_buffer[msg_idx], rx_frame)) rx_frames.push_back(rx_frame);
-        }
-        else if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_TXEVENT) {
-            TxEventFrame tx_event_frame;
-            if (TxEventFrame::deserialize_tx_event(&rx_buffer[msg_idx], tx_event_frame)) tx_event_frames.push_back(tx_event_frame);
-        }
-        else if(rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_PADDING) {
+    return process_can_buffer(reinterpret_cast<std::uint8_t*>(&rx_buffer), rx_len, rx_frames, tx_event_frames);
+}
 
-        }
+bool WinDevice::cancel_async_can_request() {
+    bool success = m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE;
+    m_shutdown_can.store(AsyncIoState::SHUTDOWN);
+    return success;
+}
 
-        msg_idx += USBTINGO_HEADER_SIZE_BYTES + (rx_buffer[msg_idx + 1] * 4);
-        package_counter++;
-    }
+std::future<bool> WinDevice::request_can_async() {
+    
+    if (m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE) return std::future<bool>();
 
-    return (package_counter < 50) ? true : false;
+    m_async_can = { 0 };
+    request_bulk_async(m_device_data, USBTINGO_EP3_CANMSG_IN, m_buffer_can, USB_BULK_BUFFER_SIZE, m_async_can);
+    return std::async(std::launch::async, [this]()
+        {
+            m_shutdown_can.store(AsyncIoState::REQUEST_ACTIVE);
+
+            // m_shutdown_can is std::atomic type -> no mutex needed
+            while ((m_shutdown_can.load() != AsyncIoState::SHUTDOWN) && !static_cast<bool>(HasOverlappedIoCompleted(&m_async_can))) {
+                std::this_thread::sleep_for(std::chrono::microseconds(10));
+            }
+
+            if (static_cast<bool>(HasOverlappedIoCompleted(&m_async_can))){
+                m_shutdown_can.store(AsyncIoState::DATA_AVAILABLE);
+                return true;
+            }else {
+                m_shutdown_can.store(AsyncIoState::SHUTDOWN);
+                return false;
+            }
+        });
+}
+
+bool WinDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) {
+    
+    if (m_shutdown_can.load() != AsyncIoState::DATA_AVAILABLE) return false;
+
+    std::size_t rx_len = 0;
+    // aynchronous operation, requires data to be available otherwise returns false
+    if (!read_bulk_async(m_device_data, rx_len, m_async_can)) return false;
+
+    bool success = process_can_buffer(reinterpret_cast<std::uint8_t*>(&m_buffer_can), rx_len, rx_frames, tx_event_frames);
+    m_shutdown_can.store(AsyncIoState::IDLE);
+    
+    return success;
 }
 
 /**
@@ -633,7 +665,7 @@ bool WinDevice::write_bulk(const DeviceData& device_data, std::uint8_t endpoint,
 }
 
 /**
- * @brief Read data from the bulk endpoint of a WinUsb Device
+ * @brief Read data from the bulk endpoint of a WinUsb Device. Method is blocking if no data is available.
  * @param[in] device_data Struct containing the WinusbHandle
  * @param[in] endpoint Endpoint ID bEndpoint
  * @param[out] buffer Data buffer to store data from bulk endpoint
@@ -643,8 +675,40 @@ bool WinDevice::write_bulk(const DeviceData& device_data, std::uint8_t endpoint,
 bool WinDevice::read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
 {
     if(!device_data.HandlesOpen) return false;
-    ULONG lengthReceived = 0;
-    return static_cast<bool>(WinUsb_ReadPipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), &lengthReceived, NULL));
+    return static_cast<bool>(WinUsb_ReadPipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), reinterpret_cast<unsigned long*>(&len), NULL));
+}
+
+/**
+ * @brief Request data from the bulk endpoint of a WinUsb Device. Method is not blocking.
+ * @param[in] device_data Struct containing the WinusbHandle
+ * @param[in] endpoint Endpoint ID bEndpoint
+ * @param[out] buffer Data buffer to store data from bulk endpoint
+ * @param[in] len Number of bytes to read from data buffer
+ * @param[out] async Structure to handle async i/o operations
+ * @return true if operation succeeded
+ */
+bool WinDevice::request_bulk_async(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async)
+{
+    if (!device_data.HandlesOpen) return false;
+
+    async = { 0 };
+    async.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if (!async.hEvent) return false;
+
+    bool result = static_cast<bool>(WinUsb_ReadPipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), NULL, &async));
+    return (!result && GetLastError() == ERROR_IO_PENDING);
+}
+
+/**
+ * @brief Read data from the bulk endpoint of a WinUsb Device that has been requested asynchronously before. Method is not blocking.
+ * @param[in] device_data Struct containing the WinusbHandle
+ * @param[out] len Number of bytes to read from data buffer
+ * @param[in] async Structure to handle async i/o operations
+ * @return true if operation succeeded, returns false if data is not available yet
+ */
+bool WinDevice::read_bulk_async(const DeviceData& device_data, std::size_t& len, OVERLAPPED& async)
+{
+    return static_cast<bool>(GetOverlappedResult(static_cast<HANDLE>(device_data.WinusbHandle), &async, reinterpret_cast<unsigned long*>(&len), FALSE));
 }
 
 }
