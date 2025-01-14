@@ -9,15 +9,15 @@ namespace test{
 
 class MockCanListener : public can::CanListener{
 public:
-    MockCanListener() : CanListener(), m_new_msg(false), m_last_msg()
+    MockCanListener() : CanListener(), m_new_msg(false), m_msg_vec()
     {
 
     };
 
-    void on_can_receive([[maybe_unused]] can::Message msg) override
+    void on_can_receive([[maybe_unused]] can::Message msg)
     {
         m_new_msg = true;
-        m_last_msg = msg;
+        m_msg_vec.push_back(msg);
     };
 
     bool has_new_msg()
@@ -27,9 +27,14 @@ public:
         return val;
     };
 
-    can::Message get_new_msg() const
+    can::Message get_latest_msg() const
     {
-        return m_last_msg;
+        return m_msg_vec.back();
+    };
+
+    std::vector<can::Message> get_all_msg() const
+    {
+        return m_msg_vec;
     };
 
     std::vector<std::uint32_t> get_ids(){
@@ -38,7 +43,7 @@ public:
 
 private:
     bool m_new_msg;
-    can::Message m_last_msg;
+    std::vector<can::Message> m_msg_vec;
 
 };
 

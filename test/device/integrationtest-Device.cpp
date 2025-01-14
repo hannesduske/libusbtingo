@@ -392,7 +392,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
             // wait a little while longer in case more messages arrive
             if (result == std::future_status::ready) {
-                timeout = std::chrono::milliseconds(500);
+                timeout = std::chrono::milliseconds(50);
             }
 
         } while (result != std::future_status::timeout);
@@ -407,8 +407,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
             std::cout << "    Data: ";
 
             for (size_t i = 0; i < Dlc::dlc_to_bytes(msg.dlc); i++) {
-                std::cout << "0x"
-                    << std::hex << std::setw(2) << std::setfill('0') << msg.data.at(i) << " ";
+                std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(msg.data.at(i)) << " ";
             }
             std::cout << std::endl << std::endl;
         }
@@ -416,7 +415,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 #ifndef SKIP_INTERACTIVE_TESTS
         std::string response;
         std::cin.ignore();
-        std::cout << "Is the received data correct? (y / n) : " << std::endl;
+        std::cout << std::dec << "Is the received data correct? (y / n) : " << std::endl;
         std::cin >> response;
         while (std::cin.get() != '\n') {}
         CHECK(response == "y");
