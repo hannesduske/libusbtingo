@@ -44,8 +44,14 @@ target_link_libraries( integrationtest-usbtingo
     usbtingo
 )
 
-if(INTERACTIVE_TESTS)
+if(SKIP_INTERACTIVE_TESTS)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
-        INTERACTIVE_TESTS
+        SKIP_INTERACTIVE_TESTS
     )
-endif(INTERACTIVE_TESTS)
+endif(SKIP_INTERACTIVE_TESTS)
+
+if(SKIP_TESTS_WITH_OTHER_DEVICES)
+    target_compile_definitions(integrationtest-usbtingo PRIVATE
+        SKIP_TESTS_WITH_OTHER_DEVICES
+    )
+endif(SKIP_TESTS_WITH_OTHER_DEVICES)

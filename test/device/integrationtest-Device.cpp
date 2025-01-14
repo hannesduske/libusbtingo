@@ -8,6 +8,7 @@
 #include <chrono>
 #include <thread>
 #include <future>
+#include <iomanip>
 
 // Convenience
 using usbtingo::device::Mode;
@@ -139,9 +140,8 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->clear_errors();
         dev->read_status(status);
         
-#ifdef INTERACTIVE_TESTS
+#ifndef SKIP_INTERACTIVE_TESTS
         std::string response;
-        //std::cin.ignore();
         std::cout << "Sending ONE CAN 2.0 message at a baudrate of " << baud << " after pressing ENTER ..." << std::endl;
         while (std::cin.get() != '\n') { }
 #endif
@@ -151,10 +151,12 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         CHECK(status.nr_std_frames - msg_idx == 1);
 
-#ifdef INTERACTIVE_TESTS
+#ifndef SKIP_INTERACTIVE_TESTS
         std::cout << "Has ONE message been sent with ID " << tx_frame.id << " and data \"Hello!\" ? (y / n) : " << std::endl;
         std::cin >> response;
         CHECK(response == "y");
+#else
+        SKIP("Skipping interacive checks of this test");
 #endif
     }
 
@@ -197,7 +199,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         msg_idx = status.nr_std_frames;
 
-#ifdef INTERACTIVE_TESTS
+#ifndef SKIP_INTERACTIVE_TESTS
         std::string response;
         std::cin.ignore();
         std::cout << "Sending TWO CAN 2.0 messages at a baudrate of " << baud << " after pressing ENTER..." << std::endl;
@@ -209,10 +211,12 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         CHECK(status.nr_std_frames - msg_idx == 2);
 
-#ifdef INTERACTIVE_TESTS
+#ifndef SKIP_INTERACTIVE_TESTS
         std::cout << "Have TWO messages been sent with IDs " << tx_frame1.id << " & " << tx_frame2.id << " and data \"Hello\" & \"World!\" ? (y / n) : " << std::endl;
         std::cin >> response;
         CHECK(response == "y");
+#else
+        SKIP("Skipping interacive checks of this test");
 #endif
     }
 
@@ -288,35 +292,136 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         // Check if tx counter has been increased by one
         dev->read_status(status);
         CHECK(status.nr_std_frames - msg_idx == 1);
+    }
 
-        //// Only works if a device acknowledges the transmission
-        //std::vector<CanRxFrame> rx_frames;
-        //std::vector<TxEventFrame> tx_event_frames;
-        //while (dev->receive_can(rx_frames, tx_event_frames)) {
-        //    rx_frames.clear();
-        //    tx_event_frames.clear();
-        //}
+    SECTION("Send a single CAN FD frame and check tx_event") {
 
-        // Only works if a device acknowledges the transmission
+        const std::uint32_t baud = 1000000;
+
+#ifdef SKIP_TESTS_WITH_OTHER_DEVICES
+        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
+#else
+        WARN("This test requires another device that acknowledges the transmisison of the CAN message. I.e. needs to be configured to CAN FD protocol and a baudrate of " << baud << " .");
+#endif
+
+        CanTxFrame tx_frame;
+        tx_frame.id = 42;
+        tx_frame.dlc = static_cast<std::uint8_t>(Dlc::DLC_12_BYTES);
+        tx_frame.data.at(0) = 0x48; // H
+        tx_frame.data.at(1) = 0x65; // e
+        tx_frame.data.at(2) = 0x6c; // l
+        tx_frame.data.at(3) = 0x6c; // l
+        tx_frame.data.at(4) = 0x6f; // o
+        tx_frame.data.at(5) = 0x20; //
+        tx_frame.data.at(6) = 0x57; // W
+        tx_frame.data.at(7) = 0x72; // o
+        tx_frame.data.at(8) = 0x6f; // r
+        tx_frame.data.at(9) = 0x6c; // l
+        tx_frame.data.at(10) = 0x64; // d
+        tx_frame.data.at(11) = 0x21; // !
+        tx_frame.fdf = 1;
+        tx_frame.efc = 1;
+        tx_frame.esi = 1;
+        tx_frame.txmm = 123;
+
+        dev->set_baudrate(baud);
+        dev->set_protocol(Protocol::CAN_FD, 0b00010000);
+        dev->set_mode(Mode::ACTIVE);
+
+        dev->send_can(tx_frame);
+
         std::vector<CanRxFrame> rx_frames;
         std::vector<TxEventFrame> tx_event_frames;
+
+        std::future_status result;
 
         do {
             auto future = dev->request_can_async();
             REQUIRE(future.valid());
 
-            future.wait();
-            if (future.get()) {
+            result = future.wait_for(std::chrono::milliseconds(100));
+
+            if ((result == std::future_status::ready) && future.get()) {
                 dev->receive_can_async(rx_frames, tx_event_frames);
-            }else {
+            }
+            else {
                 dev->cancel_async_can_request();
             }
 
-        } while (true);
+        } while (result == std::future_status::ready);
 
-        /*while (dev->receive_can(rx_frames, tx_event_frames)) {
-            rx_frames.clear();
-            tx_event_frames.clear();
-        }*/
+        REQUIRE(tx_event_frames.size() > 0);
+        CHECK(tx_event_frames.back().esi == 1); // Error state indicator passive
+        CHECK(tx_event_frames.back().id == tx_frame.id); // can id must match can id of sent message
+        CHECK(tx_event_frames.back().txmm == tx_frame.txmm); // unique id must match undique id of sent message
+    }
+
+    SECTION("Receive a CAN FD frame drom another device") {
+
+        const std::uint32_t baud = 1000000;
+
+#ifdef SKIP_TESTS_WITH_OTHER_DEVICES
+        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
+#else
+        WARN("This test requires another device to send a CAN FD message at a baudrate of " << baud << " .");
+#endif
+
+        dev->set_baudrate(baud);
+        dev->set_protocol(Protocol::CAN_FD, 0b00010000);
+        dev->set_mode(Mode::ACTIVE);
+
+        std::future_status result;
+        std::vector<CanRxFrame> rx_frames;
+        std::vector<TxEventFrame> tx_event_frames;
+        
+        auto timeout = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(30));
+        WARN("Waiting for " << std::chrono::duration_cast<std::chrono::seconds>(timeout).count() << " seconds to receive a CAN FD message.");
+
+        do {
+            auto future = dev->request_can_async();
+            if(!future.valid()) FAIL("Failed to request CAN message transfer from usb device.");
+    
+            result = future.wait_for(timeout);
+
+            if ((result == std::future_status::ready) && future.get()) {
+                dev->receive_can_async(rx_frames, tx_event_frames);
+            }
+            else {
+                dev->cancel_async_can_request();
+            }
+
+            // wait a little while longer in case more messages arrive
+            if (result == std::future_status::ready) {
+                timeout = std::chrono::milliseconds(500);
+            }
+
+        } while (result != std::future_status::timeout);
+
+        REQUIRE(rx_frames.size() > 0);
+
+        std::cout << "Got " << rx_frames.size()  << " CAN FD message(s) : " << std::endl;
+
+        for (const auto& msg : rx_frames) {
+            std::cout << "    Std ID:  0x" << std::hex << msg.id << std::endl;
+            std::cout << "    DLC: " << std::to_string(Dlc::dlc_to_bytes(msg.dlc)) << " Bytes" << std::endl;
+            std::cout << "    Data: ";
+
+            for (size_t i = 0; i < Dlc::dlc_to_bytes(msg.dlc); i++) {
+                std::cout << "0x"
+                    << std::hex << std::setw(2) << std::setfill('0') << msg.data.at(i) << " ";
+            }
+            std::cout << std::endl << std::endl;
+        }
+
+#ifndef SKIP_INTERACTIVE_TESTS
+        std::string response;
+        std::cin.ignore();
+        std::cout << "Is the received data correct? (y / n) : " << std::endl;
+        std::cin >> response;
+        while (std::cin.get() != '\n') {}
+        CHECK(response == "y");
+#else
+        SKIP("Skipping interacive checks of this test");
+#endif
     }
 }
