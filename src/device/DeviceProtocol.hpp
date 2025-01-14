@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <chrono>
 #include <array>
 
 namespace usbtingo{
@@ -55,6 +56,7 @@ namespace device{
 	constexpr std::uint8_t USBTINGO_EP3_CANMSG_IN   		= 0x83;
 	constexpr std::uint8_t USBTINGO_EP3_CANMSG_OUT  		= 0x03;
 
+	static constexpr auto USBTINGO_THREAD_DELAY_uS			= std::chrono::microseconds(10);
 	constexpr unsigned long TIMESTAMP_FACTOR				= 100000;
 
 	typedef std::array<std::uint8_t, USB_BULK_BUFFER_SIZE> BulkBuffer;

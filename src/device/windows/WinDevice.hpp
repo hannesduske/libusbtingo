@@ -30,7 +30,7 @@ class WinDevice : public Device{
 public:
     WinDevice(std::uint32_t serial, std::string path);
     
-    ~WinDevice();
+    ~WinDevice() override;
 
     static std::unique_ptr<Device> create_device(std::uint32_t serial);
 

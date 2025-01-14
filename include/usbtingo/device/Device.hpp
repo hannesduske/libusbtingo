@@ -15,7 +15,7 @@ namespace device{
 
 class USBTINGO_API Device{
 public:
-    virtual ~Device() = default; // important so that the destuctor of derived classes will be called
+    virtual ~Device() = default; // required that the destuctor of derived classes is called
 
 	std::uint32_t get_serial() const;
 

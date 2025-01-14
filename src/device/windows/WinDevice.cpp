@@ -179,13 +179,15 @@ bool WinDevice::receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vec
     return process_can_buffer(reinterpret_cast<std::uint8_t*>(&rx_buffer), rx_len, rx_frames, tx_event_frames);
 }
 
-bool WinDevice::cancel_async_can_request() {
+bool WinDevice::cancel_async_can_request()
+{
     bool success = m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE;
     m_shutdown_can.store(AsyncIoState::SHUTDOWN);
     return success;
 }
 
-std::future<bool> WinDevice::request_can_async() {
+std::future<bool> WinDevice::request_can_async() //ToDo: Generalize async request to use with can, logic and status
+{
     
     if (m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE) return std::future<bool>();
 
@@ -196,8 +198,8 @@ std::future<bool> WinDevice::request_can_async() {
             m_shutdown_can.store(AsyncIoState::REQUEST_ACTIVE);
 
             // m_shutdown_can is std::atomic type -> no mutex needed
-            while ((m_shutdown_can.load() != AsyncIoState::SHUTDOWN) && !static_cast<bool>(HasOverlappedIoCompleted(&m_async_can))) {
-                std::this_thread::sleep_for(std::chrono::microseconds(10));
+            while ((m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE) && (!static_cast<bool>(HasOverlappedIoCompleted(&m_async_can)))) {
+                std::this_thread::sleep_for(USBTINGO_THREAD_DELAY_uS);
             }
 
             if (static_cast<bool>(HasOverlappedIoCompleted(&m_async_can))){
@@ -210,7 +212,8 @@ std::future<bool> WinDevice::request_can_async() {
         });
 }
 
-bool WinDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) {
+bool WinDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
+{
     
     if (m_shutdown_can.load() != AsyncIoState::DATA_AVAILABLE) return false;
 

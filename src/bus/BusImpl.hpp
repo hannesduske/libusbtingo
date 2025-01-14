@@ -19,9 +19,16 @@ namespace usbtingo{
 
 namespace bus{
 
+enum class ListenerState {
+	IDLE,
+	LISTENING,
+	SHUTDOWN
+};
+
 class BusImpl{
 public:
 	BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode mode, bool receive_own_message = false);
+	~BusImpl() noexcept;
 
 	bool start();
 	bool stop();
@@ -59,9 +66,11 @@ private:
 	std::vector<can::CanListener*>			m_can_listener_vec;
 	std::vector<device::StatusListener*>	m_status_listener_vec;
 
-	std::mutex						m_mutex;
-	std::atomic<bool>				m_is_running;
-	std::unique_ptr<std::thread>	m_thread;
+	//std::mutex						m_mutex;
+	std::atomic<ListenerState>		m_listener_state;
+	std::unique_ptr<std::thread>	m_listener_thread;
+
+	bool listener();
 };
 
 }
