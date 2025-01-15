@@ -2,10 +2,10 @@
 
 #include <memory>
 #include <cstdint>
-#include "usbtingo/can/Message.hpp"
+#include "usbtingo/basic_bus/Message.hpp"
 
 // Convenience
-using usbtingo::can::Message;
+using usbtingo::bus::Message;
 
 // Testcase #1
 TEST_CASE("Unittest Message", "[message]"){

@@ -14,16 +14,10 @@ public:
 
     };
 
-    void on_can_receive(can::Message msg)
-    {
-        m_new_msg = true;
-        m_msg_vec.push_back(msg);
-    };
-
     void on_can_receive(device::CanRxFrame msg)
     {
         m_new_msg = true;
-        m_msg_raw_vec.push_back(msg);
+        m_msg_vec.push_back(msg);
     };
 
     bool has_new_msg()
@@ -33,12 +27,12 @@ public:
         return val;
     };
 
-    can::Message get_latest_msg() const
+    device::CanRxFrame get_latest_msg() const
     {
         return m_msg_vec.back();
     };
 
-    std::vector<can::Message> get_all_msg() const
+    std::vector<device::CanRxFrame> get_all_msg() const
     {
         return m_msg_vec;
     };
@@ -49,7 +43,7 @@ public:
 
 private:
     bool m_new_msg;
-    std::vector<can::Message> m_msg_vec;
+    std::vector<device::CanRxFrame> m_msg_vec;
     std::vector<device::CanRxFrame> m_msg_raw_vec;
 
 };

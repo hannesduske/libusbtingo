@@ -5,11 +5,9 @@
 #include "bus/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
-#include "usbtingo/can/Message.hpp"
 
 // Convenience
 using usbtingo::bus::Bus;
-using usbtingo::can::Message;
 using usbtingo::device::CanRxFrame;
 using usbtingo::test::MockCanListener;
 

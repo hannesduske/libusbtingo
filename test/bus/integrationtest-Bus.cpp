@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 
+#include "usbtingo/can/Dlc.hpp"
 #include "device/MockDevice.hpp"
 #include "bus/MockStatusListener.hpp"
 #include "bus/MockCanListener.hpp"
@@ -15,10 +16,11 @@
 // Convenience
 using usbtingo::bus::Bus;
 using usbtingo::can::Dlc;
-using usbtingo::can::Message;
 using usbtingo::device::Mode;
 using usbtingo::device::Device;
 using usbtingo::device::Protocol;
+using usbtingo::device::CanRxFrame;
+using usbtingo::device::CanTxFrame;
 using usbtingo::device::StatusFrame;
 using usbtingo::device::DeviceFactory;
 
@@ -30,7 +32,10 @@ using usbtingo::test::MockStatusListener;
 TEST_CASE("Integration test Bus, mock device", "[bus]"){
         
     // stub data
-    auto testmsg = Message{42, {0x00, 0x01, 0x02, 0x03}};
+    CanRxFrame testmsg = { 0 };
+    testmsg.id = 42;
+    testmsg.data = { 0x00, 0x01, 0x02, 0x03 };
+
     StatusFrame teststatus;
     teststatus.tec = 42;
     teststatus.rec = 99;
@@ -42,7 +47,7 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
     auto mockdev_raw = mockdev.get();
     
     // test object
-    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD);
+    auto bus = Bus(std::move(mockdev));
 
     SECTION("Can message forwarding"){
         auto mock_listener = std::make_unique<MockCanListener>();
@@ -86,7 +91,10 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
         SKIP("At least one USBtingo device must be connected to run this test.");
     }
 
-    auto testmsg = Message{42, {0x00, 0x01, 0x02, 0x03}};
+    CanRxFrame testmsg = { 0 };
+    testmsg.id = 42;
+    testmsg.data = { 0x00, 0x01, 0x02, 0x03 };
+
     auto mock_listener = std::make_unique<MockCanListener>();
     
     //SECTION("Can message loopback"){
@@ -134,7 +142,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
         dev->set_protocol(Protocol::CAN_FD, 0b00010000);
         dev->set_mode(Mode::ACTIVE);
         
-        auto bus = Bus(std::move(dev), 1000000, 1000000, Protocol::CAN_FD, Mode::ACTIVE, true);
+        auto bus = Bus(std::move(dev));
         bus.add_listener(mock_listener.get());
 
         WARN("Waiting for 30 seconds to receive a CAN FD message.");

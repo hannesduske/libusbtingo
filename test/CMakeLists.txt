@@ -2,11 +2,15 @@ find_package(Catch2 3 REQUIRED)
 
 # Unit Tests
 add_executable( unittest-usbtingo
-    basic_bus/unittest-Message.cpp    
+    basic_bus/unittest-Message.cpp
+    basic_bus/unittest-BasicListener.cpp
+
     bus/unittest-Bus.cpp
     bus/unittest-StatusListener.cpp
     bus/unittest-CanListener.cpp
+
     can/unittest-Dlc.cpp
+
     device/unittest-Device.cpp
     device/unittest-DeviceFactory.cpp
     device/unittest-DeviceHelper.cpp
@@ -27,7 +31,10 @@ target_link_libraries( unittest-usbtingo
 
 # Integration Tests
 add_executable( integrationtest-usbtingo
-    bus/integrationtest-Bus.cpp    
+    bus/integrationtest-Bus.cpp
+
+    basic_bus/integrationtest-BasicBus.cpp
+
     device/integrationtest-Device.cpp
     device/integrationtest-DeviceFactory.cpp
 )

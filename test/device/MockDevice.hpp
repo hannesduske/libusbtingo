@@ -1,6 +1,5 @@
 #pragma once
 
-#include "usbtingo/can/Message.hpp"
 #include "usbtingo/device/Device.hpp"
 
 namespace usbtingo{
@@ -9,12 +8,12 @@ namespace test{
     
 class MockDevice : public device::Device{
 public:
-    MockDevice(uint32_t serial, bool is_alive) : Device(serial), m_is_alive(is_alive), m_new_msg(false), m_new_status(false), m_msg(0, {}), m_status()
+    MockDevice(uint32_t serial, bool is_alive) : Device(serial), m_is_alive(is_alive), m_new_msg(false), m_new_status(false), m_msg({ 0 }), m_status()
     {
 
     }
 
-    void trigger_message(const can::Message msg)
+    void trigger_message(const device::CanRxFrame msg)
     {
         m_msg = msg;
         m_new_msg=true;
@@ -76,9 +75,9 @@ public:
         return false;
     }
 
-    void receive_status(device::StatusFrame& status) override
+    bool receive_status(device::StatusFrame& status) override
     {
-
+        return false;
     }
 
     bool send_can(const device::CanTxFrame& tx_frame) override
@@ -112,7 +111,7 @@ private:
     bool m_is_alive;
 
     bool m_new_msg;
-    can::Message m_msg;
+    device::CanRxFrame m_msg;
 
     bool m_new_status;
     device::StatusFrame m_status;

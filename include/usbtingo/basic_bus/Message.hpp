@@ -12,6 +12,7 @@ namespace bus{
 
 class USBTINGO_API Message{
 public:
+    Message() = default;
     Message(const device::CanRxFrame& msg);
     Message(const device::CanTxFrame& msg);
     Message(std::uint32_t id, std::vector<std::uint8_t> data);

@@ -6,7 +6,6 @@
 #include "bus/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
-#include "usbtingo/can/Message.hpp"
 
 // Convenience
 using usbtingo::bus::Bus;
@@ -17,45 +16,11 @@ using usbtingo::test::MockCanListener;
 using usbtingo::test::MockStatusListener;
 
 // Testcase #1
-TEST_CASE("Unittest Bus, Instantiation", "[bus]"){
-    
-    uint32_t sn = 42;
-    auto mockdev = std::make_unique<MockDevice>(sn, true);
-
-    SECTION("Instantiate default Bus, check state"){
-
-        auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD);
-        CHECK(bus.get_mode() == Mode::ACTIVE);
-    }
-    
-    SECTION("Instantiate Bus, check state"){
-        
-        std::vector<Mode> state_vec = {Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY};
-
-        for(const auto state : state_vec){
-
-            auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, state);
-
-            CHECK(bus.get_mode() == state);
-
-            CHECK(bus.set_mode(Mode::OFF) == true);
-            CHECK(bus.get_mode() == Mode::OFF);
-
-            CHECK(bus.set_mode(Mode::ACTIVE) == true);
-            CHECK(bus.get_mode() == Mode::ACTIVE);
-
-            CHECK(bus.set_mode(Mode::LISTEN_ONLY) == true);
-            CHECK(bus.get_mode() == Mode::LISTEN_ONLY);
-        }
-    }
-}
-
-// Testcase #2
-TEST_CASE("Unittest Bus, Listener", "[bus]"){
+TEST_CASE("Unittest Bus, Listener registration", "[bus]"){
 
     std::uint32_t sn = 42;
     auto mockdev = std::make_unique<MockDevice>(sn, true);
-    auto bus = Bus(std::move(mockdev), 1000000, 1000000, Protocol::CAN_FD, Mode::ACTIVE);
+    auto bus = Bus(std::move(mockdev));
 
     SECTION("Add and remove CanListener"){
         auto mock_listener = std::make_unique<MockCanListener>();
