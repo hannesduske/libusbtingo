@@ -2,13 +2,13 @@
 
 #include <vector>
 
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
 namespace usbtingo{
 
-namespace can{
+namespace bus{
 
 class USBTINGO_API CanListener{
 public:

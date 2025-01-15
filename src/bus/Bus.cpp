@@ -22,10 +22,10 @@ bool Bus::stop() { return m_pimpl->stop(); }
 device::Mode Bus::get_mode()  const { return m_pimpl->get_mode(); }
 bool Bus::set_mode(device::Mode mode) {return m_pimpl->set_mode(mode); }
 
-bool Bus::add_listener(can::CanListener* listener){ return m_pimpl->add_listener(listener); }
-bool Bus::add_listener(device::StatusListener* listener){ return m_pimpl->add_listener(listener); }
-bool Bus::remove_listener(const can::CanListener* listener){ return m_pimpl->remove_listener(listener); }
-bool Bus::remove_listener(const device::StatusListener* listener){ return m_pimpl->remove_listener(listener); }
+bool Bus::add_listener(bus::CanListener* listener){ return m_pimpl->add_listener(listener); }
+bool Bus::add_listener(bus::StatusListener* listener){ return m_pimpl->add_listener(listener); }
+bool Bus::remove_listener(const bus::CanListener* listener){ return m_pimpl->remove_listener(listener); }
+bool Bus::remove_listener(const bus::StatusListener* listener){ return m_pimpl->remove_listener(listener); }
 
 std::future<bool> Bus::send(const can::Message msg, std::chrono::milliseconds timeout){ return m_pimpl->send(msg, timeout); }
 

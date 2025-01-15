@@ -1,6 +1,6 @@
 #pragma once
 
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 #include "usbtingo/device/Device.hpp"
 
 namespace usbtingo{

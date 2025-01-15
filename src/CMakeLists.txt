@@ -1,8 +1,9 @@
 add_library(usbtingo
   bus/Bus.cpp
   bus/BusImpl.cpp
-  can/Can.cpp
   bus/CanListener.cpp
+  can/Dlc.cpp
+  can/Message.cpp
   device/Device.cpp
   device/DeviceHelper.cpp
   device/DeviceFactory.cpp

@@ -1,6 +1,6 @@
 #include "usbtingo/device/DeviceHelper.hpp"
 
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 #include "DeviceProtocol.hpp"
 
 namespace usbtingo{

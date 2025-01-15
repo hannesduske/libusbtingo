@@ -5,11 +5,11 @@
 
 namespace usbtingo{
 
-namespace device{
+namespace bus{
 
 class USBTINGO_API StatusListener{
 public:
-	virtual void on_status_update([[maybe_unused]] device::StatusFrame status) = 0;
+	virtual void on_status_update(device::StatusFrame status) = 0;
 
 };
 

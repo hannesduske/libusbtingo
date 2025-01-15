@@ -2,11 +2,11 @@
 
 #include <memory>
 #include "device/MockDevice.hpp"
-#include "device/MockStatusListener.hpp"
-#include "can/MockCanListener.hpp"
+#include "bus/MockStatusListener.hpp"
+#include "bus/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 
 // Convenience
 using usbtingo::bus::Bus;

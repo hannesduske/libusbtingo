@@ -3,7 +3,7 @@
 
 namespace usbtingo{
 
-namespace can{
+namespace bus{
 
 bool CanListener::clear_ids()
 {

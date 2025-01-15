@@ -7,14 +7,14 @@ namespace usbtingo{
 
 namespace test{
 
-class MockStatusListener : public device::StatusListener{
+class MockStatusListener : public bus::StatusListener{
 public:
     MockStatusListener() : StatusListener(), m_new_status(false), m_last_status()
     {
 
     };
 
-    void on_status_update([[maybe_unused]] device::StatusFrame status) override
+    void on_status_update(device::StatusFrame status) override
     {
         m_new_status = true;
         m_last_status = status;

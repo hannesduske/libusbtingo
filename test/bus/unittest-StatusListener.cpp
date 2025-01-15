@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <memory>
-#include "device/MockStatusListener.hpp"
+#include "bus/MockStatusListener.hpp"
 
 // Convenience
 using usbtingo::device::StatusFrame;

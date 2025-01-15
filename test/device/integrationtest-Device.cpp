@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 

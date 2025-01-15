@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
 
+#include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
-namespace usbtingo{
+namespace usbtingo {
 
-namespace can{
+namespace can {
 
 class USBTINGO_API Dlc {
 public:
@@ -28,18 +28,9 @@ public:
 	static constexpr std::uint8_t DLC_48_BYTES = 14;
 	static constexpr std::uint8_t DLC_64_BYTES = 15;
 
-	static uint8_t dlc_to_bytes(std::uint8_t dlc);
-	static uint8_t dlc_to_bytes_aligned(std::uint8_t dlc);
-};
-
-
-class USBTINGO_API Message{
-public:
-    Message();
-    Message(std::uint32_t id, std::vector<std::uint8_t> data);
-
-    std::uint32_t id;
-    std::vector<std::uint8_t> data;
+	static std::uint8_t bytes_to_dlc(std::size_t len);
+	static std::size_t dlc_to_bytes(std::uint8_t dlc);
+	static std::size_t dlc_to_bytes_aligned(std::uint8_t dlc);
 };
 
 }

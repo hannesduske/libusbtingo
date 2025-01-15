@@ -10,7 +10,7 @@
 #include <atomic>
 #include <mutex>
 
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/bus/CanListener.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
@@ -36,10 +36,10 @@ public:
 	device::Mode get_mode() const;
 	bool set_mode(const device::Mode mode);
 
-	bool add_listener(can::CanListener* listener);
-	bool add_listener(device::StatusListener* listener);
-	bool remove_listener(const can::CanListener* listener);
-	bool remove_listener(const device::StatusListener* listener);
+	bool add_listener(bus::CanListener* listener);
+	bool add_listener(bus::StatusListener* listener);
+	bool remove_listener(const bus::CanListener* listener);
+	bool remove_listener(const bus::StatusListener* listener);
 
 	std::future<bool> send(const can::Message msg, std::chrono::milliseconds timeout);
 
@@ -63,8 +63,8 @@ private:
 	unsigned int                	m_data_bitrate;
 	bool                        	m_receive_own_message;
 	
-	std::vector<can::CanListener*>			m_can_listener_vec;
-	std::vector<device::StatusListener*>	m_status_listener_vec;
+	std::vector<bus::CanListener*>		m_can_listener_vec;
+	std::vector<bus::StatusListener*>	m_status_listener_vec;
 
 	//std::mutex						m_mutex;
 	std::atomic<ListenerState>		m_listener_state;

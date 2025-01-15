@@ -127,14 +127,14 @@ bool WinDevice::clear_errors() {
 bool WinDevice::read_status(StatusFrame& status)
 {
     std::vector<std::uint8_t> status_buffer(64);
-    if(!read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, status_buffer.size())) return false;
+    if(!read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()))) return false;
     return StatusFrame::deserialize_status(status_buffer.data(), status);
 }
 
 void WinDevice::receive_status(StatusFrame& status)
 {
     std::vector<std::uint8_t> status_buffer(64);
-    read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, status_buffer.size());
+    read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()));
 }
 
 bool WinDevice::send_can(const device::CanTxFrame& tx_frame)

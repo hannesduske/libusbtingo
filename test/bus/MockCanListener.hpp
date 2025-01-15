@@ -7,17 +7,23 @@ namespace usbtingo{
 
 namespace test{
 
-class MockCanListener : public can::CanListener{
+class MockCanListener : public bus::CanListener{
 public:
     MockCanListener() : CanListener(), m_new_msg(false), m_msg_vec()
     {
 
     };
 
-    void on_can_receive([[maybe_unused]] can::Message msg)
+    void on_can_receive(can::Message msg)
     {
         m_new_msg = true;
         m_msg_vec.push_back(msg);
+    };
+
+    void on_can_receive(device::CanRxFrame msg)
+    {
+        m_new_msg = true;
+        m_msg_raw_vec.push_back(msg);
     };
 
     bool has_new_msg()
@@ -44,6 +50,7 @@ public:
 private:
     bool m_new_msg;
     std::vector<can::Message> m_msg_vec;
+    std::vector<device::CanRxFrame> m_msg_raw_vec;
 
 };
 

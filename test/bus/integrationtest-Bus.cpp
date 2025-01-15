@@ -5,8 +5,8 @@
 #include <iomanip>
 
 #include "device/MockDevice.hpp"
-#include "device/MockStatusListener.hpp"
-#include "can/MockCanListener.hpp"
+#include "bus/MockStatusListener.hpp"
+#include "bus/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/device/Device.hpp"

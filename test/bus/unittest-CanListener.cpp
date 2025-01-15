@@ -2,14 +2,15 @@
 
 #include <memory>
 #include "device/MockDevice.hpp"
-#include "can/MockCanListener.hpp"
+#include "bus/MockCanListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
-#include "usbtingo/can/Can.hpp"
+#include "usbtingo/can/Message.hpp"
 
 // Convenience
 using usbtingo::bus::Bus;
 using usbtingo::can::Message;
+using usbtingo::device::CanRxFrame;
 using usbtingo::test::MockCanListener;
 
 // Testcase #1
@@ -18,9 +19,16 @@ TEST_CASE("Unittest CanListener", "[can]"){
     const std::uint32_t testid_0 = 0;
     const std::uint32_t testid_1 = 42;
     const std::uint32_t testid_2 = 1234;
-    const auto testmsg_0 = Message(testid_0, {0x0, 0x00, 0xff});
-    const auto testmsg_1 = Message(testid_1, {0x0, 0x01, 0xff});
-    const auto testmsg_2 = Message(testid_2, {0x0, 0x02, 0xff});
+
+    CanRxFrame testmsg_0, testmsg_1, testmsg_2;
+
+    testmsg_0.id = testid_0;
+    testmsg_1.id = testid_1;
+    testmsg_2.id = testid_2;
+
+    testmsg_0.data = { 0x0, 0x00, 0xff };
+    testmsg_0.data = { 0x0, 0x01, 0xff };
+    testmsg_0.data = { 0x0, 0x02, 0xff };
 
     MockCanListener mock_listener;
 

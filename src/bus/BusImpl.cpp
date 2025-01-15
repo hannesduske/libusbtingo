@@ -22,7 +22,7 @@ BusImpl::~BusImpl() noexcept
 bool BusImpl::start()
 {
     if (m_listener_state.load() == ListenerState::LISTENING) return false;
-    if (!m_device->is_alive()) return false;
+    if (!m_device || !m_device->is_alive()) return false;
     
     m_listener_thread = std::make_unique<std::thread>(&BusImpl::listener, this);
     
@@ -57,7 +57,7 @@ bool BusImpl::set_mode(const device::Mode mode)
     return true;
 }
 
-bool BusImpl::add_listener(can::CanListener* listener)
+bool BusImpl::add_listener(bus::CanListener* listener)
 {
     // check if listener is registered
     bool success = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener) == m_can_listener_vec.end();
@@ -66,7 +66,7 @@ bool BusImpl::add_listener(can::CanListener* listener)
     return success;
 }
 
-bool BusImpl::add_listener(device::StatusListener* listener)
+bool BusImpl::add_listener(bus::StatusListener* listener)
 {
     // check if listener is registered
     bool success = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) == m_status_listener_vec.end();
@@ -75,7 +75,7 @@ bool BusImpl::add_listener(device::StatusListener* listener)
     return success;
 }
 
-bool BusImpl::remove_listener(const can::CanListener* listener)
+bool BusImpl::remove_listener(const bus::CanListener* listener)
 {
     // check if listener is registered
     auto it = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
@@ -85,7 +85,7 @@ bool BusImpl::remove_listener(const can::CanListener* listener)
     return success;
 }
 
-bool BusImpl::remove_listener(const device::StatusListener* listener)
+bool BusImpl::remove_listener(const bus::StatusListener* listener)
 {
     // check if listener is registered
     auto it = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);
