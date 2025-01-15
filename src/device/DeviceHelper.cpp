@@ -1,6 +1,6 @@
 #include "usbtingo/device/DeviceHelper.hpp"
 
-#include "usbtingo/can/Message.hpp"
+#include "usbtingo/can/Dlc.hpp"
 #include "DeviceProtocol.hpp"
 
 namespace usbtingo{
@@ -84,7 +84,7 @@ bool CanTxFrame::serialize_can_frame(uint8_t* buf_out, const CanTxFrame& buf)
 	std::uint32_t id_tmp = (buf.xtd) ? buf.id : (buf.id & 0x7ff ) << 18;
 
 	buf_out[0] = buf.message_type;
-	buf_out[1] = (buf.dlc > 0) ? 2 + (can::Dlc::dlc_to_bytes_aligned(buf.dlc) / 4) : 2;
+	buf_out[1] = (buf.dlc > 0) ? static_cast<std::uint8_t>(2 + (can::Dlc::dlc_to_bytes_aligned(buf.dlc) / 4)) : 2;
 	buf_out[2] = 0x00;
 	buf_out[3] = 0x00;
 	buf_out[4] = (id_tmp >> 0) & 0xff;

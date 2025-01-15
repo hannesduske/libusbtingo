@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstdint>
-
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
+
+#include <cstdint>
 
 namespace usbtingo {
 

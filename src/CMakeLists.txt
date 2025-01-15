@@ -1,9 +1,11 @@
 add_library(usbtingo
+  basic_bus/Message.cpp
+  basic_bus/BasicBus.cpp
+  basic_bus/BasicListener.cpp
   bus/Bus.cpp
   bus/BusImpl.cpp
   bus/CanListener.cpp
   can/Dlc.cpp
-  can/Message.cpp
   device/Device.cpp
   device/DeviceHelper.cpp
   device/DeviceFactory.cpp

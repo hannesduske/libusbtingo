@@ -8,8 +8,8 @@ namespace bus{
 
 static constexpr auto BUS_LISTENER_THREAD_DELAY_uS = std::chrono::microseconds(10);
 
-BusImpl::BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode mode, bool receive_own_message)
-    : m_device(std::move(device)), m_bitrate(bitrate), m_data_bitrate(data_bitrate), m_protocol(protocol), m_mode(mode), m_receive_own_message(receive_own_message), m_listener_state(ListenerState::IDLE)
+BusImpl::BusImpl(std::unique_ptr<device::Device> device)
+    : m_device(std::move(device)), m_listener_state(ListenerState::IDLE)
 {
     start();
 }
@@ -43,17 +43,6 @@ bool BusImpl::stop()
     }
     m_listener_thread->join();
 
-    return true;
-}
-
-device::Mode BusImpl::get_mode() const
-{
-    return m_mode;
-}
-
-bool BusImpl::set_mode(const device::Mode mode)
-{
-    m_mode = mode;
     return true;
 }
 
@@ -95,10 +84,9 @@ bool BusImpl::remove_listener(const bus::StatusListener* listener)
     return success;
 }
 
-std::future<bool> BusImpl::send(const can::Message msg, std::chrono::milliseconds timeout)
+bool BusImpl::send(const device::CanTxFrame msg)
 {
-    std::future<bool> fut;
-    return fut;
+    return m_device->send_can(msg);
 }
 
 bool BusImpl::listener() {

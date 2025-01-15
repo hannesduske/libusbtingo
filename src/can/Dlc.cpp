@@ -1,4 +1,4 @@
-#include "usbtingo/can/Message.hpp"
+#include "usbtingo/can/Dlc.hpp"
 
 #include <array>
 

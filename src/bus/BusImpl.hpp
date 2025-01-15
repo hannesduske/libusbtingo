@@ -1,5 +1,9 @@
 #pragma once
 
+#include "usbtingo/device/Device.hpp"
+#include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/bus/StatusListener.hpp"
+
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -9,11 +13,6 @@
 #include <future>
 #include <atomic>
 #include <mutex>
-
-#include "usbtingo/can/Message.hpp"
-#include "usbtingo/device/Device.hpp"
-#include "usbtingo/bus/CanListener.hpp"
-#include "usbtingo/bus/StatusListener.hpp"
 
 namespace usbtingo{
 
@@ -27,21 +26,18 @@ enum class ListenerState {
 
 class BusImpl{
 public:
-	BusImpl(std::unique_ptr<device::Device> device, unsigned int bitrate, unsigned int data_bitrate, device::Protocol protocol, device::Mode mode, bool receive_own_message = false);
+	BusImpl(std::unique_ptr<device::Device> device);
 	~BusImpl() noexcept;
 
 	bool start();
 	bool stop();
-
-	device::Mode get_mode() const;
-	bool set_mode(const device::Mode mode);
 
 	bool add_listener(bus::CanListener* listener);
 	bool add_listener(bus::StatusListener* listener);
 	bool remove_listener(const bus::CanListener* listener);
 	bool remove_listener(const bus::StatusListener* listener);
 
-	std::future<bool> send(const can::Message msg, std::chrono::milliseconds timeout);
+	bool send(const device::CanTxFrame msg);
 
 private:
 
@@ -55,20 +51,13 @@ private:
 	// bool deviceinfo_read();
 	// bool apply_filters(std::vector<can::Filter> filter);
 
-	std::unique_ptr<device::Device>	m_device;
-	device::Protocol				m_protocol;
-	device::Mode 	            	m_mode;
+	std::unique_ptr<device::Device>		m_device;
 
-	unsigned int               		m_bitrate;
-	unsigned int                	m_data_bitrate;
-	bool                        	m_receive_own_message;
-	
 	std::vector<bus::CanListener*>		m_can_listener_vec;
 	std::vector<bus::StatusListener*>	m_status_listener_vec;
 
-	//std::mutex						m_mutex;
-	std::atomic<ListenerState>		m_listener_state;
-	std::unique_ptr<std::thread>	m_listener_thread;
+	std::atomic<ListenerState>			m_listener_state;
+	std::unique_ptr<std::thread>		m_listener_thread;
 
 	bool listener();
 };

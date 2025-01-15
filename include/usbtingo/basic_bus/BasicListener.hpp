@@ -1,6 +1,7 @@
 #pragma once
 
-#include "usbtingo/device/Device.hpp"
+#include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/basic_bus/Message.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
 #include <vector>
@@ -9,19 +10,19 @@ namespace usbtingo{
 
 namespace bus{
 
-class USBTINGO_API CanListener{
+class USBTINGO_API BasicListener : private CanListener{
 public:
 	bool clear_ids();
 	bool add_id(std::uint32_t filter);
 	bool remove_id(std::uint32_t id);
 	
-	virtual void on_can_receive(device::CanRxFrame msg) = 0;
+	virtual void on_can_receive(bus::Message msg) = 0;
 
 public:
 	void forward_can_message(device::CanRxFrame msg);
 
-protected:
-	std::vector<std::uint32_t> m_id_vec;
+private:
+	void on_can_receive(device::CanRxFrame msg) override;
 
 };
 

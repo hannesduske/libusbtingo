@@ -2,11 +2,11 @@ find_package(Catch2 3 REQUIRED)
 
 # Unit Tests
 add_executable( unittest-usbtingo
+    basic_bus/unittest-Message.cpp    
     bus/unittest-Bus.cpp
     bus/unittest-StatusListener.cpp
     bus/unittest-CanListener.cpp
     can/unittest-Dlc.cpp
-    can/unittest-Message.cpp
     device/unittest-Device.cpp
     device/unittest-DeviceFactory.cpp
     device/unittest-DeviceHelper.cpp
