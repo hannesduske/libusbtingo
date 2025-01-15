@@ -63,7 +63,7 @@ public:
 
     virtual bool read_status(StatusFrame& status) = 0;
 
-    virtual void receive_status(StatusFrame& status) = 0;
+    virtual bool receive_status(StatusFrame& status) = 0;
 
     virtual bool send_can(const CanTxFrame& tx_frame) = 0;
 

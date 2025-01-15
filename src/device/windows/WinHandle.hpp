@@ -10,7 +10,7 @@ namespace usbtingo {
 
 namespace device {
 
-struct DeviceData {
+struct WinHandle {
     BOOL                    HandlesOpen = 0;
     WINUSB_INTERFACE_HANDLE WinusbHandle = { 0 };
     HANDLE                  DeviceHandle = { 0 };

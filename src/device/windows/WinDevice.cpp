@@ -131,10 +131,10 @@ bool WinDevice::read_status(StatusFrame& status)
     return StatusFrame::deserialize_status(status_buffer.data(), status);
 }
 
-void WinDevice::receive_status(StatusFrame& status)
+bool WinDevice::receive_status(StatusFrame& status)
 {
     std::vector<std::uint8_t> status_buffer(64);
-    read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()));
+    return read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()));
 }
 
 bool WinDevice::send_can(const device::CanTxFrame& tx_frame)
@@ -281,7 +281,7 @@ bool WinDevice::detect_usbtingos()
         }
 
         // read serial number from device memory. only works if no other device handle of this device is currently active.
-        /*DeviceData device_data;
+        /*WinHandle device_data;
         device_data.DevicePath = dev;
 
         hr &= WinDevice::open_usb_device(device_data);
@@ -299,7 +299,7 @@ bool WinDevice::detect_usbtingos()
  * @param[in] device_data Device data structure
  * @return HRESULT
  */
-HRESULT WinDevice::read_usbtingo_serial(const DeviceData& device_data, std::uint32_t& serial)
+HRESULT WinDevice::read_usbtingo_serial(const WinHandle& device_data, std::uint32_t& serial)
 {
     serial = 0;
     if (!device_data.HandlesOpen) return E_ABORT;
@@ -364,7 +364,7 @@ HRESULT WinDevice::read_usbtingo_serial(const DeviceData& device_data, std::uint
  * @param[out] value String returning the value of the device descriptor. Max buffer length is hardcoded to 256.
  * @return HRESULT
  */
-HRESULT WinDevice::read_usb_descriptor(const DeviceData& device_data, const std::uint8_t index, const std::uint16_t languageID, std::string& value)
+HRESULT WinDevice::read_usb_descriptor(const WinHandle& device_data, const std::uint8_t index, const std::uint16_t languageID, std::string& value)
 {
     if (!device_data.HandlesOpen) return E_ABORT;
 
@@ -414,7 +414,7 @@ HRESULT WinDevice::read_usb_descriptor(const DeviceData& device_data, const std:
  * @param[in] device_data Device data structure
  * @return HRESULT
  */
-HRESULT WinDevice::open_usb_device(DeviceData& device_data)
+HRESULT WinDevice::open_usb_device(WinHandle& device_data)
 {
     HRESULT hr = S_OK;
     BOOL    bResult;
@@ -454,7 +454,7 @@ HRESULT WinDevice::open_usb_device(DeviceData& device_data)
  * @brief Close all handles of a WinUsb device.
  * @param[in] device_data Device data structure
  */
-HRESULT WinDevice::close_usb_device(DeviceData& device_data)
+HRESULT WinDevice::close_usb_device(WinHandle& device_data)
 {
     if (FALSE == device_data.HandlesOpen) {
         // Called on an uninitialized device_data
@@ -541,7 +541,7 @@ HRESULT WinDevice::detect_usb_devices(std::vector<std::string>& devices, std::ui
     return hr;
 }
 
-HRESULT WinDevice::read_usbtingo_info(const DeviceData& device_data, DeviceInfo& device_info)
+HRESULT WinDevice::read_usbtingo_info(const WinHandle& device_data, DeviceInfo& device_info)
 {
     if(!device_data.HandlesOpen) return E_FAIL;
 
@@ -565,7 +565,7 @@ HRESULT WinDevice::read_usbtingo_info(const DeviceData& device_data, DeviceInfo&
  * @param[in] idx Index field
  * @return true if operation succeeded
  */
-bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx)
+bool WinDevice::write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx)
 {
     if(!device_data.HandlesOpen) return false;
 
@@ -587,7 +587,7 @@ bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, s
  * @param[in] data Data to transmit to control endpoint
  * @return true if operation succeeded
  */
-bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::vector<std::uint8_t>& data)
+bool WinDevice::write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::vector<std::uint8_t>& data)
 {
     if(!device_data.HandlesOpen) return false;
 
@@ -611,7 +611,7 @@ bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, s
  * @param[in] len Number of bytes to transmit from data buffer
  * @return true if operation succeeded
  */
-bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::uint8_t* data, std::uint16_t len)
+bool WinDevice::write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::uint8_t* data, std::uint16_t len)
 {
     if(!device_data.HandlesOpen) return false;
 
@@ -634,7 +634,7 @@ bool WinDevice::write_control(const DeviceData& device_data, std::uint8_t cmd, s
  * @param[out] data Data buffer to store data from control endpoint
  * @return true if operation succeeded
  */
-bool WinDevice::read_control(const DeviceData& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len)
+bool WinDevice::read_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len)
 {
     if(!device_data.HandlesOpen) return false;
 
@@ -660,7 +660,7 @@ bool WinDevice::read_control(const DeviceData& device_data, std::uint8_t cmd, st
  * @param[in] len Number of bytes to transmit from data buffer
  * @return true if operation succeeded
  */
-bool WinDevice::write_bulk(const DeviceData& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len)
+bool WinDevice::write_bulk(const WinHandle& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len)
 {
     if(!device_data.HandlesOpen) return false;
     ULONG lengthReceived = 0;
@@ -675,7 +675,7 @@ bool WinDevice::write_bulk(const DeviceData& device_data, std::uint8_t endpoint,
  * @param[inout] len Number of bytes to read from data buffer
  * @return true if operation succeeded
  */
-bool WinDevice::read_bulk(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
+bool WinDevice::read_bulk(const WinHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
 {
     if(!device_data.HandlesOpen) return false;
     return static_cast<bool>(WinUsb_ReadPipe(device_data.WinusbHandle, endpoint, (PBYTE)buffer.data(), static_cast<ULONG>(len), reinterpret_cast<unsigned long*>(&len), NULL));
@@ -690,7 +690,7 @@ bool WinDevice::read_bulk(const DeviceData& device_data, std::uint8_t endpoint, 
  * @param[out] async Structure to handle async i/o operations
  * @return true if operation succeeded
  */
-bool WinDevice::request_bulk_async(const DeviceData& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async)
+bool WinDevice::request_bulk_async(const WinHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async)
 {
     if (!device_data.HandlesOpen) return false;
 
@@ -709,7 +709,7 @@ bool WinDevice::request_bulk_async(const DeviceData& device_data, std::uint8_t e
  * @param[in] async Structure to handle async i/o operations
  * @return true if operation succeeded, returns false if data is not available yet
  */
-bool WinDevice::read_bulk_async(const DeviceData& device_data, std::size_t& len, OVERLAPPED& async)
+bool WinDevice::read_bulk_async(const WinHandle& device_data, std::size_t& len, OVERLAPPED& async)
 {
     return static_cast<bool>(GetOverlappedResult(static_cast<HANDLE>(device_data.WinusbHandle), &async, reinterpret_cast<unsigned long*>(&len), FALSE));
 }

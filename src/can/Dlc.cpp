@@ -6,7 +6,7 @@ namespace usbtingo{
 
 namespace can{
 
-static constexpr std::array<std::size_t, 16> dlc_to_bytes_map = {
+static constexpr std::array<std::uint8_t, 16> dlc_to_bytes_map = {
 0,  1,  2,  3,  4,  5,  6,  7,  8,  12, 16, 20, 24, 32, 48, 64
 };
 

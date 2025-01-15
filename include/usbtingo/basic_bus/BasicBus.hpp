@@ -14,7 +14,7 @@ class BusImpl;
 
 class USBTINGO_API BasicBus : private Bus{
 public:
-	static std::unique_ptr<BasicBus> createBus(unsigned int baudrate, unsigned int data_baudrate, device::Protocol protocol = device::Protocol::CAN_2_0, device::Mode mode = device::Mode::ACTIVE);
+	static std::unique_ptr<BasicBus> create_bus(std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol = device::Protocol::CAN_2_0, device::Mode mode = device::Mode::ACTIVE);
 
 	bool add_listener(bus::BasicListener* listener);
 	bool remove_listener(const bus::BasicListener* listener);
