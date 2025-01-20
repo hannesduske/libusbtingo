@@ -15,7 +15,8 @@ namespace device{
 	constexpr std::uint8_t USB_REQUEST_HOST2DEVICE  		= 0x0 << 7;
 	constexpr std::uint8_t USB_REQUEST_DEVICE2HOST  		= 0x1 << 7;
 
-	constexpr std::uint16_t USB_BULK_BUFFER_SIZE    		= 512;
+	constexpr std::uint16_t USB_BULK_BUFFER_SIZE	  		= 512;
+	constexpr std::uint16_t USB_BULK_BUFFER_SIZE_STATUS		= 64;
 	constexpr std::uint16_t USB_BULK_MAX_MESSAGE_COUNT		= 50;
 
 	constexpr std::uint16_t USBTINGO_VID               		= 0x1fc9;

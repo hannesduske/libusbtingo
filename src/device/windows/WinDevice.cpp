@@ -240,7 +240,7 @@ std::future<bool> WinDevice::request_status_async() //ToDo: Generalize async req
     if (m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE) return std::future<bool>();
 
     m_async_status = { 0 };
-    request_bulk_async(m_device_data, USBTINGO_EP1_STATUS_IN, m_buffer_status, USB_BULK_BUFFER_SIZE, m_async_status);
+    request_bulk_async(m_device_data, USBTINGO_EP1_STATUS_IN, m_buffer_status, USB_BULK_BUFFER_SIZE_STATUS, m_async_status);
     return std::async(std::launch::async, [this]()
         {
             m_shutdown_status.store(AsyncIoState::REQUEST_ACTIVE);
