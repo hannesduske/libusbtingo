@@ -14,7 +14,7 @@ public:
 
     };
 
-    void on_can_receive(device::CanRxFrame msg)
+    void on_can_receive(device::CanRxFrame msg) override
     {
         m_new_msg = true;
         m_msg_vec.push_back(msg);
@@ -36,10 +36,6 @@ public:
     {
         return m_msg_vec;
     };
-
-    std::vector<std::uint32_t> get_ids(){
-        return m_id_vec;
-    }
 
 private:
     bool m_new_msg;

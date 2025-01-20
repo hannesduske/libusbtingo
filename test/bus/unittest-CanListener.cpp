@@ -25,8 +25,8 @@ TEST_CASE("Unittest CanListener", "[can]"){
     testmsg_2.id = testid_2;
 
     testmsg_0.data = { 0x0, 0x00, 0xff };
-    testmsg_0.data = { 0x0, 0x01, 0xff };
-    testmsg_0.data = { 0x0, 0x02, 0xff };
+    testmsg_1.data = { 0x0, 0x01, 0xff };
+    testmsg_2.data = { 0x0, 0x02, 0xff };
 
     MockCanListener mock_listener;
 
@@ -129,5 +129,25 @@ TEST_CASE("Unittest CanListener", "[can]"){
         REQUIRE(mock_listener.has_new_msg() == true);
         mock_listener.forward_can_message(testmsg_2);
         REQUIRE(mock_listener.has_new_msg() == true);
+    }
+
+    SECTION("Check contents of received can messages") {
+        mock_listener.forward_can_message(testmsg_0);
+        REQUIRE(mock_listener.has_new_msg() == true);
+        const auto msg_0 = mock_listener.get_latest_msg();
+        CHECK(msg_0.id == testid_0);
+        CHECK(std::equal(msg_0.data.begin(), msg_0.data.end(), testmsg_0.data.begin()));
+
+        mock_listener.forward_can_message(testmsg_1);
+        REQUIRE(mock_listener.has_new_msg() == true);
+        const auto msg_1 = mock_listener.get_latest_msg();
+        CHECK(msg_1.id == testid_1);
+        CHECK(std::equal(msg_1.data.begin(), msg_1.data.end(), testmsg_1.data.begin()));
+
+        mock_listener.forward_can_message(testmsg_1);
+        REQUIRE(mock_listener.has_new_msg() == true);
+        const auto msg_2 = mock_listener.get_latest_msg();
+        CHECK(msg_2.id == testid_1);
+        CHECK(std::equal(msg_2.data.begin(), msg_2.data.end(), testmsg_1.data.begin()));
     }
 }
