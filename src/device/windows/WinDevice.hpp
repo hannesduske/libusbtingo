@@ -80,6 +80,12 @@ public:
 
     bool receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
 
+    bool cancel_async_status_request() override;
+
+    std::future<bool> request_status_async() override;
+
+    bool receive_status_async(StatusFrame& status_frames) override;
+
 private:
     WinHandle m_device_data;
 

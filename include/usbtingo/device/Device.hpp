@@ -41,25 +41,23 @@ public:
 
     virtual bool clear_errors() = 0;
 
-/*
-    virtual bool clear_errors() = 0;
+    //virtual bool clear_errors() = 0;
 
-    virtual bool disable_all_filters() = 0;
+    //virtual bool disable_all_filters() = 0;
 
-    virtual bool add_std_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) = 0;
+    //virtual bool add_std_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) = 0;
 
-    virtual bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) = 0;
+    //virtual bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) = 0;
 
-    bool add_filter();
+    //bool add_filter();
 
-    bool read_mcan();
+    //bool read_mcan();
 
-    bool write_mcan();
+    //bool write_mcan();
 
-    bool config_logic();
+    //bool config_logic();
 
-    bool get_logic_errors();
-*/
+    //bool get_logic_errors();
 
     virtual bool read_status(StatusFrame& status) = 0;
 
@@ -76,6 +74,18 @@ public:
     virtual std::future<bool> request_can_async() = 0;
 
     virtual bool receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) = 0;
+
+    virtual bool cancel_async_status_request() = 0;
+
+    virtual std::future<bool> request_status_async() = 0;
+
+    virtual bool receive_status_async(StatusFrame& status_frames) = 0;
+
+    //virtual bool cancel_async_logic_request() = 0;
+
+    //virtual std::future<bool> request_logic_async() = 0;
+
+    //virtual bool receive_logic_async(StatusFrame& status_frames) = 0;
 
 protected:
 	Device(std::uint32_t serial);
