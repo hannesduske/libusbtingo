@@ -23,6 +23,11 @@ bool BasicListener::remove_id(std::uint32_t id)
     return CanListener::remove_id(id);
 }
 
+std::vector<std::uint32_t> BasicListener::get_ids()
+{
+    return CanListener::get_ids();
+}
+
 void BasicListener::on_can_receive(device::CanRxFrame msg)
 {
     on_can_receive(Message(msg));

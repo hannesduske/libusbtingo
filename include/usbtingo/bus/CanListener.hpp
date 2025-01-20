@@ -14,6 +14,7 @@ public:
 	bool clear_ids();
 	bool add_id(std::uint32_t filter);
 	bool remove_id(std::uint32_t id);
+	std::vector<std::uint32_t> get_ids();
 	
 	virtual void on_can_receive(device::CanRxFrame msg) = 0;
 

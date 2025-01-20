@@ -12,7 +12,7 @@ BasicBus::BasicBus(std::unique_ptr<device::Device> device)
 	
 }
 
-std::unique_ptr<BasicBus> BasicBus::create_bus(std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol, device::Mode mode)
+std::unique_ptr<BasicBus> BasicBus::create(std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol, device::Mode mode)
 {
 	auto serial_vec = device::DeviceFactory::detect_available_devices();
 	if (serial_vec.size() == 0) return nullptr;
@@ -42,9 +42,7 @@ bool BasicBus::remove_listener(const bus::BasicListener* listener)
 
 bool BasicBus::send(const bus::Message msg)
 {
-	device::CanTxFrame raw_msg = { 0 };
-	Bus::send(raw_msg);
-	return true;
+	return Bus::send(msg.to_CanTxFrame());
 }
 
 };
