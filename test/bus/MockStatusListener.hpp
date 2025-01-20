@@ -3,6 +3,8 @@
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
+#include <mutex>
+
 namespace usbtingo{
 
 namespace test{
@@ -16,12 +18,14 @@ public:
 
     void on_status_update(device::StatusFrame status) override
     {
+        std::lock_guard<std::mutex> guard(m_mutex);
         m_new_status = true;
         m_last_status = status;
     };
 
     bool has_new_status()
     {
+        std::lock_guard<std::mutex> guard(m_mutex);
         bool val = m_new_status;
         m_new_status = false;
         return val;
@@ -36,6 +40,7 @@ private:
     bool m_new_status;
     device::StatusFrame m_last_status;
 
+    std::mutex m_mutex;
 };
 
 }

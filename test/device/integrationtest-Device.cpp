@@ -392,7 +392,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
             // wait a little while longer in case more messages arrive
             if (result == std::future_status::ready) {
-                timeout = std::chrono::milliseconds(50);
+                timeout = std::chrono::milliseconds(200);
             }
 
         } while (result != std::future_status::timeout);

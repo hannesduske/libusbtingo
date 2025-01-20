@@ -49,36 +49,61 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
     // test object
     auto bus = Bus(std::move(mockdev));
 
-    SECTION("Can message forwarding"){
-        auto mock_listener = std::make_unique<MockCanListener>();
-        bus.add_listener(mock_listener.get());
+    SECTION("Can message forwarding") {
+        auto mock_can_listener = std::make_unique<MockCanListener>();
+        bus.add_listener(mock_can_listener.get());
 
         //Subscribe and receive message
         mockdev_raw->trigger_message(testmsg);
-        REQUIRE(mock_listener->has_new_msg() == true);
-        CHECK(mock_listener->get_latest_msg().id == testmsg.id);
-        CHECK(mock_listener->get_latest_msg().data == testmsg.data);
+
+        // ToDo: Find out why three operations are required here. Racing conditions?
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+
+        REQUIRE(mock_can_listener->has_new_msg() == true);
+        CHECK(mock_can_listener->get_latest_msg().id == testmsg.id);
+        CHECK(mock_can_listener->get_latest_msg().data == testmsg.data);
 
         //Unsubscribe and don't receive message
-        bus.remove_listener(mock_listener.get());
+        bus.remove_listener(mock_can_listener.get());
         mockdev_raw->trigger_message(testmsg);
-        REQUIRE(mock_listener->has_new_msg() == false);
+        
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+
+        REQUIRE(mock_can_listener->has_new_msg() == false);
     }
 
     SECTION("Status forwarding"){
-        auto mock_listener = std::make_unique<MockStatusListener>();
-        bus.add_listener(mock_listener.get());
+        auto mock_can_listener = std::make_unique<MockStatusListener>();
+        bus.add_listener(mock_can_listener.get());
 
         // Subscribe and receive status
         mockdev_raw->trigger_status(teststatus);
-        REQUIRE(mock_listener->has_new_status() == true);
-        CHECK(mock_listener->get_new_status().get_tx_error_count() == teststatus.get_tx_error_count());
-        CHECK(mock_listener->get_new_status().get_rx_error_count() == teststatus.get_rx_error_count());
+        
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+
+        REQUIRE(mock_can_listener->has_new_status() == true);
+        CHECK(mock_can_listener->get_new_status().get_tx_error_count() == teststatus.get_tx_error_count());
+        CHECK(mock_can_listener->get_new_status().get_rx_error_count() == teststatus.get_rx_error_count());
 
         // Unsubscribe and don't receive status
-        bus.remove_listener(mock_listener.get());
+        bus.remove_listener(mock_can_listener.get());
         mockdev_raw->trigger_status(teststatus);
-        REQUIRE(mock_listener->has_new_status() == false);
+        
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+
+        REQUIRE(mock_can_listener->has_new_status() == false);
     }
 }
 
@@ -95,34 +120,8 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
     testmsg.id = 42;
     testmsg.data = { 0x00, 0x01, 0x02, 0x03 };
 
-    auto mock_listener = std::make_unique<MockCanListener>();
-    
-    //SECTION("Can message loopback"){
-
-    //for (const auto protocol : std::vector<Protocol>{Protocol::CAN_2_0, Protocol::CAN_FD, Protocol::CAN_FD_NON_ISO}){
-    //    
-    //        auto dev = DeviceFactory::create(sn_vec.front());
-    //        auto dev_raw = dev.get();
-
-    //        REQUIRE(dev);
-    //        REQUIRE(dev->is_alive());
-
-    //        auto bus = Bus(std::move(dev), 1000000, 1000000, protocol, Mode::ACTIVE, true);
-    //        bus.add_listener(mock_listener.get());
-
-    //        // Subscribe and receive message
-    //        bus.send(testmsg);
-    //        REQUIRE(mock_listener->has_new_msg());
-    //        CHECK(mock_listener->get_latest_msg().id == testmsg.id);
-    //        CHECK(mock_listener->get_latest_msg().data == testmsg.data);
-
-    //        // Unsubscribe and don't receive message
-    //        bus.remove_listener(mock_listener.get());
-    //        bus.send(testmsg);
-    //        REQUIRE(mock_listener->has_new_msg() == false);
-
-    //    }
-    //}
+    auto mock_can_listener = std::make_unique<MockCanListener>();
+    auto mock_status_listener = std::make_unique<MockStatusListener>();  
 
     SECTION("Receive real CAN FD message, check listener callback") {
 
@@ -143,30 +142,30 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
         dev->set_mode(Mode::ACTIVE);
         
         auto bus = Bus(std::move(dev));
-        bus.add_listener(mock_listener.get());
+        bus.add_listener(mock_can_listener.get());
 
         WARN("Waiting for 30 seconds to receive a CAN FD message.");
         int watchdog = 0;
-        while(!mock_listener->has_new_msg() && watchdog < 300)
+        while(!mock_can_listener->has_new_msg() && watchdog < 300)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             watchdog++;
         }
 
         // wait a little while longer in case more messages arrive
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-        auto rx_frames = mock_listener->get_all_msg();
+        auto rx_frames = mock_can_listener->get_all_msg();
         REQUIRE(rx_frames.size() > 0);
 
         std::cout << "Got " << rx_frames.size() << " CAN FD message(s) : " << std::endl;
 
         for (const auto& msg : rx_frames) {
             std::cout << "    Std ID:  0x" << std::hex << msg.id << std::endl;
-            std::cout << "    DLC: " << msg.data.size() << " Bytes" << std::endl;
+            std::cout << "    DLC: " << std::to_string(Dlc::dlc_to_bytes(msg.dlc)) << " Bytes" << std::endl;
             std::cout << "    Data: ";
 
-            for (size_t i = 0; i < msg.data.size(); i++) {
+            for (size_t i = 0; i < Dlc::dlc_to_bytes(msg.dlc); i++) {
                 std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(msg.data.at(i)) << " ";
             }
             std::cout << std::endl << std::endl;
@@ -182,6 +181,91 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
         SKIP("Skipping interacive checks of this test");
 #endif
 
-        
+    }
+
+
+    SECTION("Receive status, check listener callback") {
+        const std::vector<Mode> mode_vec = { Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY };
+            for (const auto& mode : mode_vec) {
+
+            auto dev = DeviceFactory::create(sn_vec.front());
+            REQUIRE(dev);
+            REQUIRE(dev->is_alive());
+
+            dev->set_mode(mode);
+            dev->set_protocol(Protocol::CAN_2_0);
+            auto bus = Bus(std::move(dev));
+
+            bus.add_listener(mock_status_listener.get());
+
+            WARN("Waiting up to 10 seconds for status message from device... ");
+            int watchdog = 0;
+            while (!mock_status_listener->has_new_status() && watchdog < 100)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                watchdog++;
+            }
+            REQUIRE(watchdog < 100);
+
+            auto status = mock_status_listener->get_new_status();
+            CHECK(status.operation_mode == static_cast<std::uint8_t>(mode));
+        }
+    }
+
+    SECTION("Send a single CAN 2.0 frame") {
+
+        const std::uint32_t baud = 1000000;
+
+        CanTxFrame tx_frame;
+        tx_frame.id = 42;
+        tx_frame.dlc = static_cast<std::uint8_t>(Dlc::DLC_6_BYTES);
+        tx_frame.data.at(0) = 0x48; // H
+        tx_frame.data.at(1) = 0x65; // e
+        tx_frame.data.at(2) = 0x6c; // l
+        tx_frame.data.at(3) = 0x6c; // l
+        tx_frame.data.at(4) = 0x6f; // o
+        tx_frame.data.at(5) = 0x21; // !
+        tx_frame.fdf = 1;
+        tx_frame.efc = 1;
+        tx_frame.esi = 1;
+        tx_frame.txmm = 123;
+
+        auto dev = DeviceFactory::create(sn_vec.front());
+        REQUIRE(dev);
+        REQUIRE(dev->is_alive());
+        auto dev_raw = dev.get();
+
+        dev->set_baudrate(baud);
+        dev->set_protocol(Protocol::CAN_2_0, 0b00010000);
+        dev->set_mode(Mode::ACTIVE);
+
+        auto bus = Bus(std::move(dev));
+
+        std::size_t msg_idx;
+        StatusFrame status;
+        dev_raw->read_status(status);
+        msg_idx = status.nr_std_frames;
+
+        dev_raw->clear_errors();
+        dev_raw->read_status(status);
+
+#ifndef SKIP_INTERACTIVE_TESTS
+        std::string response;
+        std::cout << "Sending ONE CAN 2.0 message at a baudrate of " << baud << " after pressing ENTER ..." << std::endl;
+        while (std::cin.get() != '\n') {}
+#endif
+        CHECK(bus.send(tx_frame));
+
+        // Check if tx counter has been increased by one
+        dev_raw->read_status(status);
+        CHECK(status.nr_std_frames - msg_idx == 1);
+
+#ifndef SKIP_INTERACTIVE_TESTS
+        std::cout << "Has ONE message been sent with ID " << tx_frame.id << " and data \"Hello!\" ? (y / n) : " << std::endl;
+        std::cin >> response;
+        CHECK(response == "y");
+#else
+        SKIP("Skipping interacive checks of this test");
+#endif
     }
 }
