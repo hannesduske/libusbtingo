@@ -33,6 +33,11 @@ bool CanListener::remove_id(std::uint32_t id)
     return success;
 }
 
+std::vector<std::uint32_t> CanListener::get_ids()
+{
+    return m_id_vec;
+}
+
 void CanListener::on_can_receive(device::CanRxFrame msg)
 {
     //unsused varaible warning
