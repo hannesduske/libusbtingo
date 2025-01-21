@@ -28,8 +28,19 @@ public:
 	static constexpr std::uint8_t DLC_48_BYTES = 14;
 	static constexpr std::uint8_t DLC_64_BYTES = 15;
 
+	/**
+	 * @brief Convert a number of bytes to the Data Length Code of a Can message. Rounds up the number of bytes to the next valid DLC in case of CAN FD messages.
+	 */
 	static std::uint8_t bytes_to_dlc(std::size_t len);
+
+	/**
+	 * @brief Convert a raw Data Length code to a number of bytes.
+	 */
 	static std::size_t dlc_to_bytes(std::uint8_t dlc);
+
+	/**
+	 * @brief Convert a raw Data Length code to a number of bytes. The return value is rounded up to be a 32 Bit aligned value.
+	 */
 	static std::size_t dlc_to_bytes_aligned(std::uint8_t dlc);
 };
 
