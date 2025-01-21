@@ -16,10 +16,10 @@ public:
 	bool remove_id(std::uint32_t id);
 	std::vector<std::uint32_t> get_ids();
 	
-	virtual void on_can_receive(device::CanRxFrame msg) = 0;
+	virtual void on_can_receive(const device::CanRxFrame msg) = 0;
 
 public:
-	void forward_can_message(device::CanRxFrame msg);
+	void forward_can_message(const device::CanRxFrame msg);
 
 protected:
 	std::vector<std::uint32_t> m_id_vec;

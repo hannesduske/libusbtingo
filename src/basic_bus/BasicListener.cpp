@@ -28,12 +28,12 @@ std::vector<std::uint32_t> BasicListener::get_ids()
     return CanListener::get_ids();
 }
 
-void BasicListener::on_can_receive(device::CanRxFrame msg)
+void BasicListener::on_can_receive(const device::CanRxFrame msg)
 {
     on_can_receive(Message(msg));
 }
 
-void BasicListener::forward_can_message(device::CanRxFrame msg)
+void BasicListener::forward_can_message(const device::CanRxFrame msg)
 {
     CanListener::forward_can_message(msg);
 }

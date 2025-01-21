@@ -9,7 +9,7 @@ namespace bus{
 
 class USBTINGO_API StatusListener{
 public:
-	virtual void on_status_update(device::StatusFrame status) = 0;
+	virtual void on_status_update(const device::StatusFrame status) = 0;
 
 };
 

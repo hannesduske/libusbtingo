@@ -48,6 +48,8 @@ bool BusImpl::stop()
 
 bool BusImpl::add_listener(bus::CanListener* listener)
 {
+    if(!listener) return false;
+
     // check if listener is registered
     bool success = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener) == m_can_listener_vec.end();
 
@@ -57,6 +59,8 @@ bool BusImpl::add_listener(bus::CanListener* listener)
 
 bool BusImpl::add_listener(bus::StatusListener* listener)
 {
+    if(!listener) return false;
+
     // check if listener is registered
     bool success = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) == m_status_listener_vec.end();
 
@@ -66,6 +70,8 @@ bool BusImpl::add_listener(bus::StatusListener* listener)
 
 bool BusImpl::remove_listener(const bus::CanListener* listener)
 {
+    if(!listener) return false;
+
     // check if listener is registered
     auto it = std::find( m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
     bool success = it != m_can_listener_vec.end();
@@ -76,6 +82,8 @@ bool BusImpl::remove_listener(const bus::CanListener* listener)
 
 bool BusImpl::remove_listener(const bus::StatusListener* listener)
 {
+    if(!listener) return false;
+    
     // check if listener is registered
     auto it = std::find( m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);
     bool success = it != m_status_listener_vec.end();

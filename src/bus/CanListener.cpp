@@ -38,13 +38,13 @@ std::vector<std::uint32_t> CanListener::get_ids()
     return m_id_vec;
 }
 
-void CanListener::on_can_receive(device::CanRxFrame msg)
+void CanListener::on_can_receive(const device::CanRxFrame msg)
 {
-    //unsused varaible warning
+    //unused variable warning
     static_cast<void>(msg);
 }
 
-void CanListener::forward_can_message(device::CanRxFrame msg)
+void CanListener::forward_can_message(const device::CanRxFrame msg)
 {
     // Forward message if no filter is set or the message id is registered in the filter vec
     if ((m_id_vec.empty()) || (std::find(m_id_vec.begin(), m_id_vec.end(), msg.id) != m_id_vec.end()))
