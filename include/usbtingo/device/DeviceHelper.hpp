@@ -9,18 +9,27 @@ namespace usbtingo {
 
 namespace device {
 
+/**
+ * @brief Operation modes of the USBtingo.
+ */
 enum class USBTINGO_API Mode {
     OFF = 0x00,
     ACTIVE = 0x01,
     LISTEN_ONLY = 0x02
 };
 
+/**
+ * @brief Supported Bus protocols of the USBtingo.
+ */
 enum class USBTINGO_API Protocol {
     CAN_2_0 = 0x00,
     CAN_FD = 0x01,
     CAN_FD_NON_ISO = 0x02
 };
 
+/**
+ * @brief Object representing the DeviceInfo stored on the USBtingo.
+ */
 struct USBTINGO_API DeviceInfo {
 	std::uint8_t    fw_minor = 0;
 	std::uint8_t    fw_major = 0;
@@ -30,6 +39,9 @@ struct USBTINGO_API DeviceInfo {
 	std::uint32_t   clock_hz = 0;
 };
 
+/**
+ * @brief Status frame of the USBtingo.
+ */
 struct USBTINGO_API StatusFrame {
 	std::uint8_t	message_type = 0;
 	std::uint8_t	operation_mode = 0;
@@ -63,6 +75,9 @@ struct USBTINGO_API StatusFrame {
 	static bool deserialize_status(const uint8_t* buf, StatusFrame& frame);
 };
 
+/**
+ * @brief CanRxFrame frame of the USBtingo.
+ */
 struct USBTINGO_API CanRxFrame {
 	std::uint8_t	message_type = 0;
 	std::uint8_t	message_size = 0;
@@ -79,9 +94,19 @@ struct USBTINGO_API CanRxFrame {
 	std::uint8_t	fidx = 0;
 	std::array<std::uint8_t, 64> data = { 0 };
 
+	/**
+	 * @brief Convert a raw buffer from a USBtingo transmission to a CanRxFrame.
+	 * @param[in] buf Pointer to the raw buffer that was received from the USBtingo.
+	 * @param[out] buf_out Reference to the CanRxFrame to which the raw buffer values are written.
+	 * @return Returns true if operation succeeds. Returns false if the data in the input buffer has an invalid format.
+	 */
 	static bool deserialize_can_frame(const uint8_t* buf, CanRxFrame& buf_out);
 };
 
+
+/**
+ * @brief CanTxFrame frame of the USBtingo.
+ */
 struct USBTINGO_API CanTxFrame {
 	std::uint8_t	message_type = 1;
 	std::uint8_t	message_size = 0;
@@ -96,10 +121,26 @@ struct USBTINGO_API CanTxFrame {
 	std::uint8_t	txmm = 0;
 	std::array<std::uint8_t, 64> data = { 0 };
 	
+	/**
+	 * @brief Convert a raw buffer from a USBtingo transmission to a CanTxFrame.
+	 * @param[out] buf_out Pointer to the raw buffer to which the raw buffer values are written.
+	 * @param[in] buf Reference to the CanRxFrame which will be convereted to a raw buffer.
+	 * @return Returns true if operation succeeds. Returns false if the data in the input buffer has an invalid format.
+	 */
 	static bool serialize_can_frame(uint8_t* buf_out, const CanTxFrame& frame);
+
+	/**
+	 * @brief Calculate the buffer size of the CanTxFrame that is required for the CanTxFrame.message_size field.
+	 * @param[in] buf Reference to the CanRxFrame whose size is to be determined. 
+	 * @return Size of a raw buffer containing the CanRxFrame data in bytes aligned to a 32-bit value.
+	 */
 	static std::size_t buffer_size_bytes(const CanTxFrame& buf);
 };
 
+
+/**
+ * @brief TxEventFrame frame of the USBtingo.
+ */
 struct USBTINGO_API TxEventFrame {
 	std::uint8_t	message_type = 0;
 	std::uint8_t	message_size = 0;
@@ -115,6 +156,12 @@ struct USBTINGO_API TxEventFrame {
 	std::uint8_t	dlc = 0;
 	std::uint8_t	txmm = 0;
 
+	/**
+	 * @brief Convert a raw buffer from a USBtingo transmission to a TxEventFrame.
+	 * @param[in] buf Pointer to the raw buffer that was received from the USBtingo.
+	 * @param[out] buf_out Reference to the TxEventFrame to which the raw buffer values are written.
+	 * @return Returns true if operation succeeds. Returns false if the data in the input buffer has an invalid format.
+	 */
 	static bool deserialize_tx_event(const uint8_t* buf, TxEventFrame& frame);
 };
 

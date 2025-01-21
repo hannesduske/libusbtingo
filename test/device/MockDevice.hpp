@@ -80,11 +80,6 @@ public:
         return false;
     }
 
-    bool receive_status(device::StatusFrame& status) override
-    {
-        return false;
-    }
-
     bool send_can(const device::CanTxFrame& tx_frame) override
     {
         return false;
@@ -130,9 +125,9 @@ public:
         return m_new_status_promise.get_future();
     }
 
-    bool receive_status_async(device::StatusFrame& status_frames) override {
+    bool receive_status_async(device::StatusFrame& status_frame) override {
         std::lock_guard<std::mutex> guard(m_mutex);
-        status_frames = m_status;
+        status_frame = m_status;
         return true;
     }
 

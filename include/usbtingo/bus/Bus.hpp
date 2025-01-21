@@ -70,8 +70,8 @@ public:
 	bool remove_listener(const bus::StatusListener* listener);
 	
 	/**
-	 * @brief Send a message on the Can Bus.
-	 * @param[in] msg Message to be sent on the Can Bus. The CanTxFrame has to be configured manually before passing it to the send method.
+	 * @brief Send a message on the Can bus.
+	 * @param[in] msg Message to be sent on the Can bus. The CanTxFrame has to be configured manually before passing it to the send method.
 	 * @return Returns true if operation succeeds.
 	 */
 	bool send(const device::CanTxFrame msg);

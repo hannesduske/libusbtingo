@@ -132,12 +132,6 @@ bool WinDevice::read_status(StatusFrame& status)
     return StatusFrame::deserialize_status(status_buffer.data(), status);
 }
 
-bool WinDevice::receive_status(StatusFrame& status)
-{
-    std::vector<std::uint8_t> status_buffer(64);
-    return read_control(m_device_data, USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()));
-}
-
 bool WinDevice::send_can(const device::CanTxFrame& tx_frame)
 {
     const std::size_t msg_size = CanTxFrame::buffer_size_bytes(tx_frame);

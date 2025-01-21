@@ -66,8 +66,6 @@ public:
 
     bool read_status(StatusFrame& status) override;
 
-    bool receive_status(StatusFrame& status) override;
-
     bool send_can(const CanTxFrame& tx_frame) override;
     
     bool send_can(const std::vector<CanTxFrame>& tx_frames) override;
@@ -84,7 +82,7 @@ public:
 
     std::future<bool> request_status_async() override;
 
-    bool receive_status_async(StatusFrame& status_frames) override;
+    bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
     WinHandle m_device_data;
