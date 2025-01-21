@@ -31,8 +31,8 @@ public:
 	static std::unique_ptr<BasicBus> create(std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol = device::Protocol::CAN_2_0, device::Mode mode = device::Mode::ACTIVE);
 
 	/**
-	 * @brief Register a BasicListener on the BasicBus to be notified when new messages arrive.
-	 * @param[in] listener Pointer of the listener instance to be registered.
+	 * @brief Register a BasicListener on the BasicBus to be notified when new Can messages arrive.
+	 * @param[in] listener Pointer of the BasicListener instance to be registered.
 	 * @return Returns true if registration succeeds. Returns false if listener is already registered.
 	 */
 	bool add_listener(bus::BasicListener* listener);
