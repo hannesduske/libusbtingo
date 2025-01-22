@@ -30,7 +30,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Options
-option(TEST "Build with tests. Requires catch2. Default value is OFF." off)
+option(BUILD_TESTS "Build with tests. Requires catch2. Default value is OFF." off)
 option(SKIP_INTERACTIVE_TESTS "Include CAN i/o tests that have to be confirmed manually." on)
 option(SKIP_TESTS_WITH_OTHER_DEVICES "Include CAN i/o tests that require other CAN devices that send and acknowledge CAN messages." on)
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is built. Default value is OFF." off)
@@ -39,7 +39,7 @@ option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is
 add_subdirectory(src)
 
 # Testing
-if(TEST)
+if(BUILD_TESTS)
     include(CTest)
     add_subdirectory(test)
     
@@ -52,4 +52,4 @@ if(TEST)
         NAME integration_test
         COMMAND integrationtest-usbtingo
     )
-endif(TEST)
+endif(BUILD_TESTS)
