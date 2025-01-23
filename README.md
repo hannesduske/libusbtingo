@@ -87,11 +87,10 @@ After the configuration a `Device` is used to instantiate a `BasicBus` or a `Bus
 > Warning: One physical USBtingo can only be managed by one `Device` at the same time.
 
 ## 2.4 DeviceFactory
-It is not recommended to instantiate `Device` objects manually.
-Use the `DeviceFactory` to instantiate `Device` objects instead.
-It makes sure that the specified USBtingo is physically connected and operational.
-It also offers a method to list all available USBtingo devices.
-
+The `Device` is an abstract interface class and cannot be instantiated directly.
+Use the `DeviceFactory` to create `Device` objects instead.
+The device factory chooses the correct Device implementation for the current system.
+In addition the Factory makes sure that the specified USBtingo is physically connected and operational before returning the object.
 
 # 3. Minimal example
 
