@@ -1,6 +1,7 @@
 #include "usbtingo/can/Dlc.hpp"
 
 #include <array>
+#include <algorithm>
 
 namespace usbtingo{
 

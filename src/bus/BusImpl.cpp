@@ -1,6 +1,6 @@
 #include "BusImpl.hpp"
 
-//#include <algorithm>
+#include <algorithm>
 
 namespace usbtingo{
 

@@ -31,9 +31,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Options
 option(BUILD_TESTS "Build with tests. Requires catch2. Default value is OFF." off)
-option(SKIP_INTERACTIVE_TESTS "Include CAN i/o tests that have to be confirmed manually." on)
-option(SKIP_TESTS_WITH_OTHER_DEVICES "Include CAN i/o tests that require other CAN devices that send and acknowledge CAN messages." on)
+option(SKIP_INTERACTIVE_TESTS "Skip tests that have to be confirmed manually." on)
+option(SKIP_TESTS_WITH_OTHER_DEVICES "Skip tests that require other CAN devices that send and acknowledge CAN messages." on)
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is built. Default value is OFF." off)
+if(WIN32)
+    option(USE_WINAPI "Use the Windows API instead of libusb to interface the USBtingo. Requires the Windows SDK to be installed." on)
+endif(WIN32)
+
+# Package dependencies
+if(NOT USE_WINAPI)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
+endif(NOT USE_WINAPI)
 
 # Library
 add_subdirectory(src)

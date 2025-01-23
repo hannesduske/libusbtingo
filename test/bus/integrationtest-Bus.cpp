@@ -3,6 +3,8 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <thread>
+#include <chrono>
 
 #include "usbtingo/can/Dlc.hpp"
 #include "device/MockDevice.hpp"

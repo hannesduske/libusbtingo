@@ -11,15 +11,15 @@ add_library(usbtingo
   device/DeviceFactory.cpp
 )
 
-if(WIN32)
+if(USE_WINAPI)
     list(APPEND SOURCES
         device/windows/WinDevice.cpp
     )
-else(WIN32)
+else(USE_WINAPI)
     list(APPEND SOURCES
-        device/linux/LinuxDevice.cpp
+        device/universal/UniversalDevice.cpp
     )
-endif(WIN32)
+endif(USE_WINAPI)
 
 target_sources(usbtingo PRIVATE ${SOURCES})
 
@@ -32,16 +32,30 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(usbtingo PUBLIC
     USBTINGO_SHARED
   )
-endif()
+endif(BUILD_SHARED_LIBS)
 
 target_include_directories(usbtingo PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-if(WIN32)
+if(USE_WINAPI)
+  # Build for Windows with Windows API
   target_link_libraries(usbtingo PRIVATE
     Winusb
     SetupApi
   )
-endif(WIN32)
+
+  target_compile_definitions(usbtingo PRIVATE
+    USE_WINAPI
+  )
+else(USE_WINAPI)
+  # Cross platform build with libusb
+  target_include_directories(usbtingo PRIVATE
+    ${LIBUSB_INCLUDE_DIR}
+  )
+
+  target_link_libraries(usbtingo PRIVATE
+    ${LIBUSB_LIBRARIES}
+  )
+endif(USE_WINAPI)

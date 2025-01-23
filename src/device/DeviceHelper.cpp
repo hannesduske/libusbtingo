@@ -3,6 +3,8 @@
 #include "usbtingo/can/Dlc.hpp"
 #include "DeviceProtocol.hpp"
 
+#include <algorithm>
+
 namespace usbtingo{
 
 namespace device{
