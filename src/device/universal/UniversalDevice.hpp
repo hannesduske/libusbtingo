@@ -1,8 +1,12 @@
 #pragma once
 
 #include "usbtingo/device/Device.hpp"
+#include "UniversalHandle.hpp"
+#include "UsbLoader.hpp"
 
 #include <vector>
+#include <string>
+#include <map>
 
 namespace usbtingo{
 
@@ -65,6 +69,13 @@ public:
     std::future<bool> request_status_async() override;
 
     bool receive_status_async(StatusFrame& status_frame) override;
+
+private:
+    UniversalHandle m_device_data;
+
+    static std::map<std::uint32_t, libusb_device*> m_usbtingos;
+
+    static bool detect_usbtingos();
 
 };
 

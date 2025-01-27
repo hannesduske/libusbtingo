@@ -10,7 +10,7 @@ using usbtingo::device::DeviceFactory;
 TEST_CASE("Integration Test DeviceFactory", "[device_factory]"){
     auto sn_vec = DeviceFactory::detect_available_devices();
     if (sn_vec.size() == 0) {
-        SKIP("At least one USBtingo device must be connected to run this test.");
+        FAIL("At least one USBtingo device must be connected to run this test.");
     }
 
     SECTION("List and instantiate connected devices"){

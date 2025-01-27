@@ -87,7 +87,7 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if (sn_vec.size() == 0) {
-        SKIP("At least one USBtingo device must be connected to run this test.");
+        FAIL("At least one USBtingo device must be connected to run this test.");
     }
 
     CanRxFrame testmsg = { 0 };

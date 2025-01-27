@@ -28,7 +28,7 @@ TEST_CASE("Integration Test Device, Device configuration", "[device]"){
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if (sn_vec.size() == 0) {
-        SKIP("At least one USBtingo device must be connected to run this test.");
+        FAIL("At least one USBtingo device must be connected to run this test.");
     }
     const auto sn = sn_vec.front();
     auto dev = DeviceFactory::create(sn);
@@ -103,7 +103,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if (sn_vec.size() == 0) {
-        SKIP("At least one USBtingo device must be connected to run this test.");
+        FAIL("At least one USBtingo device must be connected to run this test.");
     }
     const auto sn = sn_vec.front();
     auto dev = DeviceFactory::create(sn);
