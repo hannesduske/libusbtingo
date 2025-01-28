@@ -1,6 +1,8 @@
 #pragma once
 
 #include "usbtingo/device/Device.hpp"
+
+#include "../DeviceProtocol.hpp"
 #include "UniversalHandle.hpp"
 #include "UsbLoader.hpp"
 
@@ -14,7 +16,7 @@ namespace device{
 
 class UniversalDevice : public Device{
 public:
-    UniversalDevice(std::uint32_t serial, std::string path);
+    UniversalDevice(std::uint32_t serial, libusb_device* dev);
 
     ~UniversalDevice() override;
 
@@ -27,18 +29,6 @@ public:
     bool close() override;
 
     bool is_open() const override;
-    
-    bool is_alive() const override;
-
-    bool set_mode(Mode mode) override;
-
-    bool set_protocol(Protocol protocol, std::uint8_t flags = 0) override;
-
-    bool set_baudrate(std::uint32_t baudrate) override;
-
-    bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) override;
-
-    bool clear_errors() override;
 
 /*
     bool clear_errors() override;
@@ -49,14 +39,6 @@ public:
 
     bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) override;
 */
-
-    bool read_status(StatusFrame& status) override;
-
-    bool send_can(const CanTxFrame& tx_frame) override;
-    
-    bool send_can(const std::vector<CanTxFrame>& tx_frames) override;
-
-    bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
 
     bool cancel_async_can_request() override;
 
@@ -71,11 +53,60 @@ public:
     bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
+    static std::vector<std::uint32_t> m_existing_devs;
+
     UniversalHandle m_device_data;
 
-    static std::map<std::uint32_t, libusb_device*> m_usbtingos;
+    libusb_transfer* m_async_status;
+    libusb_transfer* m_async_logic;
+    libusb_transfer* m_async_can;
+    
+    std::promise<bool> m_promise_status;
+    std::promise<bool> m_promise_logic;
+    std::promise<bool> m_promise_can;
 
-    static bool detect_usbtingos();
+    void handle_can_async_callback(libusb_transfer* transfer);
+
+    void handle_status_async_callback(libusb_transfer* transfer);
+
+    static std::map<std::uint32_t, libusb_device*> detect_usbtingos();
+
+    bool read_usbtingo_serial(std::uint32_t& serial) override;
+
+    bool read_usbtingo_info();
+
+    bool write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) override;
+
+    bool read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) override;
+
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx) override;
+
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data) override;
+
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len) override;
+
+    bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) override;
+
+
+
+/*
+    static bool write_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) ;
+
+    static bool read_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) ;
+
+    //static bool request_bulk_async(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async);
+
+    //static bool read_bulk_async(const UniversalHandle& device_data, std::size_t& len, OVERLAPPED& async);
+
+    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
+
+    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data);
+
+    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len);
+
+    static bool read_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
+*/
+
 
 };
 

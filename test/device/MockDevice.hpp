@@ -16,6 +16,11 @@ public:
 
     }
 
+    ~MockDevice()
+    {
+
+    }
+
     void trigger_message(const device::CanRxFrame msg)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
@@ -45,36 +50,6 @@ public:
         return false;
     }
 
-	bool is_alive() const override
-    {
-        return m_is_alive;
-    }
-	
-    bool set_protocol(device::Protocol protocol, std::uint8_t flags = 0) override
-    {
-        return false;
-    }
-    
-    bool set_baudrate(std::uint32_t baudrate) override
-    {
-        return false;
-    }
-
-    bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) override
-    {
-        return false;
-    }
-
-    bool set_mode(device::Mode mode) override
-    {
-        return false;
-    }
-
-    bool clear_errors() override
-    {
-        return false;
-    }
-
     bool read_status(device::StatusFrame& status) override
     {
         return false;
@@ -95,39 +70,50 @@ public:
         return false;
     }
 
-    bool cancel_async_can_request() override {
+    bool cancel_async_can_request() override
+    {
         std::lock_guard<std::mutex> guard(m_mutex);
         m_new_msg_promise.set_value(false);
         return true;
     }
 
-    std::future<bool> request_can_async() override {
+    std::future<bool> request_can_async() override
+    {
         std::lock_guard<std::mutex> guard(m_mutex);
         m_new_msg_promise = std::promise<bool>();
         return m_new_msg_promise.get_future();
     }
 
-    bool receive_can_async(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) override {
+    bool receive_can_async(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) override
+    {
         std::lock_guard<std::mutex> guard(m_mutex);
         rx_frames.push_back(m_msg);
         return true;
     }
 
-    bool cancel_async_status_request() override {
-        std::lock_guard<std::mutex> guard(m_mutex);
+    bool cancel_async_status_request() override
+    {        std::lock_guard<std::mutex> guard(m_mutex);
         m_new_status_promise.set_value(false);
         return true;
     }
 
-    std::future<bool> request_status_async() override {
+    std::future<bool> request_status_async() override
+    {
         std::lock_guard<std::mutex> guard(m_mutex);
         m_new_status_promise = std::promise<bool>();
         return m_new_status_promise.get_future();
     }
 
-    bool receive_status_async(device::StatusFrame& status_frame) override {
+    bool receive_status_async(device::StatusFrame& status_frame) override
+    {
         std::lock_guard<std::mutex> guard(m_mutex);
         status_frame = m_status;
+        return true;
+    }
+
+    bool read_usbtingo_serial(std::uint32_t& serial) override
+    {
+        serial = m_serial;
         return true;
     }
 

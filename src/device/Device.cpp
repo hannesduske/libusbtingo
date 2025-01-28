@@ -6,23 +6,42 @@ namespace usbtingo{
 
 namespace device{
 
-Device::Device(std::uint32_t serial) : m_serial(serial){
+Device::Device(std::uint32_t serial) : m_serial(serial)
+{
     
 }
 
-std::uint32_t Device::get_serial() const{
+Device::~Device()
+{
+    // cancel_async_can_request();
+    // cancel_async_status_request();
+    // close();
+}
+
+std::uint32_t Device::get_serial() const
+{
     return m_serial;
 }
 
-DeviceInfo Device::get_device_info() const{
+DeviceInfo Device::get_device_info() const
+{
     return m_device_info;
 }
 
-bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) {
+bool Device::is_alive()
+{
+    std::uint32_t serial = 0;
+    if (!read_usbtingo_serial(serial)) return false;
+
+    return m_serial == serial;
+}
+
+bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
+{
     
     std::size_t msg_idx = 0, package_counter = 0;
 
-    // package_counter as timeout, theroretically max. 42 tx_event messages per transfer
+    // package_counter as timeout, theoretically max. 42 tx_event messages per transfer
     while (msg_idx < rx_len && package_counter < USB_BULK_MAX_MESSAGE_COUNT) {
 
         if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_CAN) {
@@ -43,6 +62,126 @@ bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_le
 
     return (package_counter < USB_BULK_MAX_MESSAGE_COUNT) ? true : false;
 }
+
+bool Device::set_mode(Mode mode)
+{
+    return write_control(USBTINGO_CMD_SET_MODE, static_cast<std::uint16_t>(mode), 0);
+}
+
+bool Device::set_protocol(Protocol protocol, std::uint8_t flags)
+{
+    return write_control(USBTINGO_CMD_SET_PROTOCOL, static_cast<std::uint16_t>(static_cast<std::uint8_t>(protocol) | flags << 8), 0);
+}
+
+bool Device::set_baudrate(std::uint32_t baudrate)
+{
+    return set_baudrate(baudrate, baudrate);
+}
+
+bool Device::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data)
+{
+    bool success = true;
+
+    success = write_control(USBTINGO_CMD_SET_BAUDRATE, 0, 0, reinterpret_cast<std::uint8_t*>(&baudrate), 4);
+    if (!success) return false;
+
+    success = write_control(USBTINGO_CMD_SET_BAUDRATE, 1, 0, reinterpret_cast<std::uint8_t*>(&baudrate), 4);
+    return success;
+}
+
+bool Device::clear_errors() {
+    return write_control(USBTINGO_CMD_CLEAR_ERRORFLAGS, 0xffff, 0);
+}
+
+bool Device::read_status(StatusFrame& status)
+{
+    std::vector<std::uint8_t> status_buffer(64);
+    if(!read_control(USBTINGO_CMD_GET_STATUSREPORT, 0, 0, status_buffer, static_cast<uint16_t>(status_buffer.size()))) return false;
+    return StatusFrame::deserialize_status(status_buffer.data(), status);
+}
+
+bool Device::send_can(const device::CanTxFrame& tx_frame)
+{
+    const std::size_t msg_size = CanTxFrame::buffer_size_bytes(tx_frame);
+
+    BulkBuffer tx_buffer = { 0 };
+    if (!CanTxFrame::serialize_can_frame(tx_buffer.data(), tx_frame)) return false;
+    return write_bulk(USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size);
+}
+
+bool Device::send_can(const std::vector<device::CanTxFrame>& tx_frames)
+{
+    std::size_t msg_size = 0, current_msg_size = 0;
+    BulkBuffer tx_buffer = { 0 };
+
+    for (const auto& tx_frame : tx_frames) {
+        current_msg_size = CanTxFrame::buffer_size_bytes(tx_frame);
+
+        // Send current buffer if the next message doesn't fit in
+        if ((msg_size + current_msg_size) > USB_BULK_BUFFER_SIZE) {
+            if(!write_bulk(USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size)) return false;
+            msg_size = 0;
+        }
+
+        // Add next message to the buffer
+        if (!CanTxFrame::serialize_can_frame(tx_buffer.data() + msg_size, tx_frame)) return false;
+        msg_size += current_msg_size;
+    }
+    
+    return write_bulk(USBTINGO_EP3_CANMSG_OUT, tx_buffer, msg_size);
+}
+
+bool Device::receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames)
+{
+    BulkBuffer rx_buffer = { 0 };
+    std::size_t rx_len = USB_BULK_BUFFER_SIZE;
+    
+    // synchronous operation, blocks until data is available
+    if(!read_bulk(USBTINGO_EP3_CANMSG_IN, rx_buffer, rx_len)) return false;
+
+    return process_can_buffer(reinterpret_cast<std::uint8_t*>(&rx_buffer), rx_len, rx_frames, tx_event_frames);
+}
+
+bool Device::read_usbtingo_serial(std::uint32_t& serial)
+{
+    serial = 0;
+    return false;
+}
+
+bool Device::write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len)
+{
+    return false;
+}
+
+bool Device::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
+{
+    return false;
+}
+
+//virtual bool Device::request_bulk_async(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len){}
+
+//virtual bool Device::read_bulk_async(std::size_t& len){}
+
+bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx)
+{
+    return false;
+}
+
+bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data)
+{
+    return false;
+}
+
+bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len)
+{
+    return false;
+}
+
+bool Device::read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len)
+{
+    return false;
+}
+
 
 }
 

@@ -28,6 +28,12 @@ enum class USBTINGO_API Protocol {
 };
 
 /**
+ * @brief Buffer for USB transfers.
+ * ToDo: Move device implementation to impl class, that this type is hidden and the magic 512 can be replaces by USB_BULK_BUFFER_SIZE
+ */
+typedef std::array<std::uint8_t, 512> BulkBuffer;
+
+/**
  * @brief Object representing the DeviceInfo stored on the USBtingo.
  */
 struct USBTINGO_API DeviceInfo {

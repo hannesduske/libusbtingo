@@ -1,24 +1,31 @@
 #pragma once
 
-#include<string>
-#include<vector>
-#include<cstdint>
-#include<memory>
-#include<future>
-
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
+
+#include <string>
+#include <vector>
+#include <cstdint>
+#include <memory>
+#include <future>
+#include <thread>
+#include <atomic>
+#include <functional>
 
 namespace usbtingo{
 
 namespace device{
+
+// Forward declaration
+// ToDo: Hide from interface
+enum class AsyncIoState;
 
 class USBTINGO_API Device{
 public:
     /**
      * @brief Default destructor
      */
-    virtual ~Device() = default; // required that the destructor of derived classes is called
+    virtual ~Device(); // required that the destructor of derived classes is called
 
     /**
      * @brief Get the serial number of the device
@@ -54,7 +61,7 @@ public:
      * @brief Check if the device is alive. The method fetches the device info and compares the serial number stored in the memory of the device with the serial number of the software object.
      * @return Returns true if the device is correctly instantiated and communication with the device works.
      */
-    virtual bool is_alive() const = 0;
+    bool is_alive();
 
     /**
      * @brief Set the protocol of the device. Device must be in Mode::OFF to set this value.
@@ -62,14 +69,14 @@ public:
      * @param[in] flags Optional flags. Refer to the USBtingo Protocol description for details.
      * @return Returns true if setting the protocol succeeded
      */
-	virtual bool set_protocol(Protocol protocol, std::uint8_t flags = 0) = 0;
+	bool set_protocol(Protocol protocol, std::uint8_t flags = 0);
 
     /**
      * @brief Set the baudrate of the device without bit rate switching. Device must be in Mode::OFF to set this value.
      * @param[in] baudrate Baudrate of the device
      * @return Returns true if setting the baudrate succeeded
      */
-    virtual bool set_baudrate(std::uint32_t baudrate) = 0;
+    bool set_baudrate(std::uint32_t baudrate);
 
     /**
      * @brief Set the baudrate of the device with bit rate switching. Device must be in Mode::OFF to set this value.
@@ -77,20 +84,20 @@ public:
      * @param[in] baudrate_data Data baudrate of the device
      * @return Returns true if setting the baudrate succeeded
      */
-    virtual bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) = 0;
+    bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data);
 
     /**
      * @brief Set the mode of the device.
      * @param[in] mode Mode of the device
      * @return Returns true if setting the mode succeeded
      */
-    virtual bool set_mode(Mode mode) = 0;
+    bool set_mode(Mode mode);
 
     /**
      * @brief Clear the error counter overflow flags.
      * @return Returns true if clearing the error flags succeeded
      */
-    virtual bool clear_errors() = 0;
+    bool clear_errors();
 
     /**
      * @brief Disable all filters that are currently set on the device.
@@ -147,21 +154,21 @@ public:
      * @param[out] status Current status of the device
      * @return Returns true if operation succeeds
      */
-    virtual bool read_status(StatusFrame& status) = 0;
+    virtual bool read_status(StatusFrame& status);
 
 	/**
 	 * @brief Send a message on the Can bus.
 	 * @param[in] tx_frame Message to be sent on the Can bus. The CanTxFrame has to be configured manually before passing it to the send method.
 	 * @return Returns true if operation succeeds.
 	 */
-    virtual bool send_can(const CanTxFrame& tx_frame) = 0;
+    virtual bool send_can(const CanTxFrame& tx_frame);
 
 	/**
 	 * @brief Send multiple messages on the Can bus. The method used the devices function to receive multiple tx frames in one usb transfer.
 	 * @param[in] tx_frames Vector of messages to be sent on the Can bus. The CanTxFrames have to be configured manually before passing it to the send method.
 	 * @return Returns true if operation succeeds.
 	 */
-    virtual bool send_can(const std::vector<CanTxFrame>& tx_frames) = 0;
+    virtual bool send_can(const std::vector<CanTxFrame>& tx_frames);
 
     /**
      * @brief Synchronously read a rx buffer from the device and return the buffer content as CanRxFrames and TxEventFrame. The method blocks until a rx_buffer is available.
@@ -169,7 +176,7 @@ public:
      * @param[out] rx_frames Vector of tx event frames received from the device.
      * @return Return true if reading and processing the rx buffer succeeded.
      */
-    virtual bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) = 0;
+    virtual bool receive_can(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames);
 
     /**
      * @brief Cancel all currently active asynchronous can rx requests.
@@ -246,10 +253,41 @@ protected:
      */
     bool process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames);
 
+    virtual bool read_usbtingo_serial(std::uint32_t& serial);
+
+    virtual bool write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len);
+
+    virtual bool read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len);
+
+    //virtual bool request_bulk_async(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len);
+
+    //virtual bool read_bulk_async(std::size_t& len);
+
+    virtual bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
+
+    virtual bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data);
+
+    virtual bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len);
+
+    virtual bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
+
+
 protected:
 	std::uint32_t m_serial;
 
 	DeviceInfo m_device_info;
+
+    std::thread m_thread_status;
+    std::thread m_thread_logic;
+    std::thread m_thread_can;
+
+    std::atomic<AsyncIoState> m_shutdown_status;
+    std::atomic<AsyncIoState> m_shutdown_logic;
+    std::atomic<AsyncIoState> m_shutdown_can;
+
+    BulkBuffer m_buffer_status; // Can be smaller, 64 byte?
+    BulkBuffer m_buffer_logic;
+    BulkBuffer m_buffer_can;
 };
 
 }

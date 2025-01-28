@@ -130,7 +130,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
         const std::uint32_t baud = 1000000;
 
 #ifdef SKIP_TESTS_WITH_OTHER_DEVICES
-        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
+        SKIP("This test has been turnded off with the Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
 #else
         WARN("This test requires another device to send a CAN FD message at a baudrate of " << baud << " .");
 #endif

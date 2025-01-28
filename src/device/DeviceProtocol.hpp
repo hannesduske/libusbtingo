@@ -57,10 +57,8 @@ namespace device{
 	constexpr std::uint8_t USBTINGO_EP3_CANMSG_IN   		= 0x83;
 	constexpr std::uint8_t USBTINGO_EP3_CANMSG_OUT  		= 0x03;
 
-	static constexpr auto USBTINGO_THREAD_DELAY_uS			= std::chrono::microseconds(10);
+	static constexpr auto USBTINGO_THREAD_DELAY			= std::chrono::microseconds(10);
 	constexpr unsigned long TIMESTAMP_FACTOR				= 100000;
-
-	typedef std::array<std::uint8_t, USB_BULK_BUFFER_SIZE> BulkBuffer;
 
 	static constexpr std::uint16_t serialize_uint16(std::uint8_t a0, std::uint8_t a1) {
 		return std::uint16_t((a0 << 0) | (a1 << 8));
@@ -68,6 +66,13 @@ namespace device{
 
 	static constexpr std::uint32_t serialize_uint32(std::uint8_t a0, std::uint8_t a1, std::uint8_t a2, std::uint8_t a3) {
 		return std::uint32_t((a0 << 0) | (a1 << 8) | (a2 << 16) | (a3 << 24));
+	};
+
+	enum class AsyncIoState {
+		IDLE,
+		REQUEST_ACTIVE,
+		DATA_AVAILABLE,
+		SHUTDOWN
 	};
 }
 
