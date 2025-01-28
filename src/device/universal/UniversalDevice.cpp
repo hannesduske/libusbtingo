@@ -348,66 +348,6 @@ bool UniversalDevice::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::
     return libusb_bulk_transfer(m_device_data.Handle, endpoint, reinterpret_cast<unsigned char*>(buffer.data()), len, reinterpret_cast<int*>(&len), 0) == 0;
 }
 
-
-/*
-bool UniversalDevice::write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx)
-{
-    if(!device_data.HandlesOpen) return false;
-
-    uint8_t request_type = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
-    unsigned char* data = nullptr;
-    uint16_t length = 0;
-    unsigned int timeout = 0;
-
-    return libusb_control_transfer(device_data.Handle, request_type, cmd, val, idx, data, length, timeout) >= 0;
-}
-
-bool UniversalDevice::write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data)
-{
-    if(!device_data.HandlesOpen) return false;
-
-    uint8_t request_type = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
-    uint16_t length = static_cast<std::uint8_t>(data.size());;
-    unsigned int timeout = 0;
-
-    return libusb_control_transfer(device_data.Handle, request_type, cmd, val, idx, static_cast<unsigned char*>(data.data()), length, timeout) >= 0;
-}
-
-bool UniversalDevice::write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len)
-{
-    if(!device_data.HandlesOpen) return false;
-
-    uint8_t request_type = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
-    unsigned int timeout = 0;
-
-    return libusb_control_transfer(device_data.Handle, request_type, cmd, val, idx, reinterpret_cast<unsigned char*>(data), len, timeout) >= 0;
-}
-
-bool UniversalDevice::read_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len)
-{
-    if(!device_data.HandlesOpen) return false;
-
-    data.clear();
-    data.resize(len);
-
-    uint8_t request_type = USB_REQUEST_DEVICE2HOST | USB_REQUEST_TYPE_VENDOR;
-
-    return libusb_control_transfer(device_data.Handle, request_type, cmd, val, idx, reinterpret_cast<unsigned char*>(data.data()), len, 0) >= 0;;
-}
-
-bool UniversalDevice::write_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len)
-{
-    if(!device_data.HandlesOpen) return false;
-    
-    return libusb_bulk_transfer(device_data.Handle, endpoint, reinterpret_cast<unsigned char*>(buffer.data()), len, NULL, 0) == 0;
-}
-
-bool UniversalDevice::read_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len)
-{
-    if(!device_data.HandlesOpen) return false;
-    return libusb_bulk_transfer(device_data.Handle, endpoint, reinterpret_cast<unsigned char*>(buffer.data()), len, reinterpret_cast<int*>(&len), 0) == 0;
-}
-*/
 }
 
 }

@@ -87,27 +87,6 @@ private:
 
     bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) override;
 
-
-
-/*
-    static bool write_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) ;
-
-    static bool read_bulk(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) ;
-
-    //static bool request_bulk_async(const UniversalHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async);
-
-    //static bool read_bulk_async(const UniversalHandle& device_data, std::size_t& len, OVERLAPPED& async);
-
-    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
-
-    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data);
-
-    static bool write_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len);
-
-    static bool read_control(const UniversalHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
-*/
-
-
 };
 
 }
