@@ -13,12 +13,26 @@ std::vector<std::uint32_t> UniversalDevice::m_existing_devs = { };
 UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev) :
     Device(serial)
 {
+    m_async_can = libusb_alloc_transfer(0);
     m_async_status = libusb_alloc_transfer(0);
 
     m_device_data.Device = dev;
     if(open()){
         UniversalDevice::read_usbtingo_info();
 
+        m_async_can->dev_handle   = m_device_data.Handle;
+        m_async_can->endpoint     = USBTINGO_EP3_CANMSG_IN;
+        m_async_can->type         = LIBUSB_TRANSFER_TYPE_BULK;
+        m_async_can->timeout      = 0;
+        m_async_can->buffer       = static_cast<unsigned char*>(m_buffer_can.data());
+        m_async_can->length       = USB_BULK_BUFFER_SIZE;
+        m_async_can->user_data    = static_cast<void*>(this);
+        m_async_can->callback     = [](libusb_transfer* transfer)
+        {
+            auto* instance = static_cast<UniversalDevice*>(transfer->user_data);
+            if(instance) instance->handle_can_async_callback(transfer);
+        };
+        
         m_async_status->dev_handle   = m_device_data.Handle;
         m_async_status->endpoint     = USBTINGO_EP1_STATUS_IN;
         m_async_status->type         = LIBUSB_TRANSFER_TYPE_INTERRUPT;
@@ -31,13 +45,13 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev) :
             auto* instance = static_cast<UniversalDevice*>(transfer->user_data);
             if(instance) instance->handle_status_async_callback(transfer);
         };
-        
     }
 }
 
 UniversalDevice::~UniversalDevice()
 {
     close();
+    libusb_free_transfer(m_async_can);
     libusb_free_transfer(m_async_status);
     const auto it = std::find(m_existing_devs.begin(), m_existing_devs.end(), m_serial);
     m_existing_devs.erase(it);
@@ -156,17 +170,12 @@ bool UniversalDevice::is_open() const
 
 bool UniversalDevice::cancel_async_can_request()
 {
-    return false;
-}
+    bool success = m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE;
+    success &= libusb_cancel_transfer(m_async_can) == 0;
 
-std::future<bool> UniversalDevice::request_can_async()
-{
-    return std::future<bool>();
-}
-
-bool UniversalDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
-{
-    return false;
+    m_shutdown_can.store(AsyncIoState::SHUTDOWN);
+    
+    return success;
 }
 
 bool UniversalDevice::cancel_async_status_request()
@@ -179,6 +188,16 @@ bool UniversalDevice::cancel_async_status_request()
     return success;
 }
 
+std::future<bool> UniversalDevice::request_can_async()
+{
+    if ((!m_device_data.HandlesOpen) || (m_shutdown_can.load() == AsyncIoState::REQUEST_ACTIVE)) return std::future<bool>();
+
+    if(libusb_submit_transfer(m_async_can) != 0) return std::future<bool>();
+
+    m_promise_can = std::promise<bool>();
+    return m_promise_can.get_future();
+}
+
 std::future<bool> UniversalDevice::request_status_async() //ToDo: Generalize async request to use with can, logic and status
 {
     if ((!m_device_data.HandlesOpen) || (m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE)) return std::future<bool>();
@@ -187,6 +206,26 @@ std::future<bool> UniversalDevice::request_status_async() //ToDo: Generalize asy
 
     m_promise_status = std::promise<bool>();
     return m_promise_status.get_future();
+}
+
+bool UniversalDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
+{
+    if (m_shutdown_can.load() != AsyncIoState::DATA_AVAILABLE) return false;
+
+    bool success = process_can_buffer(reinterpret_cast<std::uint8_t*>(&m_buffer_can), m_async_can->actual_length, rx_frames, tx_event_frames);
+    m_shutdown_can.store(AsyncIoState::IDLE);
+
+    return success;
+}
+
+bool UniversalDevice::receive_status_async(StatusFrame& status_frame)
+{
+    if (m_shutdown_status.load() != AsyncIoState::DATA_AVAILABLE) return false;
+
+    bool success = StatusFrame::deserialize_status(reinterpret_cast<std::uint8_t*>(&m_buffer_status), status_frame);
+    m_shutdown_status.store(AsyncIoState::IDLE);
+
+    return success;
 }
 
 void UniversalDevice::handle_can_async_callback(libusb_transfer* transfer)
@@ -209,16 +248,6 @@ void UniversalDevice::handle_status_async_callback(libusb_transfer* transfer)
         m_shutdown_status.store(AsyncIoState::SHUTDOWN);
         m_promise_status.set_value(false);
     }
-}
-
-bool UniversalDevice::receive_status_async(StatusFrame& status_frame)
-{
-    if (m_shutdown_status.load() != AsyncIoState::DATA_AVAILABLE) return false;
-
-    bool success = StatusFrame::deserialize_status(reinterpret_cast<std::uint8_t*>(&m_buffer_status), status_frame);
-    m_shutdown_status.store(AsyncIoState::IDLE);
-
-    return success;
 }
 
 bool UniversalDevice::read_usbtingo_serial(std::uint32_t& serial)
