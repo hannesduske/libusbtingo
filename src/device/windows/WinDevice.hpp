@@ -10,17 +10,8 @@
 
 #include <string>
 #include <vector>
-#include <thread>
-#include <atomic>
 #include <array>
 #include <map>
-
-enum class AsyncIoState {
-    IDLE,
-    REQUEST_ACTIVE,
-    DATA_AVAILABLE,
-    SHUTDOWN
-};
 
 namespace usbtingo{
 
@@ -42,18 +33,6 @@ public:
 
     bool is_open() const override;
     
-    bool is_alive() const override;
-
-    bool set_mode(Mode mode) override;
-
-    bool set_protocol(Protocol protocol, std::uint8_t flags = 0) override;
-
-    bool set_baudrate(std::uint32_t baudrate) override;
-
-    bool set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) override;
-
-    bool clear_errors() override;
-
 /*
     bool clear_errors() override;
 
@@ -63,8 +42,6 @@ public:
 
     bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) override;
 */
-
-    bool read_status(StatusFrame& status) override;
 
     bool send_can(const CanTxFrame& tx_frame) override;
     
@@ -95,23 +72,9 @@ private:
     OVERLAPPED m_async_logic;
     OVERLAPPED m_async_can;
 
-    std::thread m_thread_status;
-    std::thread m_thread_logic;
-    std::thread m_thread_can;
-
-    std::atomic<AsyncIoState> m_shutdown_status;
-    std::atomic<AsyncIoState> m_shutdown_logic;
-    std::atomic<AsyncIoState> m_shutdown_can;
-
-    BulkBuffer m_buffer_status; // Can be smaller, 64 byte?
-    BulkBuffer m_buffer_logic;
-    BulkBuffer m_buffer_can;
-
     static HRESULT detect_usb_devices(std::vector<std::string>& devices, std::uint16_t vid, std::uint16_t pid);
 
-    static HRESULT read_usbtingo_info(const WinHandle& device_data, DeviceInfo& device_info);
-
-    static HRESULT read_usbtingo_serial(const WinHandle& device_data, std::uint32_t& serial);
+    bool read_usbtingo_serial(std::uint32_t& serial) override;
 
     static HRESULT read_usb_descriptor(const WinHandle& device_data, const std::uint8_t index, const std::uint16_t languageID, std::string& value);
 
@@ -119,21 +82,21 @@ private:
 
     static HRESULT close_usb_device(WinHandle& device_data);
 
-    static bool write_bulk(const WinHandle& device_data, std::uint8_t endpoint, const BulkBuffer& buffer, std::size_t len) ;
+    bool write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) override;
 
-    static bool read_bulk(const WinHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) ;
+    bool read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) override;
 
     static bool request_bulk_async(const WinHandle& device_data, std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len, OVERLAPPED& async);
 
     static bool read_bulk_async(const WinHandle& device_data, std::size_t& len, OVERLAPPED& async);
 
-    static bool write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx);
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx) override;
 
-    static bool write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::vector<std::uint8_t>& data);
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data) override;
 
-    static bool write_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, const std::uint8_t* data, std::uint16_t len);
+    bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len) override;
 
-    static bool read_control(const WinHandle& device_data, std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
+    bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) override;
 
 };
 
