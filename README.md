@@ -3,17 +3,24 @@ C++ API for the USBtingo - USB to CAN-FD Interface
 
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
-- CMake for Windows
+- CMake
 - MSVC Compiler
 - Windows SDK
 - Windows Driver Kit
 
+> Note:
+It is possible to use libusb on Windows platforms instead of the Windows API.
+This requires libusb to be installed.
+Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
+
 ## 1.2 Requirements for Linux
-The USB device functionality is currently only implemented for Windows devices using the Windows API.
-A Linux variant is prepared but not implemented.
+
+- CMake
+- GCC/ Clang compiler
+- libusb-1.0-0
 
 ## 1.3 Building the library from source
-The library is built with a standard CMake workflow.
+The library is built with a standard CMake workflow which is identical for Windows and Linux.
 Use the following commands to build the library.
 ```
 mkdir libusbtingo/build
@@ -21,7 +28,6 @@ cd libusbtingo/build
 cmake ..
 cmake --build .
 ```
-> Info: The build process is identical for Windows and Linux.
 
 ## 1.4 Installing the library
 
@@ -31,13 +37,16 @@ The default install location is `C:/Program Files (x86)/libusbtingo` for Windows
 cmake --install .
 ```
 
-The library can be installed to a custom location by specifying a install path. Replace `<path>`with your desired install directory.
+The library can be installed to a custom location by specifying a install path.
+Replace `<path>`with your desired install directory.
 
 ```
 cmake --install . --prefix <path>
 ```
 
-> Info: When installing the library to a non default location the path should also be added to the `CMAKE_PREFIX_PATH` environment variable for other packages to find this library.
+> Info:
+Custom install paths should also be added to the `CMAKE_PREFIX_PATH` environment variable if the library is installed to a non default location.
+This enables other packages to find this library.
 
 ## 1.5 CMake Options:
 
@@ -55,7 +64,7 @@ cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=ON
 | BUILD_TESTS | OFF | Build the test utilities for the library. |
 | SKIP_INTERACTIVE_TESTS | ON | Configure the test utilities to skip any tests that require confirmation by the user |
 | SKIP_TESTS_WITH_OTHER_DEVICES | ON | Configure the test utilities to skip any tests that require other devices to be connected on the Can bus. |
-
+| USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
 
 
 # 2. How to use the library
