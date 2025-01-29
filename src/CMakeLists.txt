@@ -1,3 +1,5 @@
+#########################################################
+# declare library
 add_library(usbtingo
   basic_bus/Message.cpp
   basic_bus/BasicBus.cpp
@@ -23,7 +25,6 @@ endif(USE_WINAPI)
 
 target_sources(usbtingo PRIVATE ${SOURCES})
 
-# Add macro definitions for windows dll export
 target_compile_definitions(usbtingo PRIVATE
   USBTINGO_EXPORT
 )
@@ -59,3 +60,47 @@ else(USE_WINAPI)
     ${LIBUSB_LIBRARIES}
   )
 endif(USE_WINAPI)
+
+
+
+#########################################################
+# install library
+install(TARGETS usbtingo
+    EXPORT usbtingoTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+# install headers
+install(DIRECTORY
+    ${CMAKE_SOURCE_DIR}/include/
+    DESTINATION include
+)
+
+# install cmake files
+install(EXPORT usbtingoTargets
+    FILE usbtingoTargets.cmake
+    NAMESPACE usbtingo::
+    DESTINATION lib/cmake/usbtingo
+)
+
+#########################################################
+# cmake package configuration
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in
+        "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
+        INSTALL_DESTINATION lib/cmake/usbtingo
+)
+
+write_basic_package_version_file(
+        "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
+        VERSION "${usbtingoVERSION}"
+        COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+        "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
+        "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
+        DESTINATION lib/cmake/usbtingo
+)

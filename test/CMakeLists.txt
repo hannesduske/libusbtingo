@@ -63,3 +63,13 @@ if(SKIP_TESTS_WITH_OTHER_DEVICES)
         SKIP_TESTS_WITH_OTHER_DEVICES
     )
 endif(SKIP_TESTS_WITH_OTHER_DEVICES)
+
+add_test(
+    NAME unittest
+    COMMAND unittest-usbtingo
+)
+
+add_test(
+    NAME integration_test
+    COMMAND integrationtest-usbtingo
+)

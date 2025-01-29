@@ -51,14 +51,12 @@ add_subdirectory(src)
 if(BUILD_TESTS)
     include(CTest)
     add_subdirectory(test)
-    
-    add_test(
-        NAME unittest
-        COMMAND unittest-usbtingo
-    )
-
-    add_test(
-        NAME integration_test
-        COMMAND integrationtest-usbtingo
-    )
 endif(BUILD_TESTS)
+
+# Packaging
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    include(cmake/PackageGeneration.cmake REQUIERD)    
+endif()
+
+# Build Summary
+include(cmake/ShowSummary.cmake REQUIERD)
