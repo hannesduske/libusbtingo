@@ -154,7 +154,7 @@ public:
      * @param[out] status Current status of the device
      * @return Returns true if operation succeeds
      */
-    virtual bool read_status(StatusFrame& status);
+    bool read_status(StatusFrame& status);
 
 	/**
 	 * @brief Send a message on the Can bus.
@@ -252,6 +252,8 @@ protected:
      * @return Returns true if processing the buffer succeeded
      */
     bool process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames);
+
+    bool read_usbtingo_info();
 
     virtual bool read_usbtingo_serial(std::uint32_t& serial);
 

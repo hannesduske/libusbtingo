@@ -50,11 +50,6 @@ public:
         return false;
     }
 
-    bool read_status(device::StatusFrame& status) override
-    {
-        return false;
-    }
-
     bool send_can(const device::CanTxFrame& tx_frame) override
     {
         return false;

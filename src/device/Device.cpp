@@ -6,7 +6,8 @@ namespace usbtingo{
 
 namespace device{
 
-Device::Device(std::uint32_t serial) : m_serial(serial)
+Device::Device(std::uint32_t serial)
+    : m_serial(serial), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 })
 {
     
 }
@@ -140,6 +141,21 @@ bool Device::receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vector
     if(!read_bulk(USBTINGO_EP3_CANMSG_IN, rx_buffer, rx_len)) return false;
 
     return process_can_buffer(reinterpret_cast<std::uint8_t*>(&rx_buffer), rx_len, rx_frames, tx_event_frames);
+}
+
+bool Device::read_usbtingo_info()
+{
+    std::vector<std::uint8_t> data;
+    if (!read_control(USBTINGO_CMD_GET_DEVICEINFO, 0, 0, data, 12)) return false;
+
+    m_device_info.fw_minor = data.at(0);
+    m_device_info.fw_major = data.at(1);
+    m_device_info.hw_model = data.at(2);
+    m_device_info.channels = data.at(3);
+    m_device_info.uniqe_id = serialize_uint32(data.at(4), data.at(5), data.at(6), data.at(7));
+    m_device_info.clock_hz = serialize_uint32(data.at(8), data.at(9), data.at(10), data.at(11));
+
+    return true;
 }
 
 bool Device::read_usbtingo_serial(std::uint32_t& serial)
