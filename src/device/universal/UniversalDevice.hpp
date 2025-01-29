@@ -73,8 +73,6 @@ private:
 
     bool read_usbtingo_serial(std::uint32_t& serial) override;
 
-    bool read_usbtingo_info();
-
     bool write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) override;
 
     bool read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) override;
