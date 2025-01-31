@@ -17,11 +17,11 @@ if(USE_WINAPI)
     list(APPEND SOURCES
         device/windows/WinDevice.cpp
     )
-else(USE_WINAPI)
+else()
     list(APPEND SOURCES
         device/universal/UniversalDevice.cpp
     )
-endif(USE_WINAPI)
+endif()
 
 target_sources(usbtingo PRIVATE ${SOURCES})
 
@@ -33,7 +33,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_definitions(usbtingo PUBLIC
     USBTINGO_SHARED
   )
-endif(BUILD_SHARED_LIBS)
+endif()
 
 target_include_directories(usbtingo PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
@@ -50,18 +50,18 @@ if(USE_WINAPI)
   target_compile_definitions(usbtingo PRIVATE
     USE_WINAPI
   )
-else(USE_WINAPI)
+else()
   # Cross platform build with libusb
   target_include_directories(usbtingo PRIVATE
     ${LIBUSB_INCLUDE_DIR}
   )
 
-  target_link_libraries(usbtingo PRIVATE
-    ${LIBUSB_LIBRARIES}
-  )
-endif(USE_WINAPI)
-
-
+  if(BUILD_SHARED_LIBS)
+    target_link_libraries(usbtingo PRIVATE libusb::libusb)
+  else()
+    target_link_libraries(usbtingo PUBLIC libusb::libusb)
+  endif()
+endif()
 
 #########################################################
 # install library
@@ -71,12 +71,6 @@ install(TARGETS usbtingo
     ARCHIVE DESTINATION lib
 )
 
-# install headers
-install(DIRECTORY
-    ${CMAKE_SOURCE_DIR}/include/
-    DESTINATION include
-)
-
 # install cmake files
 install(EXPORT usbtingoTargets
     FILE usbtingoTargets.cmake
@@ -84,9 +78,27 @@ install(EXPORT usbtingoTargets
     DESTINATION lib/cmake/usbtingo
 )
 
+# install headers
+install(DIRECTORY
+    ${CMAKE_SOURCE_DIR}/include/
+    DESTINATION include
+)
+
+# install Findlibusb script
+install(FILES
+  ${CMAKE_SOURCE_DIR}/cmake/Findlibusb.cmake
+  DESTINATION lib/cmake/usbtingo/Modules
+)
+
 #########################################################
 # cmake package configuration
 include(CMakePackageConfigHelpers)
+
+if(NOT USE_WINAPI)
+    set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)")
+endif(NOT USE_WINAPI)
+# 
+# find_dependency(libusb REQUIRED)
 
 configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in
         "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"

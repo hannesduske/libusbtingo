@@ -36,13 +36,13 @@ option(SKIP_TESTS_WITH_OTHER_DEVICES "Skip tests that require other CAN devices 
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static lib is built. Default value is OFF." off)
 if(WIN32)
     option(USE_WINAPI "Use the Windows API instead of libusb to interface the USBtingo. Requires the Windows SDK to be installed." on)
-endif(WIN32)
+endif()
 
 # Package dependencies
 if(NOT USE_WINAPI)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
-endif(NOT USE_WINAPI)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+    find_package(libusb REQUIRED)
+endif()
 
 # Library
 add_subdirectory(src)
@@ -51,7 +51,7 @@ add_subdirectory(src)
 if(BUILD_TESTS)
     include(CTest)
     add_subdirectory(test)
-endif(BUILD_TESTS)
+endif()
 
 # Packaging
 if(CMAKE_BUILD_TYPE MATCHES Release)
