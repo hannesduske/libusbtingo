@@ -7,7 +7,7 @@ namespace usbtingo{
 namespace device{
 
 Device::Device(std::uint32_t serial)
-    : m_serial(serial), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 })
+    : m_serial(serial), m_device_info({ 0 }), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 })
 {
     
 }

@@ -1,4 +1,5 @@
 #include "UniversalDevice.hpp"
+#include "UsbLoader.hpp"
 
 #include <libusb-1.0/libusb.h>
 #include <string>
@@ -11,7 +12,7 @@ namespace device{
 std::vector<std::uint32_t> UniversalDevice::m_existing_devs = { };
 
 UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev) :
-    Device(serial)
+    Device(serial), m_device_data({ 0 })
 {
     m_async_can = libusb_alloc_transfer(0);
     m_async_status = libusb_alloc_transfer(0);
@@ -65,7 +66,7 @@ std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial)
     const auto dev_map = UniversalDevice::detect_usbtingos();
     const auto it = dev_map.find(serial);
 
-    if (it == dev_map.end()) {
+    if (it != dev_map.end()) {
         auto device = std::make_unique<UniversalDevice>(serial, it->second);
         if (device->is_alive()) {
             m_existing_devs.push_back(serial);
@@ -99,7 +100,7 @@ std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos()
 
     int r = 0;
     libusb_device** devs;
-    r = libusb_get_device_list(NULL, &devs);
+    r = libusb_get_device_list(get_usb_ctx(), &devs);
 
     // Failed to fetch USB Devices
     if (r < 0) return dev_map;

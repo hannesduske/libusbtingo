@@ -58,7 +58,7 @@ private:
     UniversalHandle m_device_data;
 
     libusb_transfer* m_async_status;
-    libusb_transfer* m_async_logic;
+    //libusb_transfer* m_async_logic;
     libusb_transfer* m_async_can;
     
     std::promise<bool> m_promise_status;
