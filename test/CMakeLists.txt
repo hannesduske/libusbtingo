@@ -20,6 +20,7 @@ add_executable( unittest-usbtingo
 target_include_directories( unittest-usbtingo
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/test>
 )
 

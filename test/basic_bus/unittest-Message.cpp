@@ -2,6 +2,7 @@
 
 #include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/basic_bus/Message.hpp"
+#include "device/DeviceProtocol.hpp"
 
 #include <memory>
 #include <cstdint>
@@ -61,5 +62,39 @@ TEST_CASE("Unittest Message", "[message]"){
 
         CHECK(msg.id == testid);
         CHECK(msg.data == testdata);
+    }
+
+    SECTION("Convert to CanRxFrame") {
+        const Message msg(testid, testdata);
+        const auto frame = msg.to_CanRxFrame();
+
+        CHECK(msg.id == frame.id);
+        CHECK(frame.message_type == usbtingo::device::USBTINGO_RXMSG_TYPE_CAN);
+        CHECK(Dlc::dlc_to_bytes(frame.dlc) == msg.data.size());
+
+        bool data_identical = true;
+        std::size_t idx = 0;
+        for(const auto& element : msg.data){
+            data_identical &= (element == frame.data.at(idx));
+            idx++;
+        }
+        CHECK(data_identical);
+    }
+    
+    SECTION("Convert to CanTxFrame") {
+        const Message msg(testid, testdata);
+        const auto frame = msg.to_CanTxFrame();
+
+        CHECK(msg.id == frame.id);
+        CHECK(frame.message_type == usbtingo::device::USBTINGO_TXMSG_TYPE_CAN);
+        CHECK(Dlc::dlc_to_bytes(frame.dlc) == msg.data.size());
+
+        bool data_identical = true;
+        std::size_t idx = 0;
+        for(const auto& element : msg.data){
+            data_identical &= (element == frame.data.at(idx));
+            idx++;
+        }
+        CHECK(data_identical);
     }
 }

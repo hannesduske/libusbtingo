@@ -37,7 +37,7 @@ device::CanRxFrame Message::to_CanRxFrame() const
 {
 	device::CanRxFrame raw_frame = { 0 };
 	raw_frame.message_type	= device::USBTINGO_RXMSG_TYPE_CAN;
-	raw_frame.id			= raw_frame.id;
+	raw_frame.id			= id;
 	raw_frame.dlc			= can::Dlc::bytes_to_dlc(data.size());
 
 	std::copy(data.begin(), data.end(), raw_frame.data.data());
@@ -49,7 +49,7 @@ device::CanTxFrame Message::to_CanTxFrame() const
 {
 	device::CanTxFrame raw_frame = { 0 };
 	raw_frame.message_type	= device::USBTINGO_TXMSG_TYPE_CAN;
-	raw_frame.id			= raw_frame.id;
+	raw_frame.id			= id;
 	raw_frame.dlc			= can::Dlc::bytes_to_dlc(data.size());
 
 	std::copy(data.begin(), data.end(), raw_frame.data.data());

@@ -65,7 +65,7 @@ std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial)
     const auto dev_map = UniversalDevice::detect_usbtingos();
     const auto it = dev_map.find(serial);
 
-    if (it != dev_map.end()) {
+    if (it == dev_map.end()) {
         auto device = std::make_unique<UniversalDevice>(serial, it->second);
         if (device->is_alive()) {
             m_existing_devs.push_back(serial);
