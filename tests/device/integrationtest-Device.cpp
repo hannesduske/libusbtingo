@@ -157,7 +157,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
+        SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 
@@ -217,7 +217,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
+        SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 
@@ -421,7 +421,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         while (std::cin.get() != '\n') {}
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
+        SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 }

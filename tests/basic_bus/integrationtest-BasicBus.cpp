@@ -130,7 +130,7 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
             std::cout << "    DLC: " << std::to_string(msg.data.size()) << " Bytes" << std::endl;
             std::cout << "    Data: ";
 
-            for (size_t i = 0; i < Dlc::dlc_to_bytes(msg.data.size()); i++) {
+            for (std::size_t i = 0; i < Dlc::dlc_to_bytes(static_cast<std::uint8_t>(msg.data.size())); i++) {
                 std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(msg.data.at(i)) << " ";
             }
             std::cout << std::endl << std::endl;
@@ -143,7 +143,7 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
         while (std::cin.get() != '\n') {}
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
+        SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
 
     }
@@ -179,7 +179,7 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
+        SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 }

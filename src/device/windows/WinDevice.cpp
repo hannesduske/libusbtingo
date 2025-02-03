@@ -311,7 +311,7 @@ bool WinDevice::read_usbtingo_serial(std::uint32_t& serial)
         &lengthReceived);
 
     // Unable to get device description
-    if (FALSE == bResult) return false();
+    if (FALSE == bResult) return false;
 
     // Wrong buffer length received
     if (lengthReceived != sizeof(deviceDesc)) return false;
