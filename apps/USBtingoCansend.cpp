@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+/**
+ * @brief Minimal example of a command line program that sends CAN messages. After the configuration, the program sends all entered messages on the CAN Bus.
+ * @warning Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
+ */
 int main(int argc, char *argv[])
 {
     std::cout << "+======================================+" << std::endl;
@@ -16,13 +20,14 @@ int main(int argc, char *argv[])
     auto bus = createBus(fd_on);
     if (!bus)
     {
-        std::cout << "Could not open device" << std::endl << "Exiting program..." << std::endl;
+        std::cout << "Could not open device" << std::endl
+                  << "Exiting program..." << std::endl;
         return 0;
     }
 
     std::cout << "+======================================+" << std::endl;
     while (true)
-    {    
+    {
         std::cout << " Enter a CAN message"
                   << " Format : <id>#<data>"
                   << std::endl;
@@ -32,14 +37,16 @@ int main(int argc, char *argv[])
         usbtingo::bus::Message msg;
 
         std::cin >> msg_string;
-        
-        if(parseCanFrame(msg_string, msg, fd_on))
+
+        if (parseCanFrame(msg_string, msg, fd_on))
         {
             if (!bus->send(msg))
             {
                 std::cout << " Error while sending message";
             }
-        }else{
+        }
+        else
+        {
             std::cout << " Error while parsing message";
         }
         std::cout << std::endl;
