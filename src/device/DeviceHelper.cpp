@@ -146,7 +146,7 @@ bool CanRxFrame::deserialize_can_frame(const std::uint8_t* buf, CanRxFrame& buf_
 		buf_out.id = serialize_uint32(buf[8], buf[9], buf[10], static_cast<std::uint8_t>(buf[11] & 0x1f));
 	}
 	else {
-		buf_out.id = (serialize_uint32(0, 0, buf[10] & 0x3f, static_cast<std::uint8_t>(buf[11] & 0x1f)) >> 18) & 0x7ff;
+		buf_out.id = (serialize_uint32(0, 0, buf[10] & 0xfc, static_cast<std::uint8_t>(buf[11] & 0x1f)) >> 18) & 0x7ff;
 	}
 	buf_out.rtr = (buf[11] >> 5) & 0x01;
 	buf_out.rxts = serialize_uint16(buf[12], buf[13]);
