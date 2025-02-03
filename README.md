@@ -60,10 +60,11 @@ cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=ON
 
 | CMake Option | Default value | Description |
 |---|---|---|
-| BUILD_SHARED_LIBS | OFF | Choose between building a static library (default) or a shared library. |
-| BUILD_TESTS | OFF | Build the test utilities for the library. |
-| SKIP_INTERACTIVE_TESTS | ON | Configure the test utilities to skip any tests that require confirmation by the user |
-| SKIP_TESTS_WITH_OTHER_DEVICES | ON | Configure the test utilities to skip any tests that require other devices to be connected on the Can bus. |
+| BUILD_SHARED_LIBS | OFF | Build as shared library. If set to OFF a static library is built. |
+| BUILD_UTILS | ON | Build and install utility programs along with the library. |
+| BUILD_TESTS | ON | Build the test utilities for the library. Requires Catch2. |
+| ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
+| ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
 | USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
 
 

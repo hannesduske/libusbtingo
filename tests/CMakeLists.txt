@@ -21,7 +21,7 @@ target_include_directories( unittest-usbtingo
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/test>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
 )
 
 target_link_libraries( unittest-usbtingo
@@ -44,7 +44,7 @@ target_include_directories( integrationtest-usbtingo
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/test>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
 )
 
 target_link_libraries( integrationtest-usbtingo
@@ -53,17 +53,17 @@ target_link_libraries( integrationtest-usbtingo
     usbtingo
 )
 
-if(SKIP_INTERACTIVE_TESTS)
+if(ENABLE_INTERACTIVE_TESTS)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
-        SKIP_INTERACTIVE_TESTS
+        ENABLE_INTERACTIVE_TESTS
     )
-endif(SKIP_INTERACTIVE_TESTS)
+endif(ENABLE_INTERACTIVE_TESTS)
 
-if(SKIP_TESTS_WITH_OTHER_DEVICES)
+if(ENABLE_TESTS_WITH_OTHER_DEVICES)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
-        SKIP_TESTS_WITH_OTHER_DEVICES
+        ENABLE_TESTS_WITH_OTHER_DEVICES
     )
-endif(SKIP_TESTS_WITH_OTHER_DEVICES)
+endif(ENABLE_TESTS_WITH_OTHER_DEVICES)
 
 add_test(
     NAME unittest

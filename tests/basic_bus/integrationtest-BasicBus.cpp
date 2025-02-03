@@ -100,10 +100,10 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
 
         const std::uint32_t baud = 1000000;
 
-#ifdef SKIP_TESTS_WITH_OTHER_DEVICES
-        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
-#else
+#ifdef ENABLE_TESTS_WITH_OTHER_DEVICES
         WARN("This test requires another device to send a CAN FD message at a baudrate of " << baud << " .");
+#else
+        SKIP("This test has been turned off with Cmake Variable \"ENABLE_TEST_WITH_OTHER_DEVICES\"");
 #endif
 
         auto bus = BasicBus::create(baud, baud, Protocol::CAN_FD);
@@ -136,21 +136,21 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
             std::cout << std::endl << std::endl;
         }
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::string response;
         std::cout << std::dec << "Is the received data correct? (y / n) : " << std::endl;
         std::cin >> response;
         while (std::cin.get() != '\n') {}
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test");
+        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
 
     }
 
     SECTION("Send a single CAN 2.0 frame") {
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         const std::uint32_t baud = 1000000;
 
         CanTxFrame tx_frame;
@@ -179,7 +179,7 @@ TEST_CASE("Integration test BasicBus, real device", "[basic_bus]") {
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test");
+        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 }

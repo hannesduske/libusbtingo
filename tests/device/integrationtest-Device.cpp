@@ -140,7 +140,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->clear_errors();
         dev->read_status(status);
         
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::string response;
         std::cin.ignore();
         std::cout << "Sending ONE CAN 2.0 message at a baudrate of " << baud << " after pressing ENTER ..." << std::endl;
@@ -152,12 +152,12 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         CHECK(status.nr_std_frames - msg_idx == 1);
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::cout << "Has ONE message been sent with ID " << tx_frame.id << " and data \"Hello!\" ? (y / n) : " << std::endl;
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test");
+        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 
@@ -200,7 +200,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         msg_idx = status.nr_std_frames;
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::string response;
         std::cin.ignore();
         std::cout << "Sending TWO CAN 2.0 messages at a baudrate of " << baud << " after pressing ENTER..." << std::endl;
@@ -212,12 +212,12 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         dev->read_status(status);
         CHECK(status.nr_std_frames - msg_idx == 2);
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::cout << "Have TWO messages been sent with IDs " << tx_frame1.id << " & " << tx_frame2.id << " and data \"Hello\" & \"World!\" ? (y / n) : " << std::endl;
         std::cin >> response;
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test");
+        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 
@@ -299,10 +299,10 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
         const std::uint32_t baud = 1000000;
 
-#ifdef SKIP_TESTS_WITH_OTHER_DEVICES
-        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
-#else
+#ifdef ENABLE_TESTS_WITH_OTHER_DEVICES
         WARN("This test requires another device that acknowledges the transmisison of the CAN message. I.e. needs to be configured to CAN FD protocol and a baudrate of " << baud << " .");
+#else
+        SKIP("This test has been turned off with Cmake Variable \"ENABLE_TEST_WITH_OTHER_DEVICES\"");
 #endif
 
         CanTxFrame tx_frame;
@@ -361,10 +361,10 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
         const std::uint32_t baud = 1000000;
 
-#ifdef SKIP_TESTS_WITH_OTHER_DEVICES
-        SKIP("This test has been turnded off with Cmake Variable \"SKIP_TEST_WITH_OTHER_DEVICES\"");
-#else
+#ifdef ENABLE_TESTS_WITH_OTHER_DEVICES
         WARN("This test requires another device to send a CAN FD message at a baudrate of " << baud << " .");
+#else
+        SKIP("This test has been turned off with Cmake Variable \"ENABLE_TEST_WITH_OTHER_DEVICES\"");
 #endif
 
         dev->set_baudrate(baud);
@@ -413,7 +413,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
             std::cout << std::endl << std::endl;
         }
 
-#ifndef SKIP_INTERACTIVE_TESTS
+#ifdef ENABLE_INTERACTIVE_TESTS
         std::string response;
         std::cin.ignore();
         std::cout << std::dec << "Is the received data correct? (y / n) : " << std::endl;
@@ -421,7 +421,7 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
         while (std::cin.get() != '\n') {}
         CHECK(response == "y");
 #else
-        SKIP("Skipping interacive checks of this test");
+        SKIP("Skipping interacive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
     }
 }
