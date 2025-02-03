@@ -19,7 +19,7 @@ void waitForKeyPress()
 int main(int argc, char *argv[])
 {
     std::cout << "+======================================+" << std::endl;
-    std::cout << "      USBtingo utility application      " << std::endl;
+    std::cout << "   USBtingoDetect utility application   " << std::endl;
     std::cout << "+======================================+" << std::endl;
 
     std::cout << " This application detects and lists all" << std::endl
