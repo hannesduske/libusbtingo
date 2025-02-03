@@ -1,15 +1,15 @@
-add_executable(usbtingo_detect
+add_executable(USBtingoDetect
     USBtingoDetect.cpp
 )
 
-target_link_libraries(usbtingo_detect
+target_link_libraries(USBtingoDetect
     usbtingo
 )
 
-add_executable(usbtingo_can
+add_executable(USBtingoCan
     USBtingoCAN.cpp
 )
 
-target_link_libraries(usbtingo_can
+target_link_libraries(USBtingoCan
     usbtingo
 )
