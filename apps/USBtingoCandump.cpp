@@ -1,9 +1,12 @@
 #include "UtilityHelper.hpp"
+#include "UtilityListener.hpp"
 
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
+    UtilityListener listener;
+
     std::cout << "+======================================+" << std::endl;
     std::cout << "  USBtingoCansend utility application   " << std::endl;
     std::cout << "+======================================+" << std::endl;
@@ -19,31 +22,15 @@ int main(int argc, char *argv[])
         std::cout << "Could not open device" << std::endl << "Exiting program..." << std::endl;
         return 0;
     }
-
-    std::cout << "+======================================+" << std::endl;
-    while (true)
-    {    
-        std::cout << " Enter a CAN message"
-                  << " Format : <id>#<data>"
-                  << std::endl;
-        std::cout << " > ";
-
-        std::string msg_string;
-        usbtingo::bus::Message msg;
-
-        std::cin >> msg_string;
         
-        if(parseCanFrame(msg_string, msg, fd_on))
-        {
-            if (!bus->send(msg))
-            {
-                std::cout << " Error while sending message";
-            }
-        }else{
-            std::cout << " Error while parsing message";
-        }
-        std::cout << std::endl;
-    }
+    bus->add_listener(reinterpret_cast<usbtingo::bus::BasicListener*>(&listener));
 
+    std::cout << "+======================================+" << std::endl
+              << "Start listening for Can messages..." << std::endl
+              << "Message format: <id> [dlc] <data>" << std::endl
+              << "(Press ENTER to exit)" << std::endl << std::endl;
+    
+    std::cin.ignore();
+    while (std::cin.get() != '\n') {}
     return 1;
 }

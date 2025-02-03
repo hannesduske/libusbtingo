@@ -14,18 +14,18 @@ target_link_libraries(USBtingoCansend
     usbtingo
 )
 
-# add_executable(USBtingoCandump
-#     USBtingoCandump.cpp
-# )
+add_executable(USBtingoCandump
+    USBtingoCandump.cpp
+)
 
-# target_link_libraries(USBtingoCandump
-#     usbtingo
-# )
+target_link_libraries(USBtingoCandump
+    usbtingo
+)
 
 install(TARGETS
     USBtingoDetect
     USBtingoCansend
-    #USBtingoCandump
+    USBtingoCandump
 
     EXPORT usbtingoTargets
     RUNTIME DESTINATION bin

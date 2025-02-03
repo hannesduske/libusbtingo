@@ -1,11 +1,38 @@
+#pragma once
+
+#include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/basic_bus/BasicBus.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cstdint>
 
+
+void printMessage(const usbtingo::bus::Message msg, bool verbose)
+{
+    if(verbose){
+        std::cout << " Std ID:  0x" << std::hex << msg.id << std::endl;
+        std::cout << " DLC: " << std::to_string(msg.data.size()) << " Bytes" << std::endl;
+        std::cout << " Data: ";
+
+        for (std::size_t i = 0; i < usbtingo::can::Dlc::dlc_to_bytes(static_cast<std::uint8_t>(msg.data.size())); i++) {
+            std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(msg.data.at(i)) << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+    else{
+        std::cout << " 0x" << std::hex << msg.id;
+        std::cout << " [" << std::to_string(msg.data.size()) << "] ";
+
+        for (std::size_t i = 0; i < usbtingo::can::Dlc::dlc_to_bytes(static_cast<std::uint8_t>(msg.data.size())); i++) {
+            std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(msg.data.at(i)) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 void printDevices(const std::vector<std::uint32_t> &serial_vec)
 {
@@ -38,7 +65,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on)
 
     int idx = 0;
     bool valid_input = true;
-    int device_count = serial_vec.size();
+    std::size_t device_count = serial_vec.size();
 
     if (device_count == 0)
     {
@@ -104,7 +131,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on)
         std::cout << std::endl;
     } while (!valid_input);
 
-    int data_baudrate = data_baudrate;
+    int data_baudrate = baudrate;
     if (fd_on)
     {
         do
@@ -150,7 +177,7 @@ bool parseCanFrame(const std::string &input, usbtingo::bus::Message &frame, bool
     id_stream >> std::hex >> frame.id;
 
     std::string data_string = input.substr(pos + 1);
-    int data_length = data_string.length() / 2;
+    std::size_t data_length = data_string.length() / 2;
     if (data_length > 8 && !fd_on)
     {
         std::cerr << "Data length exceeds 8 bytes." << std::endl;
