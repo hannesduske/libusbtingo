@@ -14,10 +14,15 @@ BasicBus::BasicBus(std::unique_ptr<device::Device> device)
 
 std::unique_ptr<BasicBus> BasicBus::create(std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol, device::Mode mode)
 {
-	auto serial_vec = device::DeviceFactory::detect_available_devices();
-	if (serial_vec.size() == 0) return nullptr;
+	return create(0, baudrate, data_baudrate, protocol, mode);
+}
 
-	auto device = device::DeviceFactory::create(serial_vec.front());
+std::unique_ptr<BasicBus> BasicBus::create(std::size_t idx, std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol, device::Mode mode)
+{
+	auto serial_vec = device::DeviceFactory::detect_available_devices();
+	if (serial_vec.size() <= idx) return nullptr;
+
+	auto device = device::DeviceFactory::create(serial_vec.at(idx));
 	if (!device) return nullptr;
 
 	device->set_mode(device::Mode::OFF);
