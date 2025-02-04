@@ -10,6 +10,7 @@ using namespace std::literals::chrono_literals;
 
 std::atomic<bool> shutdown(false);
 
+// Small helper
 void waitForKeyPress()
 {
     std::cin.get();

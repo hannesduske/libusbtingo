@@ -16,6 +16,7 @@ message(STATUS "")
 
 message(STATUS " ___________________________ OPTIONS ___________________________")
 message(STATUS " BUILD_SHARED_LIBS               : " ${BUILD_SHARED_LIBS})
+message(STATUS " BUILD_EXAMPLES                  : " ${BUILD_EXAMPLES})
 message(STATUS " BUILD_UTILS                     : " ${BUILD_UTILS})
 message(STATUS " BUILD_TESTS                     : " ${BUILD_TESTS})
 if(BUILD_TESTS)

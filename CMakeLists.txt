@@ -31,6 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Options
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
+option(BUILD_EXAMPLES "Build the minimal examples." on)
 option(BUILD_UTILS "Build and install utility programs along with the library." on)
 option(BUILD_TESTS "Build the test utilities for the library. Requires Catch2." on)
 option(ENABLE_INTERACTIVE_TESTS "Enable tests that have to be confirmed manually." off)
@@ -48,9 +49,14 @@ endif()
 # Library
 add_subdirectory(src)
 
+# Examples
+if(BUILD_EXAMPLES)
+    add_subdirectory(apps/examples)
+endif()
+
 # Utilities
 if(BUILD_UTILS)
-    add_subdirectory(apps)
+    add_subdirectory(apps/utils)
 endif()
 
 # Tests
