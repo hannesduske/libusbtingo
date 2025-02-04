@@ -1,10 +1,29 @@
-# libusbtingo
+# Libusbtingo
 C++ API for the USBtingo - USB to CAN-FD Interface
+
+This library implements almost everything the USBtingo can do, except the logic data stream. If you need this functionality, you'll have to implement it yourself (and hopefully send a pull request).
+
+# Contents
+1.  [Building and installing the library](#1-building-and-installing-the-library) <br>
+1.1 [Requirements for Windows](#11-requirements-for-windows)  <br>
+1.2 [Requirements for Linux](#12-requirements-for-linux)  <br>
+1.3 [Building the library from source](#13-building-the-library-from-source)  <br>
+1.4 [Installing the library](#14-installing-the-library)  <br>
+1.5 [CMake Options](#15-cmake-options)  <br>
+2.  [How to use the library](#2-how-to-use-the-library)  <br>
+2.1 [BasicBus](#21-basicbus)  <br>
+2.2 [Bus](#22-bus)  <br>
+2.3 [Device](#23-device)  <br>
+2.4 [DeviceFactory](#24-devicefactory) <br>
+3.  [Utility applications](#3-utility-applications) <br>
+4.  [Minimal examples](#4-minimal-examples) <br>
+4.1 [Using the BasicBus](#41-using-the-basicbus) <br>
+4.2 [Using the Bus](#42-using-the-bus)
 
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
 - CMake
-- MSVC Compiler
+- MSVC compiler
 - Windows SDK
 
 > Note:
@@ -19,7 +38,7 @@ Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
 - Some C++ compiler
 
 ## 1.3 Building the library from source
-The library is built with a standard CMake workflow which is identical for Windows and Linux.
+The library is built with a standard CMake workflow which is almost identical for Windows and Linux.
 Use the following commands to build the library.
 ```
 git clone https://github.com/hannesduske/libusbtingo.git
@@ -28,6 +47,11 @@ mkdir libusbtingo/build
 cd libusbtingo/build
 cmake ..
 cmake --build .
+```
+
+For the MSVC compiler on Windows, you need to specify which configuration you want to build.
+```
+cmake --build . --config=Release
 ```
 
 ## 1.4 Installing the library
@@ -49,7 +73,7 @@ cmake --install . --prefix <path>
 Custom install paths should be added to the `CMAKE_PREFIX_PATH` environment variable if the library is installed to a non default location.
 This enables other packages to find this library.
 
-## 1.5 CMake Options:
+## 1.5 CMake Options
 
 The build can be configured with CMake options.
 Options can be set by calling `cmake ..` with the flag `-D`.
@@ -61,6 +85,7 @@ cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
 | CMake Option | Default value | Description |
 |---|---|---|
 | BUILD_SHARED_LIBS | OFF | Build libusbtingo as shared library. If set to OFF a static library is built. |
+| BUILD_EXAMPLES | ON | Build the minimal examples. |
 | BUILD_UTILS | ON | Build and install utility programs along with the library. |
 | BUILD_TESTS | ON | Build the test utilities for the library. Requires Catch2. |
 | ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
@@ -99,10 +124,12 @@ After the configuration is complete, a `Device` can be used to instantiate a `Ba
 
 ## 2.4 DeviceFactory
 
-### 2.4.1 Enumerating devices
+**Enumerating devices**
+
 The `DeviceFactory` offers a method to enumerate all connected USBtingo devices which returns a vector of the corresponding serial numbers. The serial numbers can be used in the factory method `DeviceFactory::create()` to instantiate a specific USBtingo `Device`.
 
-### 2.4.2 Creating devices
+**Creating devices**
+
 The `Device` is an abstract interface and cannot be instantiated directly.
 Use the `DeviceFactory` to create `Device` objects instead.
 The device factory chooses the correct `Device` implementation (libusb or WinApi) for the current system.
@@ -130,18 +157,200 @@ After the configuration, the program sends all entered messages on the CAN Bus.
 >Note:
  Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  
-# 4. Minimal example
+# 4. Minimal examples
 
-Refer to the utility applications `USBtingoDetect`, `USBtingoCansend` and `USBtingoCandump` in the `apps` directory for examples on how to use this library. Below are two additional minimal examples on how to use the `BasicBus` and the `Bus`.
+Refer to the utility applications `USBtingoDetect`, `USBtingoCansend` and `USBtingoCandump` in the `apps/utils` directory for examples on how to use this library. Below are two additional minimal examples on how to use the `BasicBus` and the `Bus`.
 
 ## 4.1 Using the BasicBus
 
+Following is a minimal example on how to use the `BasicBus` to send and receive CAN messages.
+This is a shortened version of the `MinimalExampleBasicBus.cpp`.
+Find the full code of this example [here](apps\examples\MinimalExampleBasicBus.cpp).
+
+**MinimalExampleBasicBus.cpp**
 ```
-ToDo: Add example
+#include "usbtingo/basic_bus/BasicBus.hpp"
+#include "usbtingo/basic_bus/Message.hpp"
+
+#include "MinimalBasicListener.hpp"
+
+#include <cstdint>
+#include <chrono>
+
+using namespace usbtingo;
+using namespace std::literals::chrono_literals;
+
+// Setup of the CAN parameters
+constexpr std::size_t                 device_index    = 0;
+constexpr device::Protocol            protocol        = device::Protocol::CAN_FD;
+constexpr std::uint32_t               baudrate        = 1000000;
+constexpr std::uint32_t               data_baudrate   = 1000000;
+
+// Data for a CAN test message
+constexpr std::uint32_t               testid          = 42;
+constexpr std::array<std::uint8_t, 5> testdata        = { 0, 1, 2, 3, 4 };
+
+/**
+ * @brief Minimal example of a program that opens a BasicBus to send and receive CAN messages.
+ */
+int main(int argc, char *argv[])
+{
+    // Create one USBtingo according to the index
+    auto bus = bus::BasicBus::create(device_index, baudrate, data_baudrate, protocol);
+
+    // Check if the device object is valid
+    if(!bus) return 0;
+
+    // Register an observer that gets notified when new messages arrive
+    MinimalBasicListener listener;
+    bus->add_listener(reinterpret_cast<usbtingo::bus::BasicListener *>(&listener));
+    
+    // Create a tx message with the Message class.
+    bus::Message tx_msg(testid, std::vector<std::uint8_t>(testdata.begin(), testdata.end()));
+
+    // Send a message every second until ENTER is pressed
+    while (true)
+    {
+        // Send message 
+        bus->send(tx_msg);   
+
+        // Do something else ...
+
+        // Maybe add some break condition ...
+
+        // Sleep one second
+        std::this_thread::sleep_for(1000ms);
+    }
+    return 1;
+}
+```
+
+<br>
+
+**MinimalBasicListener.hpp**
+```
+#pragma once
+
+#include <usbtingo/basic_bus/BasicListener.hpp>
+
+using namespace usbtingo;
+
+class MinimalBasicListener : public usbtingo::bus::BasicListener{
+public:
+    void on_can_receive(const usbtingo::bus::Message msg) override
+    {
+        // This callback is executed whenever a new CAN message is received.
+        // Do something with the received message here, e.g. print it to the command line ...
+    }
+};
 ```
 
 ## 4.2 Using the Bus
 
+Following is a minimal example on how to use the `Bus` to send and receive CAN messages.
+This is a shortened version of the `MinimalExampleBus.cpp`.
+Find the full code of this example [here](apps/examples/MinimalExampleBus.cpp).
+
+**MinimalExampleBasicBus.cpp**
 ```
-ToDo: Add example
+#include "usbtingo/can/Dlc.hpp"
+#include "usbtingo/bus/Bus.hpp"
+#include "usbtingo/basic_bus/Message.hpp"
+#include "usbtingo/device/DeviceFactory.hpp"
+
+#include "MinimalCanListener.hpp"
+
+#include <cstdint>
+#include <chrono>
+
+using namespace usbtingo;
+using namespace std::literals::chrono_literals;
+
+// Setup of the CAN parameters
+constexpr std::size_t                 device_index    = 0;
+constexpr device::Protocol            protocol        = device::Protocol::CAN_FD;
+constexpr std::uint32_t               baudrate        = 1000000;
+constexpr std::uint32_t               data_baudrate   = 1000000;
+
+// Data for a CAN test message
+constexpr std::uint32_t               testid          = 42;
+constexpr std::array<std::uint8_t, 5> testdata        = { 0, 1, 2, 3, 4 };
+
+/**
+ * @brief Minimal example of a program that opens a Bus to send and receive CAN messages.
+ */
+int main(int argc, char *argv[])
+{
+    // Get all connected USBtingo devices
+    auto serial_vec = device::DeviceFactory::detect_available_devices();
+    if(serial_vec.size() <= device_index) return 0;
+
+    // Create one USBtingo according to the index
+    auto serial = serial_vec.at(device_index);
+    auto device = device::DeviceFactory::create(serial);
+
+    // Check if the device object is valid
+    if(!device) return 0;
+
+    // Configure the device
+    device->set_mode(device::Mode::OFF);                // Device has to be in Mode::OFF for the configuration
+    device->set_baudrate(baudrate, data_baudrate);      // Set baudrate
+    device->set_protocol(protocol, 0b00010000);         // Set protocol and disable automatic retransmission of failed messages
+    device->set_mode(device::Mode::ACTIVE);             // Activate device before passing it to the Bus
+
+    // Create a Bus object
+    auto bus = std::make_unique<bus::Bus>(std::move(device));
+
+    // Register an observer that gets notified when new messages arrive
+    MinimalCanListener listener;
+    bus->add_listener(reinterpret_cast<usbtingo::bus::CanListener *>(&listener));
+    
+    // Variant 1: Manually create a tx message.
+    device::CanTxFrame tx_msg1;
+    tx_msg1.id = testid;
+    tx_msg1.dlc = can::Dlc::bytes_to_dlc(testdata.size());
+    tx_msg1.fdf = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    std::copy(testdata.begin(), testdata.end(), tx_msg1.data.data());
+
+    // Variant 2: Create a tx message with the Message class.
+    bus::Message tx_msg2(testid, std::vector<std::uint8_t>(testdata.begin(), testdata.end()));
+
+    // Send a message every second until ENTER is pressed
+    while (true)
+    {
+        // Send message with variant 1
+        bus->send(tx_msg1);   
+        std::this_thread::sleep_for(1000ms);
+        
+        // Send message with variant 2
+        bus->send(tx_msg1);   
+        std::this_thread::sleep_for(1000ms);
+
+        // Do something else ...
+
+        // Maybe add some break condition ...
+    }
+
+    return 1;
+}
+```
+
+<br>
+
+**MinimalBasicListener.hpp**
+```
+#pragma once
+
+#include <usbtingo/bus/CanListener.hpp>
+
+using namespace usbtingo;
+
+class MinimalCanListener : public usbtingo::bus::CanListener{
+public:
+    void on_can_receive(const device::CanRxFrame msg) override
+    {
+        // This callback is executed whenever a new CAN message is received.
+        // Do something with the received message here, e.g. print it to the command line ...
+    }
+};
 ```
