@@ -7,10 +7,6 @@ namespace usbtingo{
 
 namespace device{
 
-// init static class member
-std::map<unsigned long, std::string> WinDevice::m_usbtingos = { };
-
-
 WinDevice::WinDevice(std::uint32_t serial, std::string path) :
     Device(serial)
 {
@@ -29,10 +25,10 @@ WinDevice::~WinDevice()
 
 std::unique_ptr<Device> WinDevice::create_device(std::uint32_t serial)
 {
-    WinDevice::detect_usbtingos();
-    const auto it = m_usbtingos.find(serial);
+    const auto dev_map = WinDevice::detect_usbtingos();
+    const auto it = dev_map.find(serial);
     
-    if (it != m_usbtingos.end()) {
+    if (it != dev_map.end()) {
         auto device = std::make_unique<WinDevice>(serial, it->second);
         if (device->is_alive()) {
             return std::move(device);
@@ -179,7 +175,7 @@ bool WinDevice::cancel_async_status_request()
     return success;
 }
 
-std::future<bool> WinDevice::request_status_async() //ToDo: Generalize async request to use with can, logic and status
+std::future<bool> WinDevice::request_status_async()
 {
     if (m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE) return std::future<bool>();
 
@@ -226,11 +222,10 @@ bool WinDevice::receive_status_async(StatusFrame& status_frame)
 std::vector<std::uint32_t> WinDevice::detect_available_devices()
 {
     std::vector<std::uint32_t> serial_vec;
+    const auto dev_map = WinDevice::detect_usbtingos();
 
-   if(!WinDevice::detect_usbtingos()) return serial_vec;
-
-    for (const auto& usbtingo : m_usbtingos) {
-        serial_vec.push_back(usbtingo.first);
+    for (const auto& it : dev_map) {
+        serial_vec.push_back(it.first);
     }
     
     return serial_vec;
@@ -240,19 +235,19 @@ std::vector<std::uint32_t> WinDevice::detect_available_devices()
  * @brief Updates the static private map of the serial numbers of all connected USBtingo devices and their device paths.
  * @return true if operation succeeded
  */
-bool WinDevice::detect_usbtingos()
+std::map<unsigned long, std::string> WinDevice::detect_usbtingos()
 {
-    HRESULT hr;
-    m_usbtingos.clear();
+    std::map<unsigned long, std::string> dev_map;
 
+    HRESULT hr;
     std::vector<std::string> devices;
     hr = WinDevice::detect_usb_devices(devices, USBTINGO_VID, USBTINGO_PID);
 
     // Failed to fetch USB Devices
-    if (FAILED(hr)) return false;
+    if (FAILED(hr)) return dev_map;
 
     // No device with the USBtingo vid and pid found
-    if (devices.empty()) return false;
+    if (devices.empty()) return dev_map;
 
     for (const auto& dev : devices) {
         std::uint32_t serial = 0;
@@ -265,7 +260,7 @@ bool WinDevice::detect_usbtingos()
         if ((sn_pos1 != std::string::npos) && (sn_pos2 != std::string::npos)) {
             try {
                 std::uint32_t serial = static_cast<uint32_t>(std::stoi(dev.substr(sn_pos1 + 1, sn_pos2 - sn_pos1 - 1)));
-                m_usbtingos.emplace(serial, dev);
+                dev_map.emplace(serial, dev);
             }
             catch (...) {
 
@@ -283,7 +278,7 @@ bool WinDevice::detect_usbtingos()
         if (SUCCEEDED(hr)) m_usbtingos.emplace(serial, dev);*/
     }
 
-    return true;
+    return dev_map;
 }
 
 /**

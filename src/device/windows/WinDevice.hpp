@@ -64,9 +64,7 @@ public:
 private:
     WinHandle m_device_data;
 
-    static std::map<unsigned long, std::string> m_usbtingos; // ToDo: Just remove static map and make it the return value of the static member method
-
-    static bool detect_usbtingos();
+    static std::map<unsigned long, std::string> detect_usbtingos();
 
     OVERLAPPED m_async_status;
     OVERLAPPED m_async_logic;

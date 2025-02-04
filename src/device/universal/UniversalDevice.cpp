@@ -199,7 +199,7 @@ std::future<bool> UniversalDevice::request_can_async()
     return m_promise_can.get_future();
 }
 
-std::future<bool> UniversalDevice::request_status_async() //ToDo: Generalize async request to use with can, logic and status
+std::future<bool> UniversalDevice::request_status_async()
 {
     if ((!m_device_data.HandlesOpen) || (m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE)) return std::future<bool>();
 
