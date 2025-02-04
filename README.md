@@ -29,13 +29,19 @@ This library implements almost everything the USBtingo can do, except the logic 
 > Note:
 It is possible to use libusb on Windows platforms instead of the Windows API.
 Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
-<br>This option has not been tested and might require some additional configuration of the CMake files.
+This option has not been tested and might require some additional configuration of the CMake files.
 
 ## 1.2 Requirements for Linux
 
 - CMake
 - libusb-1.0-0
 - Some C++ compiler
+
+>Note: When using the USBtingo on Linux, a udev rule should be added to allow all users to access the device. Otherwise root privileges are required to access the device.
+```
+sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\' > /etc/udev/rules.d/50-USBtingo.rules'
+sudo udevadm control --reload-rules
+```
 
 ## 1.3 Building the library from source
 The library is built with a standard CMake workflow which is almost identical for Windows and Linux.
