@@ -171,7 +171,7 @@ Refer to the utility applications `USBtingoDetect`, `USBtingoCansend` and `USBti
 
 Following is a minimal example on how to use the `BasicBus` to send and receive CAN messages.
 This is a shortened version of the `MinimalExampleBasicBus.cpp`.
-Find the full code of this example [here](apps\examples\MinimalExampleBasicBus.cpp).
+Find the full code of this example [here](apps/examples/MinimalExampleBasicBus.cpp).
 
 **MinimalExampleBasicBus.cpp**
 ```
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
     // Create a tx message with the Message class.
     bus::Message tx_msg(testid, std::vector<std::uint8_t>(testdata.begin(), testdata.end()));
 
-    // Send a message every second until ENTER is pressed
+    // Send a message every second until the program is stopped
     while (true)
     {
         // Send message 
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
     // Variant 2: Create a tx message with the Message class.
     bus::Message tx_msg2(testid, std::vector<std::uint8_t>(testdata.begin(), testdata.end()));
 
-    // Send a message every second until ENTER is pressed
+    // Send a message every second until the program is stopped
     while (true)
     {
         // Send message with variant 1
