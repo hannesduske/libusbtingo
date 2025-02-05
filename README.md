@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(1000ms);
         
         // Send message with variant 2
-        bus->send(tx_msg1);   
+        bus->send(tx_msg2.to_CanTxFrame());   
         std::this_thread::sleep_for(1000ms);
 
         // Do something else ...

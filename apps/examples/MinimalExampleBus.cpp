@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
         printMessage(bus::Message(tx_msg2));
         i++;
         
-        bus->send(tx_msg1);   
+        bus->send(tx_msg2.to_CanTxFrame());   
         std::this_thread::sleep_for(1000ms);
     }
 
