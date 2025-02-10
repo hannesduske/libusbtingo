@@ -122,7 +122,7 @@ std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos()
 
                     unsigned char buffer[16] = {0};
                     r = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buffer, sizeof(buffer));
-                    std::uint32_t serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer)));
+                    std::uint32_t serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer), nullptr, 16));
                         if(r > 0) dev_map.emplace(serial, dev);
                 }
 
@@ -270,7 +270,7 @@ bool UniversalDevice::read_usbtingo_serial(std::uint32_t& serial)
 
     if(libusb_get_string_descriptor_ascii(m_device_data.Handle, desc.iSerialNumber, buffer, sizeof(buffer)) < 0) return false;
 
-    serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer)));
+    serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer), nullptr, 16));
 
     return true;
 }

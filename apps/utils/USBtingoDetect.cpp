@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         std::size_t idx = 0;
         for (const auto &serial : serial_vec)
         {
-            std::cout << " #" << idx << " USBtingo " << serial << std::endl;
+            std::cout << " #" << idx << " USBtingo " << serial << " (0x" << std::hex << serial << std::dec << ")" << std::endl;
             idx++;
         }
     }
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
                              [&serial](std::uint32_t x)
                              { return serial == x; }))
             {
-                std::cout << " USBtingo " << serial << " disconnected." << std::endl;
+                std::cout << " USBtingo " << serial << " (0x" << std::hex << serial << std::dec << ") disconnected." << std::endl;
             }
         }
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
                              [&serial](std::uint32_t x)
                              { return serial == x; }))
             {
-                std::cout << " USBtingo " << serial << " connected." << std::endl;
+                std::cout << " USBtingo " << serial << " (0x" << std::hex << serial << std::dec << ") connected." << std::endl;
             }
         }
 

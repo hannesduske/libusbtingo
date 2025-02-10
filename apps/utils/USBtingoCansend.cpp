@@ -26,11 +26,13 @@ int main(int argc, char *argv[])
     }
 
     std::cout << "+======================================+" << std::endl;
-    while (true)
+    std::cout << " Enter a CAN message" << std::endl
+            << " Format: <id>#<data>" << std::endl
+            << " (Enter \"q\" to exit)" << std::endl
+            << std::endl;
+    bool shutdown = false;
+    while (!shutdown)
     {
-        std::cout << " Enter a CAN message"
-                  << " Format : <id>#<data>"
-                  << std::endl;
         std::cout << " > ";
 
         std::string msg_string;
@@ -38,11 +40,19 @@ int main(int argc, char *argv[])
 
         std::cin >> msg_string;
 
-        if (parseCanFrame(msg_string, msg, fd_on))
+        if(msg_string == "q")
+        {
+            shutdown = true;
+        }
+        else if (parseCanFrame(msg_string, msg, fd_on))
         {
             if (!bus->send(msg))
             {
                 std::cout << " Error while sending message";
+            }
+            else
+            {
+                std::cout << " Successfully sent message";
             }
         }
         else

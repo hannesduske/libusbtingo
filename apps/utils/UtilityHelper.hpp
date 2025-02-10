@@ -45,7 +45,7 @@ void printDevices(const std::vector<std::uint32_t> &serial_vec)
         std::size_t idx = 0;
         for (const auto &serial : serial_vec)
         {
-            std::cout << " #" << idx << " USBtingo " << serial << std::endl;
+            std::cout << " #" << idx << " USBtingo "<< serial << " (0x" << std::hex << serial << std::dec << ")" << std::endl;
             idx++;
         }
     }
@@ -86,13 +86,12 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on)
                 valid_input = true;
             }
             std::cout << " Select a device:" << std::endl;
-            std::cout << " > ";
+            std::cout << " > #";
             if (!(std::cin >> idx))
                 valid_input = false;
             std::cout << std::endl;
         } while (!valid_input || idx >= device_count || idx < 0);
     }
-    std::cout << std::endl;
 
     int input = 0;
     do
