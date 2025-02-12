@@ -36,7 +36,11 @@ private:
     friend class Singleton<UsbLoader>;
     UsbLoader()
     {
-        libusb_init_context(&m_ctx, NULL, 0);
+        #if LIBUSB_API_VERSION >= 0x0100010A
+            libusb_init_context(&m_ctx, NULL, 0);
+        #else
+            libusb_init(&m_ctx);
+        #endif
         m_event_handler = std::thread(&UsbLoader::event_loop, this);
     }
 
