@@ -69,6 +69,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on)
 
     if (device_count == 0)
     {
+        return nullptr;
     }
     else if (device_count == 1)
     {
