@@ -111,7 +111,7 @@ std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos()
 
        struct libusb_device_descriptor desc;
 		r = libusb_get_device_descriptor(dev, &desc);
-		if (r >= 0){
+		if (r >= 0){ // ToDo: Return error message, e.g. insufficient permission
             if (desc.idVendor == USBTINGO_VID && desc.idProduct == USBTINGO_PID){
                 
                 //printf("Found device\n");
@@ -122,8 +122,11 @@ std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos()
 
                     unsigned char buffer[16] = {0};
                     r = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buffer, sizeof(buffer));
-                    std::uint32_t serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer), nullptr, 16));
-                        if(r > 0) dev_map.emplace(serial, dev);
+                    
+                    if(r > 0){
+                        std::uint32_t serial = static_cast<uint32_t>(std::stoi(reinterpret_cast<const char*>(buffer), nullptr, 16));
+                        dev_map.emplace(serial, dev);
+                    }
                 }
 
                 libusb_close(handle);
