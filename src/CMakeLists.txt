@@ -57,9 +57,15 @@ else()
   )
 
   if(BUILD_SHARED_LIBS)
-    target_link_libraries(usbtingo PRIVATE libusb::libusb)
+    target_link_libraries(usbtingo PRIVATE
+      libusb::libusb
+      Threads::Threads
+    )
   else()
-    target_link_libraries(usbtingo PUBLIC libusb::libusb)
+    target_link_libraries(usbtingo PUBLIC
+      libusb::libusb
+      Threads::Threads
+    )
   endif()
 endif()
 
@@ -95,7 +101,7 @@ install(FILES
 include(CMakePackageConfigHelpers)
 
 if(NOT USE_WINAPI)
-    set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)")
+    set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)\nfind_dependency(Threads REQUIRED)")
 endif(NOT USE_WINAPI)
 # 
 # find_dependency(libusb REQUIRED)

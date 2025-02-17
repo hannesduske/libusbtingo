@@ -4,6 +4,7 @@ add_executable(USBtingoDetect
 
 target_link_libraries(USBtingoDetect
     usbtingo
+    Threads::Threads
 )
 
 if(BUILD_SHARED_LIBS)
@@ -19,6 +20,7 @@ add_executable(USBtingoCansend
 
 target_link_libraries(USBtingoCansend
     usbtingo
+    Threads::Threads
 )
 
 if(BUILD_SHARED_LIBS)
@@ -34,6 +36,7 @@ add_executable(USBtingoCandump
 
 target_link_libraries(USBtingoCandump
     usbtingo
+    Threads::Threads
 )
 
 if(BUILD_SHARED_LIBS)

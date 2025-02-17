@@ -46,6 +46,8 @@ if(NOT USE_WINAPI)
     find_package(libusb REQUIRED)
 endif()
 
+find_package(Threads REQUIRED)
+
 # Library
 add_subdirectory(src)
 
