@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
     std::cout << "  USBtingoCansend utility application   " << std::endl;
     std::cout << "+======================================+" << std::endl;
 
-    std::cout << " This application sends CAN messages" << std::endl
-              << " with a connected USBtingo device." << std::endl
+    std::cout << " This application lists received CAN" << std::endl
+              << " messages from a USBtingo device." << std::endl
               << std::endl;
 
     bool fd_on = false;
