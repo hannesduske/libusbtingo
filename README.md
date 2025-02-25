@@ -23,21 +23,30 @@ This library implements almost everything the USBtingo can do, except the logic 
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
 - CMake
-- MSVC compiler
-- Windows SDK
+- Some C++ compiler (e.g. MSVC)
+- Windows SDK **or** libusb
 
-> Note:
-It is possible to use libusb on Windows platforms instead of the Windows API.
+> ℹ️ **Info:**
+It is possible to use libusb instead of the Windows SDK.
 Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
 
 ## 1.2 Requirements for Linux
 
 - CMake
-- libusb-1.0-0
 - Some C++ compiler
+- libusb-1.0-0 and libusb-1.0-0-dev
 
->Note: When using the USBtingo on Linux, a udev rule should be added to allow all users to access the device. Otherwise root privileges are required to access the device.
+> ℹ️ **Info:**
+Run the following command install the dependencies.
+
+```
+sudo apt update
+sudo apt install -y cmake build-essential libusb-1.0-0 libusb-1.0-0-dev
+```
+
+> ⚠️ **Warning:**
+When using the USBtingo on Linux, a udev rule should be added to allow all users to access the device. Otherwise root privileges are required to access the device.
 ```
 sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\' > /etc/udev/rules.d/50-USBtingo.rules'
 sudo udevadm control --reload-rules
@@ -55,6 +64,7 @@ cmake ..
 cmake --build .
 ```
 
+> ℹ️ **Info:**
 For the MSVC compiler on Windows, you need to specify which configuration you want to build.
 ```
 cmake --build . --config=Release
@@ -64,18 +74,25 @@ cmake --build . --config=Release
 
 The library can be installed to CMakes default locating with the `cmake --install` command.
 The default install location is `C:/Program Files (x86)/libusbtingo` for Windows and `/usr/local` for Linux.
+
+Install command for Windows. Requires terminal with admin rights:
 ```
 cmake --install .
+```
+
+Install command for Linux:
+```
+sudo cmake --install .
 ```
 
 The library can be installed to a custom location by specifying an install path.
 Replace `<path>` with your desired install directory.
 
 ```
-cmake --install . --prefix <path>
+sudo cmake --install . --prefix <path>
 ```
 
-> Note:
+> ⚠️ **Warning:**
 Custom install paths should be added to the `CMAKE_PREFIX_PATH` environment variable if the library is installed to a non default location.
 This enables other packages to find this library.
 
@@ -126,7 +143,8 @@ The `Device` represents the connected USBtingo and implements all necessary inte
 After creating a valid `Deivce` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
 After the configuration is complete, a `Device` can be used to instantiate a `BasicBus` or a `Bus` which handles all further communication with the USBtingo.
 
-> Note: One physical USBtingo can only be managed by one `Device` at the same time.
+> ℹ️ **Info:**
+> One physical USBtingo can only be managed by one `Device` at the same time.
 
 ## 2.4 DeviceFactory
 
@@ -160,7 +178,7 @@ After the configuration, the program sends all entered messages on the CAN Bus.
  Minimal example of a command line program that prints out all received CAN messages.
  After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages arrive.
 
->Note:
+> ℹ️ **Info:** 
  Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  
 # 4. Minimal examples
