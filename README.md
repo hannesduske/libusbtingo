@@ -26,7 +26,7 @@ This library implements almost everything the USBtingo can do, except the logic 
 - Some C++ compiler (e.g. MSVC)
 - Windows SDK **or** libusb
 
-> ℹ️ **Info:**
+> ℹ️
 It is possible to use libusb instead of the Windows SDK.
 Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
@@ -37,7 +37,7 @@ This option has not been tested and might require some additional configuration 
 - Some C++ compiler
 - libusb-1.0-0 and libusb-1.0-0-dev
 
-> ℹ️ **Info:**
+> ℹ️
 Run the following command install the dependencies.
 
 ```
@@ -45,7 +45,7 @@ sudo apt update
 sudo apt install -y cmake build-essential libusb-1.0-0 libusb-1.0-0-dev
 ```
 
-> ⚠️ **Warning:**
+> ⚠️
 When using the USBtingo on Linux, a udev rule should be added to allow all users to access the device. Otherwise root privileges are required to access the device.
 ```
 sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\' > /etc/udev/rules.d/50-USBtingo.rules'
@@ -64,7 +64,7 @@ cmake ..
 cmake --build .
 ```
 
-> ℹ️ **Info:**
+> ℹ️
 For the MSVC compiler on Windows, you need to specify which configuration you want to build.
 ```
 cmake --build . --config=Release
@@ -92,7 +92,7 @@ Replace `<path>` with your desired install directory.
 sudo cmake --install . --prefix <path>
 ```
 
-> ⚠️ **Warning:**
+> ⚠️
 Custom install paths should be added to the `CMAKE_PREFIX_PATH` environment variable if the library is installed to a non default location.
 This enables other packages to find this library.
 
@@ -115,6 +115,8 @@ cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
 | ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
 | USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
 
+> ⚠️
+Update the linker cache when installing a **shared library** by running `sudo ldconfig` after the installation.
 
 # 2. How to use the library
 
@@ -143,7 +145,7 @@ The `Device` represents the connected USBtingo and implements all necessary inte
 After creating a valid `Deivce` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
 After the configuration is complete, a `Device` can be used to instantiate a `BasicBus` or a `Bus` which handles all further communication with the USBtingo.
 
-> ℹ️ **Info:**
+> ℹ️
 > One physical USBtingo can only be managed by one `Device` at the same time.
 
 ## 2.4 DeviceFactory
@@ -178,7 +180,7 @@ After the configuration, the program sends all entered messages on the CAN Bus.
  Minimal example of a command line program that prints out all received CAN messages.
  After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages arrive.
 
-> ℹ️ **Info:** 
+> ℹ️
  Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  
 # 4. Minimal examples
