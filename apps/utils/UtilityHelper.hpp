@@ -74,7 +74,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on)
     else if (device_count == 1)
     {
         std::cout << " Only one USBtingos connected" << std::endl
-                  << " > Selecting this one" << std::endl;
+                  << " > Selecting this one" << std::endl << std::endl;
     }
     else
     {
