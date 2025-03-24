@@ -194,7 +194,7 @@ This is a shortened version of the `MinimalExampleBasicBus.cpp`.
 Find the full code of this example [here](apps/examples/MinimalExampleBasicBus.cpp).
 
 **MinimalExampleBasicBus.cpp**
-```
+```c++
 #include "usbtingo/basic_bus/BasicBus.hpp"
 #include "usbtingo/basic_bus/Message.hpp"
 
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 <br>
 
 **MinimalBasicListener.hpp**
-```
+```c++
 #pragma once
 
 #include <usbtingo/basic_bus/BasicListener.hpp>
@@ -278,7 +278,7 @@ This is a shortened version of the `MinimalExampleBus.cpp`.
 Find the full code of this example [here](apps/examples/MinimalExampleBus.cpp).
 
 **MinimalExampleBasicBus.cpp**
-```
+```c++
 #include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/basic_bus/Message.hpp"
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 <br>
 
 **MinimalBasicListener.hpp**
-```
+```c++
 #pragma once
 
 #include <usbtingo/bus/CanListener.hpp>
