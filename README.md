@@ -38,16 +38,16 @@ This option has not been tested and might require some additional configuration 
 - libusb-1.0-0 and libusb-1.0-0-dev
 
 > ℹ️
-Run the following command install the dependencies.
+Run the following command to install the dependencies.
 
-```
+```sh
 sudo apt update
 sudo apt install -y cmake build-essential libusb-1.0-0 libusb-1.0-0-dev
 ```
 
 > ⚠️
 When using the USBtingo on Linux, a udev rule should be added to allow all users to access the device. Otherwise root privileges are required to access the device.
-```
+```sh
 sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\' > /etc/udev/rules.d/50-USBtingo.rules'
 sudo udevadm control --reload-rules
 ```
@@ -55,7 +55,7 @@ sudo udevadm control --reload-rules
 ## 1.3 Building the library from source
 The library is built with a standard CMake workflow which is almost identical for Windows and Linux.
 Use the following commands to build the library.
-```
+```sh
 git clone https://github.com/hannesduske/libusbtingo.git
 
 mkdir libusbtingo/build
@@ -66,7 +66,7 @@ cmake --build .
 
 > ℹ️
 For the MSVC compiler on Windows, you need to specify which configuration you want to build.
-```
+```powershell
 cmake --build . --config=Release
 ```
 
@@ -76,19 +76,19 @@ The library can be installed to CMakes default locating with the `cmake --instal
 The default install location is `C:/Program Files (x86)/libusbtingo` for Windows and `/usr/local` for Linux.
 
 Install command for Windows. Requires terminal with admin rights:
-```
+```powershell
 cmake --install .
 ```
 
 Install command for Linux:
-```
+```sh
 sudo cmake --install .
 ```
 
 The library can be installed to a custom location by specifying an install path.
 Replace `<path>` with your desired install directory.
 
-```
+```sh
 sudo cmake --install . --prefix <path>
 ```
 
@@ -101,7 +101,7 @@ This enables other packages to find this library.
 The build can be configured with CMake options.
 Options can be set by calling `cmake ..` with the flag `-D`.
 For example, the following command builds the library as a shared library and disables tests.
-```
+```sh
 cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
 ```
 
