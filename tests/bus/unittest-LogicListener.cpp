@@ -22,7 +22,7 @@ TEST_CASE("Unittest LogicListener", "[status]"){
     SECTION("Logic forwarding"){
         mock_listener.on_logic_receive(testdata);
 
-        CHECK(mock_listener.has_new_frame());
+        REQUIRE(mock_listener.has_new_frame());
         CHECK(mock_listener.get_new_frame().data.at(0)   == testdata.data.at(0));
         CHECK(mock_listener.get_new_frame().data.at(1)   == testdata.data.at(1));
         CHECK(mock_listener.get_new_frame().data.at(42)  == testdata.data.at(42));
