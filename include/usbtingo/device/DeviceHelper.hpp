@@ -171,6 +171,14 @@ struct USBTINGO_API TxEventFrame {
 	static bool deserialize_tx_event(const uint8_t* buf, TxEventFrame& frame);
 };
 
+
+/**
+ * @brief LogicFrame frame of the USBtingo.
+ */
+struct USBTINGO_API LogicFrame {
+	std::array<std::uint8_t, 512> data = { 0 };
+};
+
 }
 
 }

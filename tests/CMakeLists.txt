@@ -6,8 +6,9 @@ add_executable( unittest-usbtingo
     basic_bus/unittest-BasicListener.cpp
 
     bus/unittest-Bus.cpp
-    bus/unittest-StatusListener.cpp
     bus/unittest-CanListener.cpp
+    bus/unittest-LogicListener.cpp
+    bus/unittest-StatusListener.cpp
 
     can/unittest-Dlc.cpp
 
