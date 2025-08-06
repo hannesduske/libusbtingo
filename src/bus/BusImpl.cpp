@@ -57,6 +57,17 @@ bool BusImpl::add_listener(bus::CanListener* listener)
     return success;
 }
 
+bool BusImpl::add_listener(bus::LogicListener* listener)
+{
+    if(!listener) return false;
+
+    // check if listener is registered
+    bool success = std::find( m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener) == m_logic_listener_vec.end();
+
+    if(success) m_logic_listener_vec.push_back(listener);
+    return success;
+}
+
 bool BusImpl::add_listener(bus::StatusListener* listener)
 {
     if(!listener) return false;
@@ -77,6 +88,18 @@ bool BusImpl::remove_listener(const bus::CanListener* listener)
     bool success = it != m_can_listener_vec.end();
 
     if(success) m_can_listener_vec.erase(it);
+    return success;
+}
+
+bool BusImpl::remove_listener(const bus::LogicListener* listener)
+{
+    if(!listener) return false;
+    
+    // check if listener is registered
+    auto it = std::find( m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener);
+    bool success = it != m_logic_listener_vec.end();
+
+    if(success) m_logic_listener_vec.erase(it);
     return success;
 }
 
