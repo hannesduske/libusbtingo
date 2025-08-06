@@ -122,6 +122,7 @@ bool BusImpl::send(const device::CanTxFrame msg)
 
 bool BusImpl::listener() {
 
+    device::LogicFrame logic_frame;
     device::StatusFrame status_frame;
     std::vector<device::CanRxFrame> rx_frames;
     std::vector<device::TxEventFrame> tx_event_frames;
@@ -130,7 +131,7 @@ bool BusImpl::listener() {
     m_listener_state.store(ListenerState::LISTENING);
     
     auto can_future = m_device->request_can_async();
-    //auto logic_future = m_device->request_logic_async();
+    auto logic_future = m_device->request_logic_async();
     auto status_future = m_device->request_status_async();
     
     while (m_listener_state.load() == ListenerState::LISTENING) {
@@ -155,6 +156,19 @@ bool BusImpl::listener() {
                 tx_event_frames.clear();
             }
             can_future = m_device->request_can_async();
+        }
+
+        // logic handling
+        if (logic_future.valid() && logic_future.wait_for(zero_timeout) == std::future_status::ready) {
+            if (logic_future.get()) {
+                m_device->receive_logic_async(logic_frame);
+
+                // forward status frame
+                for (auto& listener : m_logic_listener_vec) {
+                    listener->on_logic_receive(logic_frame);
+                }
+            }
+            logic_future = m_device->request_logic_async();
         }
 
         // status handling

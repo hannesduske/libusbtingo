@@ -42,13 +42,19 @@ public:
 
     bool cancel_async_can_request() override;
 
+    bool cancel_async_logic_request() override;
+    
+    bool cancel_async_status_request() override;
+    
     std::future<bool> request_can_async() override;
 
+    std::future<bool> request_logic_async() override;
+    
+    std::future<bool> request_status_async() override;
+    
     bool receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) override;
 
-    bool cancel_async_status_request() override;
-
-    std::future<bool> request_status_async() override;
+    bool receive_logic_async(LogicFrame& logic_frame) override;
 
     bool receive_status_async(StatusFrame& status_frame) override;
 
@@ -58,7 +64,7 @@ private:
     UniversalHandle m_device_data;
 
     libusb_transfer* m_async_status;
-    //libusb_transfer* m_async_logic;
+    libusb_transfer* m_async_logic;
     libusb_transfer* m_async_can;
     
     std::promise<bool> m_promise_status;
@@ -66,6 +72,8 @@ private:
     std::promise<bool> m_promise_can;
 
     void handle_can_async_callback(libusb_transfer* transfer);
+
+    void handle_logic_async_callback(libusb_transfer* transfer);
 
     void handle_status_async_callback(libusb_transfer* transfer);
 

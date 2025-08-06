@@ -221,20 +221,20 @@ public:
      * @brief Cancel all currently active asynchronous logic requests.
      * @return Returns true if active requests are cancelled. Returns false if there are no active requests.
      */
-    //virtual bool cancel_async_logic_request() = 0;
+    virtual bool cancel_async_logic_request() = 0;
 
     /**
      * @brief Asynchronously requests a logic transmission. The method call is non-blocking.
      * @return Returns a future of the request. Returns an empty (invalid) future in case the request does not succeed.
      */
-    //virtual std::future<bool> request_logic_async() = 0;
+    virtual std::future<bool> request_logic_async() = 0;
 
     /**
      * @brief Fetch the logic buffer from the device after the future of the request is completed.
      * @param[out] logic_frame Logic frame that has been received from the device.
      * @return Return true if reading and processing the logic buffer succeeded.
      */
-    //virtual bool receive_logic_async(LogicFrame& logic_frame) = 0;
+    virtual bool receive_logic_async(LogicFrame& logic_frame) = 0;
 
 protected:
     /**
