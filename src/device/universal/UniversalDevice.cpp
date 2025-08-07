@@ -67,6 +67,7 @@ UniversalDevice::~UniversalDevice()
 {
     close();
     libusb_free_transfer(m_async_can);
+    libusb_free_transfer(m_async_logic);
     libusb_free_transfer(m_async_status);
     const auto it = std::find(m_existing_devs.begin(), m_existing_devs.end(), m_serial);
     m_existing_devs.erase(it);

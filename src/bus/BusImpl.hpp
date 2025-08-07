@@ -41,6 +41,8 @@ public:
 	bool remove_listener(const bus::StatusListener* listener);
 
 	bool send(const device::CanTxFrame msg);
+	bool start_logic_stream(int samplerate_hz);
+	bool stop_logic_stream();
 
 private:
 

@@ -91,6 +91,19 @@ public:
 	 */
 	bool send(const device::CanTxFrame msg);
 
+	/**
+	 * @brief Start the logic data stream.
+	 * @param[in] samplerate_hz Sample rate of the logic data stream in Hz
+	 * @return Returns true if operation succeeds.
+	 */
+	bool start_logic_stream(int samplerate_hz = 0);
+
+	/**
+	 * @brief Stop the logic data stream.
+	 * @return Returns true if operation succeeds.
+	 */
+	bool stop_logic_stream();
+
 public:
 	Bus(Bus&&);
 	Bus& operator=(Bus&&);

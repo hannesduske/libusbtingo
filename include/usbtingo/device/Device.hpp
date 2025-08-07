@@ -56,6 +56,19 @@ public:
      * @return Current state of the device handle.
      */
     virtual bool is_open() const = 0;
+
+    /**
+     * @brief Disable the logic bitstream. No further data will be relayed to the logic stream subscribers.
+     * @return Returns true if operation succeeds. Returns false if the stream is already stopped.
+     */
+    bool stop_logic_stream();
+    
+    /**
+     * @brief Enable the logic bitstream. The data will be relayed to all logic stream subscribers.
+     * @param[in] samplingrate_hz Set the sampling rate of the logic stream. Use the CAN bitrate if no value is provided.
+     * @return Returns true if operation succeeds. Returns false if opening the logic stream failed.
+     */
+    bool start_logic_stream(int samplingrate_hz = 0);
     
     /**
      * @brief Check if the device is alive. The method fetches the device info and compares the serial number stored in the memory of the device with the serial number of the software object.
@@ -275,13 +288,19 @@ protected:
 
 
 protected:
-	std::uint32_t m_serial;
+	std::uint32_t   m_serial;
+    DeviceInfo      m_device_info;
 
-	DeviceInfo m_device_info;
+    Mode            m_mode;
+    Protocol        m_protocol;
+    std::uint8_t    m_flags;
+    std::uint32_t   m_baudrate;
+    std::uint32_t   m_baudrate_data;
+    std::uint32_t   m_samplingrate_hz;
 
-    std::thread m_thread_status;
-    std::thread m_thread_logic;
-    std::thread m_thread_can;
+    // std::thread m_thread_status;
+    // std::thread m_thread_logic;
+    // std::thread m_thread_can;
 
     std::atomic<AsyncIoState> m_shutdown_status;
     std::atomic<AsyncIoState> m_shutdown_logic;
@@ -290,6 +309,8 @@ protected:
     BulkBuffer m_buffer_status; // Can be smaller, 64 byte?
     BulkBuffer m_buffer_logic;
     BulkBuffer m_buffer_can;
+
+    bool m_logic_stream_active;
 };
 
 }
