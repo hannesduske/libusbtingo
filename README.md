@@ -72,8 +72,8 @@ cmake --build . --config=Release
 
 ## 1.4 Installing the library
 
-The library can be installed to CMakes default locating with the `cmake --install` command.
-The default install location is `C:/Program Files (x86)/libusbtingo` for Windows and `/usr/local` for Linux.
+The library can be installed to CMakes default location with the `cmake --install` command.
+The default install location is `C:/Program Files (x86)/libusbtingo` on Windows and `/usr/local` on Linux.
 
 Install command for Windows. Requires terminal with admin rights:
 ```powershell
