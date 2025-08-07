@@ -327,15 +327,38 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
             auto bus = Bus(std::move(dev));
 
             bus.add_listener(mock_logic_listener.get());
+            
+            // Activate logic stream and receive a logic fame
+            CHECK(bus.start_logic_stream());
 
-            WARN("Waiting up to 10 seconds for logic frame from device... ");
             int watchdog = 0;
+            WARN("Waiting up to 10 seconds for logic frame from device... ");
             while (!mock_logic_listener->has_new_frame() && watchdog < 100)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 watchdog++;
             }
+
+            CHECK(bus.stop_logic_stream());
             REQUIRE(watchdog < 100);
+            
+            // Clear all remaining logic messages
+            while (mock_logic_listener->has_new_frame() )
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+
+            // Check that no further logic messages are sent
+            watchdog = 0;
+            WARN("Waiting up to one second for logic frame from device... ");
+            while (!mock_logic_listener->has_new_frame() && watchdog < 10)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                watchdog++;
+            }
+
+            CHECK(bus.stop_logic_stream() == false);
+            REQUIRE(watchdog >= 10);
 
             //auto status = mock_logic_listener->get_new_frame();
             //CHECK(status.operation_mode == static_cast<std::uint8_t>(mode));

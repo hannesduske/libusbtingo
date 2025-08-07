@@ -95,6 +95,13 @@ TEST_CASE("Integration Test Device, Device configuration", "[device]"){
         CHECK(status.get_operation_mode() == Mode::LISTEN_ONLY);
 
     }
+
+    SECTION("Start and stop logic stream") {
+        REQUIRE(dev->start_logic_stream());
+        REQUIRE(dev->start_logic_stream() == false);
+        REQUIRE(dev->stop_logic_stream());
+        REQUIRE(dev->stop_logic_stream() == false);
+    }
 }
 
 
