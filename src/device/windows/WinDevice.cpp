@@ -19,6 +19,7 @@ WinDevice::WinDevice(std::uint32_t serial, std::string path) :
 WinDevice::~WinDevice()
 {
     cancel_async_can_request();
+    cancel_async_logic_request();
     cancel_async_status_request();
     close();
 }
@@ -127,6 +128,20 @@ bool WinDevice::cancel_async_can_request()
     return success;
 }
 
+bool WinDevice::cancel_async_logic_request()
+{
+    bool success = m_shutdown_logic.load() == AsyncIoState::REQUEST_ACTIVE;
+    m_shutdown_logic.store(AsyncIoState::SHUTDOWN);
+    return success;
+}
+
+bool WinDevice::cancel_async_status_request()
+{
+    bool success = m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE;
+    m_shutdown_status.store(AsyncIoState::SHUTDOWN);
+    return success;
+}
+
 std::future<bool> WinDevice::request_can_async() //ToDo: Generalize async request to use with can, logic and status
 {
     
@@ -153,26 +168,30 @@ std::future<bool> WinDevice::request_can_async() //ToDo: Generalize async reques
         });
 }
 
-bool WinDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
+std::future<bool> WinDevice::request_logic_async()
 {
-    
-    if (m_shutdown_can.load() != AsyncIoState::DATA_AVAILABLE) return false;
+    if (m_shutdown_logic.load() == AsyncIoState::REQUEST_ACTIVE) return std::future<bool>();
 
-    std::size_t rx_len = 0;
-    // aynchronous operation, requires data to be available otherwise returns false
-    if (!read_bulk_async(m_device_data, rx_len, m_async_can)) return false;
+    m_async_logic = { 0 };
+    request_bulk_async(m_device_data, USBTINGO_EP2_LOGIC_IN, m_buffer_logic, USB_BULK_BUFFER_SIZE, m_async_logic);
+    return std::async(std::launch::async, [this]()
+        {
+            m_shutdown_logic.store(AsyncIoState::REQUEST_ACTIVE);
 
-    bool success = process_can_buffer(reinterpret_cast<std::uint8_t*>(&m_buffer_can), rx_len, rx_frames, tx_event_frames);
-    m_shutdown_can.store(AsyncIoState::IDLE);
-    
-    return success;
-}
+            // m_shutdown_logic is std::atomic type -> no mutex needed
+            while ((m_shutdown_logic.load() == AsyncIoState::REQUEST_ACTIVE) && (!static_cast<bool>(HasOverlappedIoCompleted(&m_async_logic)))) {
+                std::this_thread::sleep_for(USBTINGO_THREAD_DELAY);
+            }
 
-bool WinDevice::cancel_async_status_request()
-{
-    bool success = m_shutdown_status.load() == AsyncIoState::REQUEST_ACTIVE;
-    m_shutdown_status.store(AsyncIoState::SHUTDOWN);
-    return success;
+            if (static_cast<bool>(HasOverlappedIoCompleted(&m_async_logic))) {
+                m_shutdown_logic.store(AsyncIoState::DATA_AVAILABLE);
+                return true;
+            }
+            else {
+                m_shutdown_logic.store(AsyncIoState::SHUTDOWN);
+                return false;
+            }
+        });
 }
 
 std::future<bool> WinDevice::request_status_async()
@@ -201,12 +220,41 @@ std::future<bool> WinDevice::request_status_async()
         });
 }
 
+bool WinDevice::receive_can_async(std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
+{
+    
+    if (m_shutdown_can.load() != AsyncIoState::DATA_AVAILABLE) return false;
+
+    std::size_t rx_len = 0;
+    // synchronous operation, requires data to be available otherwise returns false
+    if (!read_bulk_async(m_device_data, rx_len, m_async_can)) return false;
+
+    bool success = process_can_buffer(reinterpret_cast<std::uint8_t*>(&m_buffer_can), rx_len, rx_frames, tx_event_frames);
+    m_shutdown_can.store(AsyncIoState::IDLE);
+    
+    return success;
+}
+
+bool WinDevice::receive_logic_async(LogicFrame& logic_frame)
+{
+    if (m_shutdown_logic.load() != AsyncIoState::DATA_AVAILABLE) return false;
+
+    std::size_t rx_len = 0;
+    // synchronous operation, requires data to be available otherwise returns false
+    if (!read_bulk_async(m_device_data, rx_len, m_async_logic)) return false;
+
+    logic_frame.data = m_buffer_logic;
+    m_shutdown_logic.store(AsyncIoState::IDLE);
+
+    return true;
+}
+
 bool WinDevice::receive_status_async(StatusFrame& status_frame)
 {
     if (m_shutdown_status.load() != AsyncIoState::DATA_AVAILABLE) return false;
 
     std::size_t rx_len = 0;
-    // aynchronous operation, requires data to be available otherwise returns false
+    // synchronous operation, requires data to be available otherwise returns false
     if (!read_bulk_async(m_device_data, rx_len, m_async_status)) return false;
 
     bool success = StatusFrame::deserialize_status(reinterpret_cast<std::uint8_t*>(&m_buffer_status), status_frame);

@@ -198,7 +198,7 @@ bool BusImpl::listener() {
     }
 
     m_device->cancel_async_can_request(); // required or joining the listener thread fails because an async task is still runnig
-    //m_device->cancel_async_logic_request();
+    m_device->cancel_async_logic_request();
     m_device->cancel_async_status_request();
     m_listener_state.store(ListenerState::IDLE);
     return true;

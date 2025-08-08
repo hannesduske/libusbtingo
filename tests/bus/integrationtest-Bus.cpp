@@ -239,7 +239,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     SECTION("Receive status, check listener callback") {
         const std::vector<Mode> mode_vec = { Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY };
-            for (const auto& mode : mode_vec) {
+        for (const auto& mode : mode_vec) {
 
             auto dev = DeviceFactory::create(sn_vec.front());
             REQUIRE(dev);
@@ -351,9 +351,9 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
             int watchdog = 0;
             WARN("Waiting up to 10 seconds for logic frame from device... ");
-            while (!mock_logic_listener->has_new_frame() && watchdog < 100)
+            while (!mock_logic_listener->has_new_frame() && watchdog < 1000)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 watchdog++;
             }
 
@@ -381,29 +381,23 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 #endif
 
             CHECK(bus.stop_logic_stream());
-            REQUIRE(watchdog < 100);
+            REQUIRE(watchdog < 1000);
 
-            // Clear all remaining logic messages
-            do
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
-            while (mock_logic_listener->has_new_frame() );
+            // Wait a short while, for the last logic messages to get through
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            mock_logic_listener->has_new_frame();
 
-            // Check that no further logic messages are sent
+            // Check that no further logic messages are received
             watchdog = 0;
             WARN("Waiting up to one second for logic frame from device... ");
-            while (!mock_logic_listener->has_new_frame() && watchdog < 10)
+            while (!mock_logic_listener->has_new_frame() && watchdog < 100)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 watchdog++;
             }
 
             CHECK(bus.stop_logic_stream() == false);
-            REQUIRE(watchdog >= 10);
-
-            //auto status = mock_logic_listener->get_new_frame();
-            //CHECK(status.operation_mode == static_cast<std::uint8_t>(mode));
+            REQUIRE(watchdog >= 100);
         }
     }
 }
