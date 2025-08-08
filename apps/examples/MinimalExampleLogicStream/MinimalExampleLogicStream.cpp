@@ -15,7 +15,7 @@ constexpr std::size_t       device_index    = 0;
 constexpr std::uint32_t     samplerate_hz   = 1000000;
 
 /**
- * @brief Minimal example of a program that opens a BasicBus to send and receive CAN messages.
+ * @brief Minimal example of a program that opens a the logic data stream and prints it to the command line.
  */
 int main(int argc, char *argv[])
 {
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     MinimalLogicListener listener;
     bus->add_listener(reinterpret_cast<usbtingo::bus::LogicListener *>(&listener));
 
-    // Start the logic data stream
+    // Start the logic data stream with the specified sample rate
     bus->start_logic_stream(samplerate_hz);
 
     std::cin.get();

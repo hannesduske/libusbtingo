@@ -1,7 +1,12 @@
 # Libusbtingo
-C++ API for the USBtingo - USB to CAN-FD Interface
 
-This library implements almost everything the USBtingo can do, except the logic data stream. If you need this functionality, you'll have to implement it yourself (and hopefully send a pull request).
+**🔧 A lightweight C++ API for the USBtingo — USB to CAN FD converter**
+
+`Libusbtingo` makes it easy to interact with the USBtingo, providing **high-level access** for sending and receiving CAN and CAN FD messages. It also supports using the USBtingo as a **1-channel logic analyzer** with a sample rate of up to 40 MHz.
+
+____
+**💡 Open to contributions**<br>
+Feel free to fork, improve, and submit a pull request — looking forward to your improvements! 🚀
 
 # Contents
 1.  [Building and installing the library](#1-building-and-installing-the-library) <br>
@@ -18,7 +23,8 @@ This library implements almost everything the USBtingo can do, except the logic 
 3.  [Utility applications](#3-utility-applications) <br>
 4.  [Minimal examples](#4-minimal-examples) <br>
 4.1 [Using the BasicBus](#41-using-the-basicbus) <br>
-4.2 [Using the Bus](#42-using-the-bus)
+4.2 [Using the Bus](#42-using-the-bus) <br>
+4.3 [Using the logic analyzer](#43-using-the-logic-analyzer)
 
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
@@ -191,7 +197,7 @@ Refer to the utility applications `USBtingoDetect`, `USBtingoCansend` and `USBti
 
 Following is a minimal example on how to use the `BasicBus` to send and receive CAN messages.
 This is a shortened version of the `MinimalExampleBasicBus.cpp`.
-Find the full code of this example [here](apps/examples/MinimalExampleBasicBus.cpp).
+Find the full code of this example [here](apps/examples/MinimalExampleBasicBus/MinimalExampleBasicBus.cpp).
 
 **MinimalExampleBasicBus.cpp**
 ```c++
@@ -275,7 +281,7 @@ public:
 
 Following is a minimal example on how to use the `Bus` to send and receive CAN messages.
 This is a shortened version of the `MinimalExampleBus.cpp`.
-Find the full code of this example [here](apps/examples/MinimalExampleBus.cpp).
+Find the full code of this example [here](apps/examples/MinimalExampleBus/MinimalExampleBus.cpp).
 
 **MinimalExampleBasicBus.cpp**
 ```c++
@@ -377,6 +383,96 @@ public:
     {
         // This callback is executed whenever a new CAN message is received.
         // Do something with the received message here, e.g. print it to the command line ...
+    }
+};
+```
+
+## 4.3 Using the logic analyzer
+
+Following is a minimal example on how to use the USBtingo as a 1-channel logic analyzer. When using the device as logic analyzer, the signal has to be connected to the **CAN-Low pin**.<br>
+This is a shortened version of the `MinimalExampleLogicStream.cpp`.
+Find the full code of this example [here](apps/examples/MinimalExampleLogicStream/MinimalExampleLogicStream.cpp).
+
+
+**Calculating the sample rate**<br>
+The sample rate of the USBtingo is calculated as follows: **$samplerate = {120MHz}/{prescaler}$**.
+The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **47 kHz ... 40 Mhz**.
+If a sample rate outside of this interval is specified, it is automatically clamped to the upper or lower limit of this range.
+
+**Data returned by the logic analyzer**<br>
+The USBtingo transmits the logic data as 512 byte chunks with each bit representing a single logic value.
+For example, one 512 byte data chunk, recorded with a sample rate of $1 MHz$, represents 4096 logic values sampled over $4.096 ms$.
+
+**MinimalExampleBasicBus.cpp**
+```c++
+#include "usbtingo/bus/Bus.hpp"
+#include "usbtingo/device/DeviceFactory.hpp"
+
+#include "MinimalLogicListener.hpp"
+
+#include <cstdint>
+#include <chrono>
+
+using namespace usbtingo;
+using namespace std::literals::chrono_literals;
+
+// Set the samplerate for the logic data stream
+constexpr std::size_t       device_index    = 0;
+constexpr std::uint32_t     samplerate_hz   = 1000000;
+
+/**
+ * @brief Minimal example of a program that opens a the logic data stream and prints it to the command line.
+ */
+int main(int argc, char *argv[])
+{
+    // Get all connected USBtingo devices
+    auto serial_vec = device::DeviceFactory::detect_available_devices();
+    if(serial_vec.size() <= device_index) return 0;
+
+    // Create one USBtingo according to the index
+    auto serial = serial_vec.at(device_index);
+    auto device = device::DeviceFactory::create(serial);
+
+    // Check if the device object is valid
+    if(!device) return 0;
+
+    // Create a Bus object
+    std::cout << "Create CAN Bus" << std::endl;
+    auto bus = std::make_unique<bus::Bus>(std::move(device));
+
+    // Register an observer that gets notified when new messages arrive
+    MinimalLogicListener listener;
+    bus->add_listener(reinterpret_cast<usbtingo::bus::LogicListener *>(&listener));
+
+    // Start the logic data stream with the specified sample rate
+    bus->start_logic_stream(samplerate_hz);
+
+    // Do something until the logic stream should be stopped, e.g. wait 10 seconds ...
+    std::this_thread::sleep_for(10s);
+
+    // Stop the logic data stream
+    bus->stop_logic_stream();
+
+    return 1;
+}
+```
+
+<br>
+
+**MinimalBasicListener.hpp**
+```c++
+#pragma once
+
+#include <usbtingo/bus/LogicListener.hpp>
+
+using namespace usbtingo;
+
+class MinimalLogicListener : public usbtingo::bus::LogicListener{
+public:
+    void on_logic_receive(const device::LogicFrame msg) override
+    {
+        // This callback is executed whenever a new logic frame is received.
+        // Do something with the received data here, e.g. print it to the command line or save it to a file...
     }
 };
 ```
