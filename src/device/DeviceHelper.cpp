@@ -79,7 +79,7 @@ bool StatusFrame::deserialize_status(const uint8_t* buf, StatusFrame& status)
 	return true;
 };
 
-bool CanTxFrame::serialize_can_frame(uint8_t* buf_out, const CanTxFrame& buf)
+bool CanTxFrame::serialize_can_frame(std::uint8_t* buf_out, const CanTxFrame& buf)
 {
 	if (buf.message_type != USBTINGO_TXMSG_TYPE_CAN) return false;
 

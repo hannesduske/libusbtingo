@@ -72,10 +72,11 @@ int main(int argc, char *argv[])
     bus->add_listener(reinterpret_cast<usbtingo::bus::CanListener *>(&listener));
     
     // Variant 1: Manually create a tx message.
+    bool is_fd = (protocol == device::Protocol::CAN_2_0) ? false : true;
     device::CanTxFrame tx_msg1;
     tx_msg1.id = testid;
     tx_msg1.dlc = can::Dlc::bytes_to_dlc(testdata.size());
-    tx_msg1.fdf = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    tx_msg1.fdf = is_fd;
     std::copy(testdata.begin(), testdata.end(), tx_msg1.data.data());
 
     // Variant 2: Create a tx message with the Message class.
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
         printMessage(bus::Message(tx_msg2));
         i++;
         
-        bus->send(tx_msg2.to_CanTxFrame());   
+        bus->send(tx_msg2.to_CanTxFrame(is_fd));   
         std::this_thread::sleep_for(1000ms);
     }
 

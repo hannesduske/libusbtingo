@@ -26,7 +26,7 @@ std::unique_ptr<BasicBus> BasicBus::create(std::size_t idx, std::uint32_t baudra
 	if (!device) return nullptr;
 
 	device->set_mode(device::Mode::OFF);
-	device->set_protocol(protocol);
+	device->set_protocol(protocol, 0b00010000); // disable automatic retransmission of failed messages
 	device->set_baudrate(baudrate, data_baudrate);
 	device->set_mode(mode);
 
@@ -47,6 +47,7 @@ bool BasicBus::remove_listener(const bus::BasicListener* listener)
 
 bool BasicBus::send(const bus::Message msg)
 {
+	//auto is_fd = !m_pimpl->device->get_protocol() == Protocol::CAN_2_0;
 	return Bus::send(msg.to_CanTxFrame());
 }
 

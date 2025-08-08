@@ -35,7 +35,7 @@ Message::Message(std::uint32_t id, std::vector<std::uint8_t> data)
 
 device::CanRxFrame Message::to_CanRxFrame() const
 {
-	device::CanRxFrame raw_frame = { 0 };
+	device::CanRxFrame raw_frame;
 	raw_frame.message_type	= device::USBTINGO_RXMSG_TYPE_CAN;
 	raw_frame.id			= id;
 	raw_frame.dlc			= can::Dlc::bytes_to_dlc(data.size());
@@ -45,12 +45,13 @@ device::CanRxFrame Message::to_CanRxFrame() const
 	return raw_frame;
 }
 
-device::CanTxFrame Message::to_CanTxFrame() const
+device::CanTxFrame Message::to_CanTxFrame(bool is_fd) const
 {
-	device::CanTxFrame raw_frame = { 0 };
+	device::CanTxFrame raw_frame;
 	raw_frame.message_type	= device::USBTINGO_TXMSG_TYPE_CAN;
 	raw_frame.id			= id;
 	raw_frame.dlc			= can::Dlc::bytes_to_dlc(data.size());
+	raw_frame.fdf			= is_fd;
 
 	std::copy(data.begin(), data.end(), raw_frame.data.data());
 

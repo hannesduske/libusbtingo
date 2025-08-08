@@ -46,7 +46,7 @@ public:
      * @brief Convert a Message to a CanTxFrame
      * @return CanTxFrame
      */
-    device::CanTxFrame to_CanTxFrame() const;
+    device::CanTxFrame to_CanTxFrame(bool is_fd = false) const;
 
 public:
     std::uint32_t id = 0;
