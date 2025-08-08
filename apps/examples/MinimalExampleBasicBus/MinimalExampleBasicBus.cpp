@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     while (!shutdown.load())
     {
         // Send message
-        std::cout << "Sending CAN message #" << i << ": ";
+        std::cout << "Sending CAN message " << "#" << std::dec << i << ": ";
         printMessage(bus::Message(tx_msg));
         i++;
         

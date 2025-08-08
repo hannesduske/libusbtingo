@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     while (!shutdown.load())
     {
         // Send message with variant 1
-        std::cout << "Sending CAN message #" << i << ": ";
+        std::cout << "Sending CAN message #" << std::dec << i << ": ";
         printMessage(bus::Message(tx_msg1));
         i++;
         
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(1000ms);
         
         // Send message with variant 2
-        std::cout << "Sending CAN message #" << i << ": ";
+        std::cout << "Sending CAN message #" << std::dec << i << ": ";
         printMessage(bus::Message(tx_msg2));
         i++;
         
