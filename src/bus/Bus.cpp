@@ -28,7 +28,7 @@ bool Bus::remove_listener(const bus::StatusListener* listener){ return m_pimpl->
 
 bool Bus::send(const device::CanTxFrame msg){ return m_pimpl->send(msg); }
 
-bool Bus::start_logic_stream(int samplerate_hz){ return m_pimpl->start_logic_stream(samplerate_hz); }
+bool Bus::start_logic_stream(std::uint32_t samplerate_hz){ return m_pimpl->start_logic_stream(samplerate_hz); }
 bool Bus::stop_logic_stream(){ return m_pimpl->stop_logic_stream(); }
 
 };

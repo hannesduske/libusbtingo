@@ -93,10 +93,10 @@ public:
 
 	/**
 	 * @brief Start the logic data stream.
-	 * @param[in] samplerate_hz Sample rate of the logic data stream in Hz
+	 * @param[in] samplerate_hz Sample rate of the logic data stream in Hz. If no rate is specified, it is automatically set to 10 times the CAN baudrate.
 	 * @return Returns true if operation succeeds.
 	 */
-	bool start_logic_stream(int samplerate_hz = 0);
+	bool start_logic_stream(std::uint32_t samplerate_hz = 0);
 
 	/**
 	 * @brief Stop the logic data stream.

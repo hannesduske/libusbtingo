@@ -8,7 +8,7 @@ namespace usbtingo{
 namespace device{
 
 Device::Device(std::uint32_t serial)
-    : m_serial(serial), m_device_info({ 0 }), m_mode(Mode::OFF), m_protocol(Protocol::CAN_2_0), m_flags(0), m_baudrate(0), m_baudrate_data(0), m_samplingrate_hz(0), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 }), m_logic_stream_active(false)
+    : m_serial(serial), m_device_info({ 0 }), m_mode(Mode::OFF), m_protocol(Protocol::CAN_2_0), m_flags(0), m_baudrate(0), m_baudrate_data(0), m_samplerate_hz(0), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 }), m_logic_stream_active(false)
 {
     
 }
@@ -46,21 +46,21 @@ bool Device::stop_logic_stream()
     return !m_logic_stream_active;
 }
     
-bool Device::start_logic_stream(int samplingrate_hz)
+bool Device::start_logic_stream(std::uint32_t samplerate_hz)
 {
     if(m_logic_stream_active) return false;
 
-    if(samplingrate_hz == 0)
+    if(samplerate_hz == 0)
     {
-        samplingrate_hz = (m_protocol == Protocol::CAN_2_0) ? m_baudrate * 10 : m_baudrate_data * 10;
+        samplerate_hz = (m_protocol == Protocol::CAN_2_0) ? m_baudrate * 10 : m_baudrate_data * 10;
     }
 
-    int prescaler = std::round(120000000.0F / samplingrate_hz);
+    int prescaler = std::round(120000000.0F / samplerate_hz);
     if(prescaler < 3)       prescaler = 3;
     if(prescaler > 0xff)    prescaler = 0xff;
     
-    m_samplingrate_hz = std::round(120000000.0F / prescaler);
-    m_logic_stream_active = write_control(USBTINGO_CMD_LOGIC_SETCONFIG, static_cast<std::uint16_t>(0 | prescaler << 8), 0);
+    m_samplerate_hz = std::round(120000000.0F / prescaler);
+    m_logic_stream_active = write_control(USBTINGO_CMD_LOGIC_SETCONFIG, static_cast<std::uint16_t>(0 | static_cast<std::uint8_t>(prescaler) << 8), 0);
 
     return m_logic_stream_active;
 }

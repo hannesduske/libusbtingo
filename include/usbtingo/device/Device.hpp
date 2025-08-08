@@ -65,10 +65,10 @@ public:
     
     /**
      * @brief Enable the logic bitstream. The data will be relayed to all logic stream subscribers.
-     * @param[in] samplingrate_hz Set the sampling rate of the logic stream. Use the CAN bitrate if no value is provided.
+     * @param[in] samplerate_hz Set the sampling rate of the logic stream. Use the CAN bitrate if no value is provided.
      * @return Returns true if operation succeeds. Returns false if opening the logic stream failed.
      */
-    bool start_logic_stream(int samplingrate_hz = 0);
+    bool start_logic_stream(std::uint32_t samplerate_hz = 0);
     
     /**
      * @brief Check if the device is alive. The method fetches the device info and compares the serial number stored in the memory of the device with the serial number of the software object.
@@ -296,7 +296,7 @@ protected:
     std::uint8_t    m_flags;
     std::uint32_t   m_baudrate;
     std::uint32_t   m_baudrate_data;
-    std::uint32_t   m_samplingrate_hz;
+    std::uint32_t   m_samplerate_hz;
 
     // std::thread m_thread_status;
     // std::thread m_thread_logic;

@@ -120,7 +120,7 @@ bool BusImpl::send(const device::CanTxFrame msg)
     return m_device->send_can(msg);
 }
 
-bool BusImpl::start_logic_stream(int samplerate_hz)
+bool BusImpl::start_logic_stream(std::uint32_t samplerate_hz)
 {
     return m_device->start_logic_stream(samplerate_hz);
 }
