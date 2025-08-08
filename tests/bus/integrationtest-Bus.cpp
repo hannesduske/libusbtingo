@@ -3,6 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <bitset>
 #include <thread>
 #include <chrono>
 
@@ -153,6 +154,14 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
 
 // Testcase #2
 TEST_CASE("Integration test Bus, real device", "[bus]"){
+
+    struct Cleanup {
+        ~Cleanup() {
+            std::string response;
+            std::cout << "Please disconnect the logic signal from CAN LOW to continue the tests. Press ENTER to continue..." << std::endl;
+            while (std::cin.get() != '\n') {}
+        }
+    };
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if(sn_vec.size() == 0){
@@ -315,8 +324,17 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
 
     SECTION("Receive logic, check listener callback") {
+#ifdef ENABLE_INTERACTIVE_TESTS
+        Cleanup c;
+        std::cout << "Please connect logic signal to CAN LOW to test the logic stream. Press ENTER to continue..." << std::endl;
+        std::cin.ignore();
+        while (std::cin.get() != '\n') {}
+#endif
+
+        const int samplerate_hz = 2000000;
         const std::vector<Mode> mode_vec = { Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY };
-            for (const auto& mode : mode_vec) {
+
+        for (const auto& mode : mode_vec) {
 
             auto dev = DeviceFactory::create(sn_vec.front());
             REQUIRE(dev);
@@ -329,7 +347,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
             bus.add_listener(mock_logic_listener.get());
             
             // Activate logic stream and receive a logic fame
-            CHECK(bus.start_logic_stream());
+            CHECK(bus.start_logic_stream(samplerate_hz));
 
             int watchdog = 0;
             WARN("Waiting up to 10 seconds for logic frame from device... ");
@@ -339,14 +357,38 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
                 watchdog++;
             }
 
+#ifdef ENABLE_INTERACTIVE_TESTS
+            std::cout << "Data from logic frame (" << samplerate_hz << " Hz):" << std::endl;
+            const auto data = mock_logic_listener->get_new_frame().data;
+            for (std::size_t i = 0; i < data.size(); ++i) {
+                std::bitset<8> bits(data[i]);
+                std::cout << bits;
+
+                if (i != data.size() - 1) {
+                    std::cout << ' ';
+                    if ((i + 1) % 16 == 0)
+                    std::cout << '\n';
+                }
+            }
+            std::cout << std::endl << std::endl;
+
+            std::cout << "Same data formatted for plotting:" << std::endl;
+            for (std::size_t i = 0; i < data.size(); ++i) {
+                std::bitset<8> bits(data[i]);
+                std::cout << bits;
+            }
+            std::cout << std::endl << std::endl;
+#endif
+
             CHECK(bus.stop_logic_stream());
             REQUIRE(watchdog < 100);
-            
+
             // Clear all remaining logic messages
-            while (mock_logic_listener->has_new_frame() )
+            do
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
+            while (mock_logic_listener->has_new_frame() );
 
             // Check that no further logic messages are sent
             watchdog = 0;
