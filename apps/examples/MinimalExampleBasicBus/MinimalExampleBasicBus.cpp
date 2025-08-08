@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(1000ms);
     }
 
-    std::cout << "Exiting program" << std::endl;
+    std::cout << std::endl << "Exiting program" << std::endl;
     return 1;
 }
 

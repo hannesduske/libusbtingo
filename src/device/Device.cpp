@@ -1,13 +1,14 @@
 #include "usbtingo/device/Device.hpp"
-
 #include "DeviceProtocol.hpp"
+
+#include <cmath>
 
 namespace usbtingo{
 
 namespace device{
 
 Device::Device(std::uint32_t serial)
-    : m_serial(serial), m_device_info({ 0 }), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 })
+    : m_serial(serial), m_device_info({ 0 }), m_mode(Mode::OFF), m_protocol(Protocol::CAN_2_0), m_flags(0), m_baudrate(0), m_baudrate_data(0), m_samplerate_hz(0), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 }), m_logic_stream_active(false)
 {
     
 }
@@ -35,6 +36,37 @@ bool Device::is_alive()
     if (!read_usbtingo_serial(serial)) return false;
 
     return m_serial == serial;
+}
+
+bool Device::stop_logic_stream() 
+{
+    if(!m_logic_stream_active) return false;
+    m_logic_stream_active = !write_control(USBTINGO_CMD_LOGIC_SETCONFIG, 0, 0);
+
+    return !m_logic_stream_active;
+}
+    
+bool Device::start_logic_stream(std::uint32_t samplerate_hz)
+{
+    if(m_logic_stream_active) return false;
+
+    if(samplerate_hz == 0)
+    {
+        samplerate_hz = (m_protocol == Protocol::CAN_2_0) ? m_baudrate * 10 : m_baudrate_data * 10;
+    }
+
+    std::uint8_t prescaler = static_cast<std::uint8_t>(
+        std::clamp(
+            static_cast<int>(std::round(120000000.0F / samplerate_hz)),
+            3,      // lower limit
+            0xff    // upper limit
+        )
+    );
+    
+    m_samplerate_hz = static_cast<std::uint32_t>(std::round(120000000.0F / prescaler));
+    m_logic_stream_active = write_control(USBTINGO_CMD_LOGIC_SETCONFIG, static_cast<std::uint16_t>(0 | (prescaler << 8)), 0);
+
+    return m_logic_stream_active;
 }
 
 bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames)
@@ -66,27 +98,34 @@ bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_le
 
 bool Device::set_mode(Mode mode)
 {
+    m_mode = mode;
     return write_control(USBTINGO_CMD_SET_MODE, static_cast<std::uint16_t>(mode), 0);
 }
 
 bool Device::set_protocol(Protocol protocol, std::uint8_t flags)
 {
+    m_flags = flags;
+    m_protocol = protocol;
     return write_control(USBTINGO_CMD_SET_PROTOCOL, static_cast<std::uint16_t>(static_cast<std::uint8_t>(protocol) | flags << 8), 0);
 }
 
 bool Device::set_baudrate(std::uint32_t baudrate)
 {
+    m_baudrate = baudrate;
+    m_baudrate_data = baudrate;
     return set_baudrate(baudrate, baudrate);
 }
 
 bool Device::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data)
 {
     bool success = true;
+    m_baudrate = baudrate;
+    m_baudrate_data = baudrate_data;
 
     success = write_control(USBTINGO_CMD_SET_BAUDRATE, 0, 0, reinterpret_cast<std::uint8_t*>(&baudrate), 4);
     if (!success) return false;
 
-    success = write_control(USBTINGO_CMD_SET_BAUDRATE, 1, 0, reinterpret_cast<std::uint8_t*>(&baudrate), 4);
+    success = write_control(USBTINGO_CMD_SET_BAUDRATE, 1, 0, reinterpret_cast<std::uint8_t*>(&baudrate_data), 4);
     return success;
 }
 

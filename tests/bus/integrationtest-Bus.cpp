@@ -3,13 +3,15 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <bitset>
 #include <thread>
 #include <chrono>
 
 #include "usbtingo/can/Dlc.hpp"
 #include "device/MockDevice.hpp"
-#include "bus/MockStatusListener.hpp"
 #include "bus/MockCanListener.hpp"
+#include "bus/MockLogicListener.hpp"
+#include "bus/MockStatusListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/device/Device.hpp"
@@ -23,11 +25,13 @@ using usbtingo::device::Device;
 using usbtingo::device::Protocol;
 using usbtingo::device::CanRxFrame;
 using usbtingo::device::CanTxFrame;
+using usbtingo::device::LogicFrame;
 using usbtingo::device::StatusFrame;
 using usbtingo::device::DeviceFactory;
 
 using usbtingo::test::MockDevice;
 using usbtingo::test::MockCanListener;
+using usbtingo::test::MockLogicListener;
 using usbtingo::test::MockStatusListener;
 
 // Testcase #1
@@ -37,6 +41,13 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
     CanRxFrame testmsg = { 0 };
     testmsg.id = 42;
     testmsg.data = { 0x00, 0x01, 0x02, 0x03 };
+
+    LogicFrame testlogic;
+    testlogic.data.at(0) = 0x0A;
+    testlogic.data.at(1) = 0x0B;
+    testlogic.data.at(42) = 0x0C;
+    testlogic.data.at(510) = 0x0D;
+    testlogic.data.at(511) = 0x0E;
 
     StatusFrame teststatus;
     teststatus.tec = 42;
@@ -80,9 +91,40 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         REQUIRE(mock_can_listener->has_new_msg() == false);
     }
 
+    SECTION("Logic forwarding"){
+        auto mock_logic_listener = std::make_unique<MockLogicListener>();
+        bus.add_listener(mock_logic_listener.get());
+
+        // Subscribe and receive logic
+        mockdev_raw->trigger_logic(testlogic);
+        
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(10));
+
+        REQUIRE(mock_logic_listener->has_new_frame());
+        CHECK(mock_logic_listener->get_new_frame().data.at(0)   == testlogic.data.at(0));
+        CHECK(mock_logic_listener->get_new_frame().data.at(1)   == testlogic.data.at(1));
+        CHECK(mock_logic_listener->get_new_frame().data.at(42)  == testlogic.data.at(42));
+        CHECK(mock_logic_listener->get_new_frame().data.at(510) == testlogic.data.at(510));
+        CHECK(mock_logic_listener->get_new_frame().data.at(511) == testlogic.data.at(511));
+
+        // Unsubscribe and don't receive logic
+        bus.remove_listener(mock_logic_listener.get());
+        mockdev_raw->trigger_logic(testlogic);
+        
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+        std::this_thread::sleep_for(std::chrono::microseconds(25));
+
+        REQUIRE(mock_logic_listener->has_new_frame() == false);
+    }
+
     SECTION("Status forwarding"){
-        auto mock_can_listener = std::make_unique<MockStatusListener>();
-        bus.add_listener(mock_can_listener.get());
+        auto mock_status_listener = std::make_unique<MockStatusListener>();
+        bus.add_listener(mock_status_listener.get());
 
         // Subscribe and receive status
         mockdev_raw->trigger_status(teststatus);
@@ -92,12 +134,12 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         std::this_thread::sleep_for(std::chrono::microseconds(10));
         std::this_thread::sleep_for(std::chrono::microseconds(10));
 
-        REQUIRE(mock_can_listener->has_new_status() == true);
-        CHECK(mock_can_listener->get_new_status().get_tx_error_count() == teststatus.get_tx_error_count());
-        CHECK(mock_can_listener->get_new_status().get_rx_error_count() == teststatus.get_rx_error_count());
+        REQUIRE(mock_status_listener->has_new_status() == true);
+        CHECK(mock_status_listener->get_new_status().get_tx_error_count() == teststatus.get_tx_error_count());
+        CHECK(mock_status_listener->get_new_status().get_rx_error_count() == teststatus.get_rx_error_count());
 
         // Unsubscribe and don't receive status
-        bus.remove_listener(mock_can_listener.get());
+        bus.remove_listener(mock_status_listener.get());
         mockdev_raw->trigger_status(teststatus);
         
         std::this_thread::sleep_for(std::chrono::microseconds(25));
@@ -105,13 +147,21 @@ TEST_CASE("Integration test Bus, mock device", "[bus]"){
         std::this_thread::sleep_for(std::chrono::microseconds(25));
         std::this_thread::sleep_for(std::chrono::microseconds(25));
 
-        REQUIRE(mock_can_listener->has_new_status() == false);
+        REQUIRE(mock_status_listener->has_new_status() == false);
     }
 }
 
 
 // Testcase #2
 TEST_CASE("Integration test Bus, real device", "[bus]"){
+
+    struct Cleanup {
+        ~Cleanup() {
+            std::string response;
+            std::cout << "Please disconnect the logic signal from CAN LOW to continue the tests. Press ENTER to continue..." << std::endl;
+            while (std::cin.get() != '\n') {}
+        }
+    };
 
     auto sn_vec = DeviceFactory::detect_available_devices();
     if(sn_vec.size() == 0){
@@ -123,6 +173,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
     testmsg.data = { 0x00, 0x01, 0x02, 0x03 };
 
     auto mock_can_listener = std::make_unique<MockCanListener>();
+    auto mock_logic_listener = std::make_unique<MockLogicListener>();
     auto mock_status_listener = std::make_unique<MockStatusListener>();  
 
     SECTION("Receive real CAN FD message, check listener callback") {
@@ -188,7 +239,7 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 
     SECTION("Receive status, check listener callback") {
         const std::vector<Mode> mode_vec = { Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY };
-            for (const auto& mode : mode_vec) {
+        for (const auto& mode : mode_vec) {
 
             auto dev = DeviceFactory::create(sn_vec.front());
             REQUIRE(dev);
@@ -269,5 +320,84 @@ TEST_CASE("Integration test Bus, real device", "[bus]"){
 #else
         SKIP("Skipping interactive checks of this test. This test has been turned off with Cmake Variable \"ENABLE_INTERACTIVE_TESTS\"");
 #endif
+    }
+
+
+    SECTION("Receive logic, check listener callback") {
+#ifdef ENABLE_INTERACTIVE_TESTS
+        Cleanup c;
+        std::cout << "Please connect logic signal to CAN LOW to test the logic stream. Press ENTER to continue..." << std::endl;
+        std::cin.ignore();
+        while (std::cin.get() != '\n') {}
+#endif
+
+        const int samplerate_hz = 2000000;
+        const std::vector<Mode> mode_vec = { Mode::OFF, Mode::ACTIVE, Mode::LISTEN_ONLY };
+
+        for (const auto& mode : mode_vec) {
+
+            auto dev = DeviceFactory::create(sn_vec.front());
+            REQUIRE(dev);
+            REQUIRE(dev->is_alive());
+
+            dev->set_mode(mode);
+            dev->set_protocol(Protocol::CAN_2_0);
+            auto bus = Bus(std::move(dev));
+
+            bus.add_listener(mock_logic_listener.get());
+            
+            // Activate logic stream and receive a logic fame
+            CHECK(bus.start_logic_stream(samplerate_hz));
+
+            int watchdog = 0;
+            WARN("Waiting up to 10 seconds for logic frame from device... ");
+            while (!mock_logic_listener->has_new_frame() && watchdog < 1000)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                watchdog++;
+            }
+
+#ifdef ENABLE_INTERACTIVE_TESTS
+            std::cout << "Data from logic frame (" << samplerate_hz << " Hz):" << std::endl;
+            const auto data = mock_logic_listener->get_new_frame().data;
+            for (std::size_t i = 0; i < data.size(); ++i) {
+                std::bitset<8> bits(data[i]);
+                std::cout << bits;
+
+                if (i != data.size() - 1) {
+                    std::cout << ' ';
+                    if ((i + 1) % 16 == 0)
+                    std::cout << '\n';
+                }
+            }
+            std::cout << std::endl << std::endl;
+
+            std::cout << "Same data formatted for plotting:" << std::endl;
+            for (std::size_t i = 0; i < data.size(); ++i) {
+                std::bitset<8> bits(data[i]);
+                std::cout << bits;
+            }
+            std::cout << std::endl << std::endl;
+#endif
+
+            CHECK(bus.stop_logic_stream());
+            REQUIRE(watchdog < 1000);
+
+            // Wait a short while, for the last logic messages to get through
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            mock_logic_listener->has_new_frame();
+
+            // Check that no further logic messages are received
+            watchdog = 0;
+            WARN("Waiting up to one second for logic frame from device... ");
+            while (!mock_logic_listener->has_new_frame() && watchdog < 100)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                watchdog++;
+            }
+
+            CHECK(bus.stop_logic_stream() == false);
+            REQUIRE(watchdog >= 100);
+        }
     }
 }

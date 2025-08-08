@@ -21,7 +21,7 @@ TEST_CASE("Unittest StatusListener", "[status]"){
     SECTION("Status forwarding"){
         mock_listener.on_status_update(teststatus);
 
-        CHECK(mock_listener.has_new_status());
+        REQUIRE(mock_listener.has_new_status());
         CHECK(mock_listener.get_new_status().message_type == teststatus.message_type);
         CHECK(mock_listener.get_new_status().operation_mode == teststatus.operation_mode);
         CHECK(mock_listener.get_new_status().get_rx_error_count() == teststatus.rec);

@@ -28,6 +28,13 @@ public:
         m_new_msg_promise.set_value(true);
     }
 
+    void trigger_logic(const device::LogicFrame logic)
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        m_logic = logic;
+        m_new_logic_promise.set_value(true);
+    }
+
     void trigger_status(const device::StatusFrame status)
     {
         std::lock_guard<std::mutex> guard(m_mutex);
@@ -86,8 +93,30 @@ public:
         return true;
     }
 
+    bool cancel_async_logic_request() override
+    {        
+        std::lock_guard<std::mutex> guard(m_mutex);
+        m_new_logic_promise.set_value(false);
+        return true;
+    }
+
+    std::future<bool> request_logic_async() override
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        m_new_logic_promise = std::promise<bool>();
+        return m_new_logic_promise.get_future();
+    }
+
+    bool receive_logic_async(device::LogicFrame& logic_frame) override
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        logic_frame = m_logic;
+        return true;
+    }
+
     bool cancel_async_status_request() override
-    {        std::lock_guard<std::mutex> guard(m_mutex);
+    {        
+        std::lock_guard<std::mutex> guard(m_mutex);
         m_new_status_promise.set_value(false);
         return true;
     }
@@ -117,6 +146,9 @@ private:
 
     device::CanRxFrame m_msg;
     std::promise<bool> m_new_msg_promise;
+
+    device::LogicFrame m_logic;
+    std::promise<bool> m_new_logic_promise;
 
     device::StatusFrame m_status;
     std::promise<bool> m_new_status_promise;

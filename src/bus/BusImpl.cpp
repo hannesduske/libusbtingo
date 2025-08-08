@@ -57,6 +57,17 @@ bool BusImpl::add_listener(bus::CanListener* listener)
     return success;
 }
 
+bool BusImpl::add_listener(bus::LogicListener* listener)
+{
+    if(!listener) return false;
+
+    // check if listener is registered
+    bool success = std::find( m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener) == m_logic_listener_vec.end();
+
+    if(success) m_logic_listener_vec.push_back(listener);
+    return success;
+}
+
 bool BusImpl::add_listener(bus::StatusListener* listener)
 {
     if(!listener) return false;
@@ -80,6 +91,18 @@ bool BusImpl::remove_listener(const bus::CanListener* listener)
     return success;
 }
 
+bool BusImpl::remove_listener(const bus::LogicListener* listener)
+{
+    if(!listener) return false;
+    
+    // check if listener is registered
+    auto it = std::find( m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener);
+    bool success = it != m_logic_listener_vec.end();
+
+    if(success) m_logic_listener_vec.erase(it);
+    return success;
+}
+
 bool BusImpl::remove_listener(const bus::StatusListener* listener)
 {
     if(!listener) return false;
@@ -97,8 +120,19 @@ bool BusImpl::send(const device::CanTxFrame msg)
     return m_device->send_can(msg);
 }
 
+bool BusImpl::start_logic_stream(std::uint32_t samplerate_hz)
+{
+    return m_device->start_logic_stream(samplerate_hz);
+}
+
+bool BusImpl::stop_logic_stream()
+{
+    return m_device->stop_logic_stream();
+}
+
 bool BusImpl::listener() {
 
+    device::LogicFrame logic_frame;
     device::StatusFrame status_frame;
     std::vector<device::CanRxFrame> rx_frames;
     std::vector<device::TxEventFrame> tx_event_frames;
@@ -107,7 +141,7 @@ bool BusImpl::listener() {
     m_listener_state.store(ListenerState::LISTENING);
     
     auto can_future = m_device->request_can_async();
-    //auto logic_future = m_device->request_logic_async();
+    auto logic_future = m_device->request_logic_async();
     auto status_future = m_device->request_status_async();
     
     while (m_listener_state.load() == ListenerState::LISTENING) {
@@ -134,6 +168,19 @@ bool BusImpl::listener() {
             can_future = m_device->request_can_async();
         }
 
+        // logic handling
+        if (logic_future.valid() && logic_future.wait_for(zero_timeout) == std::future_status::ready) {
+            if (logic_future.get()) {
+                m_device->receive_logic_async(logic_frame);
+
+                // forward status frame
+                for (auto& listener : m_logic_listener_vec) {
+                    listener->on_logic_receive(logic_frame);
+                }
+            }
+            logic_future = m_device->request_logic_async();
+        }
+
         // status handling
         if (status_future.valid() && status_future.wait_for(zero_timeout) == std::future_status::ready) {
             if (status_future.get()) {
@@ -151,7 +198,7 @@ bool BusImpl::listener() {
     }
 
     m_device->cancel_async_can_request(); // required or joining the listener thread fails because an async task is still runnig
-    //m_device->cancel_async_logic_request();
+    m_device->cancel_async_logic_request();
     m_device->cancel_async_status_request();
     m_listener_state.store(ListenerState::IDLE);
     return true;

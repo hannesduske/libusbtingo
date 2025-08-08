@@ -2,6 +2,7 @@
 
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/bus/LogicListener.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
 
 #include <cstdint>
@@ -33,11 +34,15 @@ public:
 	bool stop();
 
 	bool add_listener(bus::CanListener* listener);
+	bool add_listener(bus::LogicListener* listener);
 	bool add_listener(bus::StatusListener* listener);
 	bool remove_listener(const bus::CanListener* listener);
+	bool remove_listener(const bus::LogicListener* listener);
 	bool remove_listener(const bus::StatusListener* listener);
 
 	bool send(const device::CanTxFrame msg);
+	bool start_logic_stream(std::uint32_t samplerate_hz);
+	bool stop_logic_stream();
 
 private:
 
@@ -54,6 +59,7 @@ private:
 	std::unique_ptr<device::Device>		m_device;
 
 	std::vector<bus::CanListener*>		m_can_listener_vec;
+	std::vector<bus::LogicListener*>	m_logic_listener_vec;
 	std::vector<bus::StatusListener*>	m_status_listener_vec;
 
 	std::atomic<ListenerState>			m_listener_state;

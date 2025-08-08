@@ -2,8 +2,9 @@
 
 #include <memory>
 #include "device/MockDevice.hpp"
-#include "bus/MockStatusListener.hpp"
 #include "bus/MockCanListener.hpp"
+#include "bus/MockLogicListener.hpp"
+#include "bus/MockStatusListener.hpp"
 
 #include "usbtingo/bus/Bus.hpp"
 
@@ -13,6 +14,7 @@ using usbtingo::device::Mode;
 using usbtingo::device::Protocol;
 using usbtingo::test::MockDevice;
 using usbtingo::test::MockCanListener;
+using usbtingo::test::MockLogicListener;
 using usbtingo::test::MockStatusListener;
 
 // Testcase #1
@@ -24,6 +26,16 @@ TEST_CASE("Unittest Bus, Listener registration", "[bus]"){
 
     SECTION("Add and remove CanListener"){
         auto mock_listener = std::make_unique<MockCanListener>();
+
+        CHECK(bus.add_listener(mock_listener.get()) == true);
+        CHECK(bus.add_listener(mock_listener.get()) == false);
+
+        CHECK(bus.remove_listener(mock_listener.get()) == true);
+        CHECK(bus.remove_listener(mock_listener.get()) == false);
+    }
+
+    SECTION("Add and remove LogicListener"){
+        auto mock_listener = std::make_unique<MockLogicListener>();
 
         CHECK(bus.add_listener(mock_listener.get()) == true);
         CHECK(bus.add_listener(mock_listener.get()) == false);

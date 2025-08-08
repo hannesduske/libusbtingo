@@ -5,6 +5,7 @@
 
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/bus/CanListener.hpp"
+#include "usbtingo/bus/LogicListener.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
@@ -49,6 +50,13 @@ public:
 	bool add_listener(bus::CanListener* listener);
 
 	/**
+	 * @brief Register a LogicListener on the Bus to be notified when new logic messages arrive.
+	 * @param[in] listener Pointer of the LogicListener instance to be registered.
+	 * @return Returns true if registration succeeds. Returns false if listener is already registered.
+	 */
+	bool add_listener(bus::LogicListener* listener);
+
+	/**
 	 * @brief Register a StatusListener on the Bus to be notified when new status messages arrive.
 	 * @param[in] listener Pointer of the StatusListener instance to be registered.
 	 * @return Returns true if registration succeeds. Returns false if listener is already registered.
@@ -63,18 +71,38 @@ public:
 	bool remove_listener(const bus::CanListener* listener);
 
 	/**
+	 * @brief Unregister a LogicListener to stop receiving new messages.
+	 * @param[in] listener Pointer of the LogicListener instance to be unregistered.
+	 * @return Returns true if removal succeeds. Returns false if listener is not registered.
+	 */
+	bool remove_listener(const bus::LogicListener* listener);
+
+	/**
 	 * @brief Unregister a StatusListener to stop receiving new messages.
 	 * @param[in] listener Pointer of the StatusListener instance to be unregistered.
 	 * @return Returns true if removal succeeds. Returns false if listener is not registered.
 	 */
 	bool remove_listener(const bus::StatusListener* listener);
-	
+
 	/**
 	 * @brief Send a message on the Can bus.
 	 * @param[in] msg Message to be sent on the Can bus. The CanTxFrame has to be configured manually before passing it to the send method.
 	 * @return Returns true if operation succeeds.
 	 */
 	bool send(const device::CanTxFrame msg);
+
+	/**
+	 * @brief Start the logic data stream.
+	 * @param[in] samplerate_hz Sample rate of the logic data stream in Hz. If no rate is specified, it is automatically set to 10 times the CAN baudrate.
+	 * @return Returns true if operation succeeds.
+	 */
+	bool start_logic_stream(std::uint32_t samplerate_hz = 0);
+
+	/**
+	 * @brief Stop the logic data stream.
+	 * @return Returns true if operation succeeds.
+	 */
+	bool stop_logic_stream();
 
 public:
 	Bus(Bus&&);
