@@ -1,23 +1,5 @@
-add_executable(MinimalExampleBasicBus
-    MinimalExampleBasicBus.cpp
-)
+add_subdirectory(MinimalExampleBasicBus)
 
-target_link_libraries(MinimalExampleBasicBus
-    usbtingo
-)
+add_subdirectory(MinimalExampleBus)
 
-add_executable(MinimalExampleBus
-    MinimalExampleBus.cpp
-)
-
-target_link_libraries(MinimalExampleBus
-    usbtingo
-)
-
-add_executable(MinimalExampleLogic
-    MinimalExampleLogicStream.cpp
-)
-
-target_link_libraries(MinimalExampleLogic
-    usbtingo
-)
+add_subdirectory(MinimalExampleLogicStream)

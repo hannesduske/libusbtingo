@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
     std::cin.get();
 
     // Stop the logic data stream
-    bus->start_logic_stream();
+    bus->stop_logic_stream();
 
-    std::cout << "Exiting program" << std::endl;
+    std::cout << std::endl << "Exiting program" << std::endl;
     return 1;
 }
