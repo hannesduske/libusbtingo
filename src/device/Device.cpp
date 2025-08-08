@@ -55,12 +55,16 @@ bool Device::start_logic_stream(std::uint32_t samplerate_hz)
         samplerate_hz = (m_protocol == Protocol::CAN_2_0) ? m_baudrate * 10 : m_baudrate_data * 10;
     }
 
-    int prescaler = std::round(120000000.0F / samplerate_hz);
-    if(prescaler < 3)       prescaler = 3;
-    if(prescaler > 0xff)    prescaler = 0xff;
+    std::uint8_t prescaler = static_cast<std::uint8_t>(
+        std::clamp(
+            static_cast<int>(std::round(120000000.0F / samplerate_hz)),
+            3,      // lower limit
+            0xff    // upper limit
+        )
+    );
     
-    m_samplerate_hz = std::round(120000000.0F / prescaler);
-    m_logic_stream_active = write_control(USBTINGO_CMD_LOGIC_SETCONFIG, static_cast<std::uint16_t>(0 | static_cast<std::uint8_t>(prescaler) << 8), 0);
+    m_samplerate_hz = static_cast<std::uint32_t>(std::round(120000000.0F / prescaler));
+    m_logic_stream_active = write_control(USBTINGO_CMD_LOGIC_SETCONFIG, static_cast<std::uint16_t>(0 | (prescaler << 8)), 0);
 
     return m_logic_stream_active;
 }
