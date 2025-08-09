@@ -403,7 +403,7 @@ If a sample rate outside of this interval is specified, it is automatically clam
 The USBtingo transmits the logic data as 512 byte chunks with each bit representing a single logic value.
 For example, one 512 byte data chunk, recorded with a sample rate of $1 MHz$, represents 4096 logic values sampled over $4.096 ms$.
 
-**MinimalExampleBasicBus.cpp**
+**MinimalExampleLogicStream.cpp**
 ```c++
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 
 <br>
 
-**MinimalBasicListener.hpp**
+**MinimalLogicListener.hpp**
 ```c++
 #pragma once
 
