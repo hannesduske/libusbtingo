@@ -102,6 +102,9 @@ sudo cmake --install . --prefix <path>
 Custom install paths should be added to the `CMAKE_PREFIX_PATH` environment variable if the library is installed to a non default location.
 This enables other packages to find this library.
 
+> ⚠️
+Update the linker cache when installing a **shared library** by running `sudo ldconfig` after the installation.
+
 ## 1.5 CMake Options
 
 The build can be configured with CMake options.
@@ -120,9 +123,6 @@ cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
 | ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
 | ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
 | USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
-
-> ⚠️
-Update the linker cache when installing a **shared library** by running `sudo ldconfig` after the installation.
 
 # 2. How to use the library
 
