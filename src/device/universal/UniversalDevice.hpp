@@ -4,7 +4,6 @@
 
 #include "../DeviceProtocol.hpp"
 #include "UniversalHandle.hpp"
-#include "UsbLoader.hpp"
 
 #include <vector>
 #include <string>
