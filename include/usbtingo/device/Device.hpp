@@ -249,6 +249,23 @@ public:
      */
     virtual bool receive_logic_async(LogicFrame& logic_frame) = 0;
 
+    /**
+     * @brief Write data to the MCAN resiters.
+     * @param[in] address Memory address at which to start writing the data.
+     * @param[in] data Data buffer to write at the address.
+     * @return Return true if writing the values to the register succeeded.
+     */
+    bool write_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data);
+
+    /**
+     * @brief Read data from the MCAN resiters.
+     * @param[in] address Memory address at which to start reading the data.
+     * @param[in] len Number of bytes to read from the MCAN registers.
+     * @param[out] data Data to buffer to read the data into. The vector will be reset fist.
+     * @return Return true if reading the values to the register succeeded.
+     */
+    bool read_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data, std::size_t len);
+
 protected:
     /**
      * @brief Private constructor. Use the DeviceFactory to instantiate reals devices.
@@ -285,7 +302,6 @@ protected:
     virtual bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len);
 
     virtual bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
-
 
 protected:
 	std::uint32_t   m_serial;

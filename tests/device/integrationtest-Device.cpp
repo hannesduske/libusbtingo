@@ -3,6 +3,7 @@
 #include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
+#include "usbtingo/device/McanProtocol.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -11,10 +12,11 @@
 #include <iomanip>
 
 // Convenience
+using namespace usbtingo::device;
+
 using usbtingo::device::Mode;
 using usbtingo::device::Device;
 using usbtingo::device::Protocol;
-using usbtingo::device::StatusFrame;
 using usbtingo::device::DeviceFactory;
 
 using usbtingo::device::CanTxFrame;
@@ -104,7 +106,112 @@ TEST_CASE("Integration Test Device, Device configuration", "[device]"){
     }
 }
 
+TEST_CASE("Integration Test Device, MCAN configuration", "[device]"){
 
+    auto sn_vec = DeviceFactory::detect_available_devices();
+    if (sn_vec.size() == 0) {
+        FAIL("At least one USBtingo device must be connected to run this test.");
+    }
+    const auto sn = sn_vec.front();
+    auto dev = DeviceFactory::create(sn);
+    REQUIRE(dev);
+    REQUIRE(dev->is_alive() == true);
+
+    SECTION("Read endianness test register"){
+        // Checks if data is read correctly and if the endianess of the received data is correct
+        // Expected value of register 0x04 is 0x87654321 (see datasheet)
+
+        constexpr std::uint32_t testvalue = 0x87654321;
+
+        std::vector<std::uint32_t> data;
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_ENDN, data, 1));
+        REQUIRE(data.size() == 1);
+        REQUIRE(data.at(0)  == 0x87654321);
+    }
+
+    SECTION("Automatically set flag register"){
+        // Check if the flags set by the USBTingo API correctly translate to the corresponding MCAN register
+        // The values set by the USBTingo API should match the values in the MCAN register
+
+        std::uint8_t flags = 0;
+        flags |= 1 << 0; // Bit rate switching for transmissions if CAN Fd is activated
+        flags |= 1 << 1; // Transmit pause
+        flags |= 1 << 2; // Edge filtering during bus integration
+        flags |= 1 << 3; // Protocol exception handling disable
+        flags |= 1 << 4; // Disable automatic retransmission
+
+        REQUIRE(dev->set_protocol(Protocol::CAN_2_0, flags));
+
+        std::vector<std::uint32_t> data;
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_CCCR, data, 1));
+        REQUIRE(data.size() == 1);
+
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_BRSE) & 0x01) == 1);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_EFBI) & 0x01) == 1);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+
+        flags = 0x00;
+        REQUIRE(dev->set_protocol(Protocol::CAN_2_0, flags));
+
+        data.clear();
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_CCCR, data, 1));
+        REQUIRE(data.size() == 1);
+
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_BRSE) & 0x01) == 0);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_EFBI) & 0x01) == 0);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);
+        CHECK(((data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);    
+    }
+
+    SECTION("Manually set flag register"){
+        // Check if manually setting and resetting the control register works
+
+        std::vector<std::uint32_t> r_data;
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_CCCR, r_data, 1));
+
+        std::uint32_t flags_u32 = r_data.at(0);
+        flags_u32 |= 1 << mcan::MCAN_REG_CCCR_BRSE; // Bit rate switching for transmissions if CAN Fd is activated
+        flags_u32 |= 1 << mcan::MCAN_REG_CCCR_TXP;  // Transmit pause
+        flags_u32 |= 1 << mcan::MCAN_REG_CCCR_EFBI; // Edge filtering during bus integration
+        flags_u32 |= 1 << mcan::MCAN_REG_CCCR_PXHD; // Protocol exception handling disable
+        flags_u32 |= 1 << mcan::MCAN_REG_CCCR_DAR;  // Disable automatic retransmission
+
+        r_data.clear();
+        std::vector<std::uint32_t> w_data = {flags_u32};
+        REQUIRE(dev->write_mcan_registers(mcan::MCAN_REG_CCCR, w_data));
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_CCCR, r_data, 1));
+        REQUIRE(r_data.size() == 1);
+
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_BRSE) & 0x01) == 1);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_EFBI) & 0x01) == 1);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 1);
+
+        flags_u32 = r_data.at(0);
+        flags_u32 &= ~(1 << mcan::MCAN_REG_CCCR_BRSE); // Bit rate switching for transmissions if CAN Fd is activated
+        flags_u32 &= ~(1 << mcan::MCAN_REG_CCCR_TXP);  // Transmit pause
+        flags_u32 &= ~(1 << mcan::MCAN_REG_CCCR_EFBI); // Edge filtering during bus integration
+        flags_u32 &= ~(1 << mcan::MCAN_REG_CCCR_PXHD); // Protocol exception handling disable
+        flags_u32 &= ~(1 << mcan::MCAN_REG_CCCR_DAR);  // Disable automatic retransmission
+
+        r_data.clear();
+        w_data.at(0) = flags_u32;
+        REQUIRE(dev->write_mcan_registers(mcan::MCAN_REG_CCCR, w_data));
+        REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_CCCR, r_data, 1));
+        REQUIRE(r_data.size() == 1);
+
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_BRSE) & 0x01) == 0);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_EFBI) & 0x01) == 0);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);
+        CHECK(((r_data.at(0) >> mcan::MCAN_REG_CCCR_TXP)  & 0x01) == 0);
+    }
+    
+}
 
 TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 

@@ -237,6 +237,30 @@ bool Device::read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx
     return false;
 }
 
+bool Device::write_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data)
+{
+    // assumes little endian device
+    auto raw_size = data.size() * sizeof(std::uint32_t);
+    return write_control(USBTINGO_CMD_MCAN_REG_WRITE, address, 0, reinterpret_cast<std::uint8_t*>(data.data()), raw_size);
+}
+
+bool Device::read_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data, std::size_t len)
+{
+    data.clear();
+    std::vector<std::uint8_t> data_u8;
+    std::size_t len_u8 = len * sizeof(std::uint32_t);
+
+    if(!read_control(USBTINGO_CMD_MCAN_REG_READ, address, 0, data_u8, len_u8))
+        return false;
+
+    data.reserve(len);
+    for (size_t i = 0; i + 3 < data_u8.size(); i += 4) {
+        std::uint32_t value = serialize_uint32(data_u8[i + 0], data_u8[i + 1], data_u8[i + 2], data_u8[i + 3]);
+        data.push_back(value);
+    }
+
+    return true;
+}
 
 }
 
