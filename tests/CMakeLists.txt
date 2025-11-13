@@ -54,6 +54,25 @@ target_link_libraries( integrationtest-usbtingo
     usbtingo
 )
 
+# Additional Standalone Tests
+add_executable( canfd-brs-test
+    bus/canfd_brs_test.cpp
+)
+
+target_include_directories( canfd-brs-test
+    PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
+)
+
+target_link_libraries( canfd-brs-test
+    PRIVATE
+    Catch2::Catch2WithMain
+    usbtingo
+)
+
+# Option handling
 if(ENABLE_INTERACTIVE_TESTS)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
         ENABLE_INTERACTIVE_TESTS
