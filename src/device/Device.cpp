@@ -241,16 +241,16 @@ bool Device::write_mcan_registers(std::uint16_t address, std::vector<uint32_t>& 
 {
     // assumes little endian device
     auto raw_size = data.size() * sizeof(std::uint32_t);
-    return write_control(USBTINGO_CMD_MCAN_REG_WRITE, address, 0, reinterpret_cast<std::uint8_t*>(data.data()), raw_size);
+    return write_control(USBTINGO_CMD_MCAN_REG_WRITE, address, 0, reinterpret_cast<std::uint8_t*>(data.data()), static_cast<std::uint16_t>(raw_size));
 }
 
 bool Device::read_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data, std::size_t len)
 {
     data.clear();
     std::vector<std::uint8_t> data_u8;
-    std::size_t len_u8 = len * sizeof(std::uint32_t);
+    auto len_u8 = len * sizeof(std::uint32_t);
 
-    if(!read_control(USBTINGO_CMD_MCAN_REG_READ, address, 0, data_u8, len_u8))
+    if(!read_control(USBTINGO_CMD_MCAN_REG_READ, address, 0, data_u8, static_cast<std::uint16_t>(len_u8)))
         return false;
 
     data.reserve(len);
