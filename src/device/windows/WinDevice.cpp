@@ -307,7 +307,7 @@ std::map<unsigned long, std::string> WinDevice::detect_usbtingos()
 
         if ((sn_pos1 != std::string::npos) && (sn_pos2 != std::string::npos)) {
             try {
-                std::uint32_t serial = static_cast<uint32_t>(std::stoi(dev.substr(sn_pos1 + 1, sn_pos2 - sn_pos1 - 1)));
+                std::uint32_t serial = static_cast<std::uint32_t>(std::stoul(dev.substr(sn_pos1 + 1, sn_pos2 - sn_pos1 - 1), nullptr, 16));
                 dev_map.emplace(serial, dev);
             }
             catch (...) {
@@ -380,8 +380,7 @@ bool WinDevice::read_usbtingo_serial(std::uint32_t& serial)
         }
 
         // Strip trailing "F" characters
-        serialNumber.erase(std::remove(serialNumber.begin(), serialNumber.end(), L'F'), serialNumber.end());
-        serial = std::stoul(serialNumber);
+        serial = std::stoul(serialNumber.substr(0, 8), nullptr, 16);
     }
 
     return hr == S_OK;
@@ -547,8 +546,8 @@ HRESULT WinDevice::detect_usb_devices(std::vector<std::string>& devices, std::ui
             //if (vidPtr && pidPtr) {
             if((vid_pos != std::string::npos) && (pid_pos != std::string::npos)){
 
-                std::uint16_t vid_tmp = static_cast<uint16_t>(std::stoi(device_path.substr(vid_pos + 4, 4), nullptr, 16));
-                std::uint16_t pid_tmp = static_cast<uint16_t>(std::stoi(device_path.substr(pid_pos + 4, 4), nullptr, 16));
+                std::uint16_t vid_tmp = static_cast<uint16_t>(std::stoul(device_path.substr(vid_pos + 4, 4), nullptr, 16));
+                std::uint16_t pid_tmp = static_cast<uint16_t>(std::stoul(device_path.substr(pid_pos + 4, 4), nullptr, 16));
 
                 // Check if the vid and pid match the current device.
                 bool match = true;
