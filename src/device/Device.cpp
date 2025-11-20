@@ -8,7 +8,21 @@ namespace usbtingo{
 namespace device{
 
 Device::Device(std::uint32_t serial)
-    : m_serial(serial), m_device_info({ 0 }), m_mode(Mode::OFF), m_protocol(Protocol::CAN_2_0), m_flags(0), m_baudrate(0), m_baudrate_data(0), m_samplerate_hz(0), m_buffer_status({ 0 }), m_buffer_logic({ 0 }), m_buffer_can({ 0 }), m_logic_stream_active(false)
+    : m_serial(serial),
+    m_device_info({ 0 }),
+    m_mode(Mode::OFF),
+    m_protocol(Protocol::CAN_2_0),
+    m_flags(0),
+    m_baudrate(0),
+    m_baudrate_data(0),
+    m_samplerate_hz(0),
+    m_shutdown_status{AsyncIoState::IDLE},
+    m_shutdown_logic{AsyncIoState::IDLE},
+    m_shutdown_can{AsyncIoState::IDLE},
+    m_buffer_status({ 0 }),
+    m_buffer_logic({ 0 }),
+    m_buffer_can({ 0 }),
+    m_logic_stream_active(false)
 {
     
 }
