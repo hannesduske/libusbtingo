@@ -3,20 +3,19 @@
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
-namespace usbtingo{
+namespace usbtingo {
 
-namespace bus{
+namespace bus {
 
-class USBTINGO_API StatusListener{
+class USBTINGO_API StatusListener {
 public:
-	/**
-	 * @brief New status callback that is triggered when a new status message arrives.
-	 * @param[in] msg New status message
-	 */
-	virtual void on_status_update(const device::StatusFrame status) = 0;
-
+  /**
+   * @brief New status callback that is triggered when a new status message arrives.
+   * @param[in] msg New status message
+   */
+  virtual void on_status_update(const device::StatusFrame status) = 0;
 };
 
-}
+} // namespace bus
 
-}
+} // namespace usbtingo
