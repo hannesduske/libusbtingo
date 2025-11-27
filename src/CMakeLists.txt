@@ -36,7 +36,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 target_include_directories(usbtingo PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
@@ -86,13 +86,13 @@ install(EXPORT usbtingoTargets
 
 # install headers
 install(DIRECTORY
-    ${CMAKE_SOURCE_DIR}/include/
+    ${PROJECT_SOURCE_DIR}/include/
     DESTINATION include
 )
 
 # install Findlibusb script
 install(FILES
-  ${CMAKE_SOURCE_DIR}/cmake/Findlibusb.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/Findlibusb.cmake
   DESTINATION lib/cmake/usbtingo/Modules
 )
 
@@ -106,7 +106,7 @@ endif(NOT USE_WINAPI)
 # 
 # find_dependency(libusb REQUIRED)
 
-configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in
+configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
         "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
         INSTALL_DESTINATION lib/cmake/usbtingo
 )

@@ -33,7 +33,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
 option(BUILD_EXAMPLES "Build the minimal examples." on)
 option(BUILD_UTILS "Build and install utility programs along with the library." on)
-option(BUILD_TESTS "Build the test utilities for the library. Requires Catch2." on)
+option(BUILD_TESTS "Build the test utilities for the library. Requires Catch2." off)
 option(ENABLE_INTERACTIVE_TESTS "Enable tests that have to be confirmed manually." off)
 option(ENABLE_TESTS_WITH_OTHER_DEVICES "Enable tests that require other CAN devices to send and acknowledge CAN messages." off)
 if(WIN32)
@@ -42,7 +42,7 @@ endif()
 
 # Package dependencies
 if(NOT USE_WINAPI)
-    list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
     find_package(libusb REQUIRED)
 endif()
 

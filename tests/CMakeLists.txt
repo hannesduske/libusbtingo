@@ -20,9 +20,9 @@ add_executable( unittest-usbtingo
 
 target_include_directories( unittest-usbtingo
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
 )
 
 target_link_libraries( unittest-usbtingo
@@ -43,9 +43,9 @@ add_executable( integrationtest-usbtingo
 
 target_include_directories( integrationtest-usbtingo
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
 )
 
 target_link_libraries( integrationtest-usbtingo
@@ -61,9 +61,9 @@ add_executable( canfd-brs-test
 
 target_include_directories( canfd-brs-test
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tests>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
 )
 
 target_link_libraries( canfd-brs-test
