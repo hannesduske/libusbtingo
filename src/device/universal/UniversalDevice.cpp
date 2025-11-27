@@ -5,13 +5,12 @@
 
 #include "UsbLoader.hpp"
 
-
 namespace usbtingo {
 
 namespace device {
 
 // init static class member
-std::vector<std::uint32_t> UniversalDevice::m_existing_devs = {};
+std::set<std::uint32_t> UniversalDevice::m_existing_devs = {};
 
 UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     : Device(serial)
@@ -75,26 +74,33 @@ UniversalDevice::~UniversalDevice() {
 }
 
 std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial) {
-  // only one instance per unique device
-  if (std::any_of(m_existing_devs.begin(), m_existing_devs.end(), [serial](std::uint32_t sn) {
-        return sn == serial;
-      }))
+  // Only one instance per unique device
+  if (m_existing_devs.find(serial) != m_existing_devs.end())
     return nullptr;
 
   const auto dev_map = UniversalDevice::detect_usbtingos();
-  const auto it      = dev_map.find(serial);
+  decltype(dev_map)::const_iterator it;
 
-  if (it != dev_map.end()) {
-    auto device = std::make_unique<UniversalDevice>(serial, it->second);
-    if (device->is_alive()) {
-      m_existing_devs.push_back(serial);
-      return std::move(device);
-    } else {
-      return nullptr;
-    }
+  // If serial==0, find next free device
+  if (serial == 0 && dev_map.size() > m_existing_devs.size()) {
+    it     = std::find_if(dev_map.begin(), dev_map.end(), [&](auto const& p) {
+      return m_existing_devs.find(p.first) == m_existing_devs.end();
+    });
+    serial = it->first;
   } else {
-    return nullptr;
+    it = dev_map.find(serial);
   }
+
+  if (it == dev_map.end())
+    return nullptr;
+
+  auto device = std::make_unique<UniversalDevice>(serial, it->second);
+
+  if (!device->is_alive())
+    return nullptr;
+
+  m_existing_devs.insert(serial);
+  return device;
 }
 
 std::vector<std::uint32_t> UniversalDevice::detect_available_devices() {

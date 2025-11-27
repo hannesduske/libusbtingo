@@ -7,6 +7,9 @@ namespace usbtingo {
 
 namespace device {
 
+// init static class member
+std::set<std::uint32_t> WinDevice::m_existing_devs = {};
+
 WinDevice::WinDevice(std::uint32_t serial, std::string path)
     : Device(serial) {
   m_device_data.DevicePath = path;
@@ -23,19 +26,33 @@ WinDevice::~WinDevice() {
 }
 
 std::unique_ptr<Device> WinDevice::create_device(std::uint32_t serial) {
-  const auto dev_map = WinDevice::detect_usbtingos();
-  const auto it      = dev_map.find(serial);
-
-  if (it != dev_map.end()) {
-    auto device = std::make_unique<WinDevice>(serial, it->second);
-    if (device->is_alive()) {
-      return std::move(device);
-    } else {
-      return nullptr;
-    }
-  } else {
+  // Only one instance per unique device
+  if (m_existing_devs.find(serial) != m_existing_devs.end())
     return nullptr;
+
+  const auto dev_map = WinDevice::detect_usbtingos();
+  decltype(dev_map)::const_iterator it;
+
+  // If serial==0, find next free device
+  if (serial == 0 && dev_map.size() > m_existing_devs.size()) {
+    it     = std::find_if(dev_map.begin(), dev_map.end(), [&](auto const& p) {
+      return m_existing_devs.find(p.first) == m_existing_devs.end();
+    });
+    serial = it->first;
+  } else {
+    it = dev_map.find(serial);
   }
+
+  if (it == dev_map.end())
+    return nullptr;
+
+  auto device = std::make_unique<WinDevice>(serial, it->second);
+
+  if (!device->is_alive())
+    return nullptr;
+
+  m_existing_devs.insert(serial);
+  return device;
 }
 
 bool WinDevice::open() {

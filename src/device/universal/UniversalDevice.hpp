@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -58,7 +59,7 @@ public:
   bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
-  static std::vector<std::uint32_t> m_existing_devs;
+  static std::set<std::uint32_t> m_existing_devs;
 
   UniversalHandle m_device_data;
 

@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <array>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <winusb.h>
@@ -68,13 +69,15 @@ public:
   bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
-  WinHandle m_device_data;
+  static std::set<std::uint32_t> m_existing_devs;
 
-  static std::map<unsigned long, std::string> detect_usbtingos();
+  WinHandle m_device_data;
 
   OVERLAPPED m_async_status;
   OVERLAPPED m_async_logic;
   OVERLAPPED m_async_can;
+
+  static std::map<unsigned long, std::string> detect_usbtingos();
 
   static HRESULT detect_usb_devices(std::vector<std::string>& devices, std::uint16_t vid, std::uint16_t pid);
 
