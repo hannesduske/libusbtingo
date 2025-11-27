@@ -8,7 +8,7 @@ endif()
 # Project version
 set(CMAKE_PROJECT_VERSION_MAJOR 1)
 set(CMAKE_PROJECT_VERSION_MINOR 1)
-set(CMAKE_PROJECT_VERSION_PATCH 1)
+set(CMAKE_PROJECT_VERSION_PATCH 2)
 set(CMAKE_PROJECT_VERSION "${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH}")
 
 # Declare Project
@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Options
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
-option(BUILD_EXAMPLES "Build the minimal examples." on)
+option(BUILD_EXAMPLES "Build the minimal examples." off)
 option(BUILD_UTILS "Build and install utility programs along with the library." on)
 option(BUILD_TESTS "Build the test utilities for the library. Requires Catch2." off)
 option(ENABLE_INTERACTIVE_TESTS "Enable tests that have to be confirmed manually." off)
