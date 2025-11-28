@@ -1,0 +1,10 @@
+# Options
+option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
+option(BUILD_EXAMPLES "Build the minimal examples." off)
+option(BUILD_UTILS "Build and install utility programs along with the library." on)
+option(BUILD_TESTS "Build the test utilities for the library. Requires Catch2." off)
+option(ENABLE_INTERACTIVE_TESTS "Enable tests that have to be confirmed manually." off)
+option(ENABLE_TESTS_WITH_OTHER_DEVICES "Enable tests that require other CAN devices to send and acknowledge CAN messages." off)
+if(WIN32)
+    option(USE_WINAPI "Use the Windows API instead of libusb to interface the USBtingo. Requires the Windows SDK to be installed." on)
+endif()
