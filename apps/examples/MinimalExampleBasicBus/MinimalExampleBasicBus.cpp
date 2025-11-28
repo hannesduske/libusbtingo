@@ -31,7 +31,7 @@ void printMessage(const usbtingo::bus::Message msg);
 /**
  * @brief Minimal example of a program that opens a BasicBus to send and receive CAN messages.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   // Create one USBtingo according to the index
   std::cout << "Create Can Bus" << std::endl;
   auto bus = bus::BasicBus::create(device_index, baudrate, data_baudrate, protocol);

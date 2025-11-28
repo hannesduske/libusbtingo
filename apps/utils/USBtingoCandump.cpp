@@ -9,7 +9,7 @@
  * arrive.
  * @warning Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   UtilityListener listener;
 
   std::cout << "+======================================+" << std::endl;

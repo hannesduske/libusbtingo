@@ -29,6 +29,10 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 # Options
 option(BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
 option(BUILD_EXAMPLES "Build the minimal examples." off)

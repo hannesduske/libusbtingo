@@ -43,11 +43,11 @@ public:
 
   bool is_open() const override { return false; }
 
-  bool send_can(const device::CanTxFrame& tx_frame) override { return false; }
+  bool send_can(const device::CanTxFrame& /*tx_frame*/) override { return false; }
 
-  bool send_can(const std::vector<device::CanTxFrame>& tx_frames) override { return false; }
+  bool send_can(const std::vector<device::CanTxFrame>& /*tx_frames*/) override { return false; }
 
-  bool receive_can(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) override { return false; }
+  bool receive_can(std::vector<device::CanRxFrame>& /*rx_frames*/, std::vector<device::TxEventFrame>& /*tx_event_frames*/) override { return false; }
 
   bool cancel_async_can_request() override {
     std::lock_guard<std::mutex> guard(m_mutex);
@@ -61,7 +61,7 @@ public:
     return m_new_msg_promise.get_future();
   }
 
-  bool receive_can_async(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) override {
+  bool receive_can_async(std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& /*tx_event_frames*/) override {
     std::lock_guard<std::mutex> guard(m_mutex);
     rx_frames.push_back(m_msg);
     return true;

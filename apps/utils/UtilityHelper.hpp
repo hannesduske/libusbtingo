@@ -52,9 +52,9 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on) {
   auto serial_vec = usbtingo::device::DeviceFactory::detect_available_devices();
   printDevices(serial_vec);
 
-  int idx                  = 0;
-  bool valid_input         = true;
-  std::size_t device_count = serial_vec.size();
+  int idx           = 0;
+  auto valid_input  = true;
+  auto device_count = serial_vec.size();
 
   if (device_count == 0) {
     return nullptr;
@@ -72,7 +72,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on) {
       if (!(std::cin >> idx))
         valid_input = false;
       std::cout << std::endl;
-    } while (!valid_input || idx >= device_count || idx < 0);
+    } while (!valid_input || static_cast<std::size_t>(idx) >= device_count || idx < 0);
   }
 
   int input = 0;
@@ -135,7 +135,7 @@ std::unique_ptr<usbtingo::bus::BasicBus> createBus(bool& fd_on) {
   dev->set_protocol(protocol);
   dev->set_mode(usbtingo::device::Mode::ACTIVE);
 
-  return std::move(std::make_unique<usbtingo::bus::BasicBus>(std::move(dev)));
+  return std::make_unique<usbtingo::bus::BasicBus>(std::move(dev));
 }
 
 bool parseCanFrame(const std::string& input, usbtingo::bus::Message& frame, bool fd_on) {

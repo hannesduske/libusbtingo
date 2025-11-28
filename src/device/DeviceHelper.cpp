@@ -87,10 +87,10 @@ bool CanTxFrame::serialize_can_frame(std::uint8_t* buf_out, const CanTxFrame& bu
   buf_out[4]  = (id_tmp >> 0) & 0xff;
   buf_out[5]  = (id_tmp >> 8) & 0xff;
   buf_out[6]  = (id_tmp >> 16) & 0xff;
-  buf_out[7]  = (buf.esi & 0x01) << 7 | (buf.xtd & 0x01) << 6 | (buf.rtr & 0x01) << 5 | (id_tmp >> 24) & 0x1f;
+  buf_out[7]  = (buf.esi & 0x01) << 7 | (buf.xtd & 0x01) << 6 | (buf.rtr & 0x01) << 5 | ((id_tmp >> 24) & 0x1f);
   buf_out[8]  = 0x00;
   buf_out[9]  = 0x00;
-  buf_out[10] = (buf.efc & 0x01) << 7 | (buf.fdf & 0x01) << 5 | (buf.brs & 0x01) << 4 | (buf.dlc) & 0x0f;
+  buf_out[10] = (buf.efc & 0x01) << 7 | (buf.fdf & 0x01) << 5 | (buf.brs & 0x01) << 4 | ((buf.dlc) & 0x0f);
   buf_out[11] = buf.txmm;
   std::copy_n(buf.data.begin(), can::Dlc::dlc_to_bytes_aligned(buf.dlc), &buf_out[12]);
 

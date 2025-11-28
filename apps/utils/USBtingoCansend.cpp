@@ -7,7 +7,7 @@
  * @brief Minimal example of a command line program that sends CAN messages. After the configuration, the program sends all entered messages on the CAN Bus.
  * @warning Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   std::cout << "+======================================+" << std::endl;
   std::cout << "  USBtingoCansend utility application   " << std::endl;
   std::cout << "+======================================+" << std::endl;

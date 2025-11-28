@@ -120,12 +120,12 @@ TEST_CASE("Integration Test Device, MCAN configuration", "[device]") {
     // Checks if data is read correctly and if the endianess of the received data is correct
     // Expected value of register 0x04 is 0x87654321 (see datasheet)
 
-    constexpr std::uint32_t testvalue = 0x87654321;
+    constexpr std::uint32_t TESTVALUE = 0x87654321;
 
     std::vector<std::uint32_t> data;
     REQUIRE(dev->read_mcan_registers(mcan::MCAN_REG_ENDN, data, 1));
     REQUIRE(data.size() == 1);
-    REQUIRE(data.at(0) == 0x87654321);
+    REQUIRE(data.at(0) == TESTVALUE);
   }
 
   SECTION("Automatically set flag register") {

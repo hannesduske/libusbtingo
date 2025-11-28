@@ -18,7 +18,7 @@ constexpr std::uint32_t samplerate_hz = 1000000;
 /**
  * @brief Minimal example of a program that opens a the logic data stream and prints it to the command line.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   // Get all connected USBtingo devices
   std::cout << "Get all connected USBtingo devices" << std::endl;
 

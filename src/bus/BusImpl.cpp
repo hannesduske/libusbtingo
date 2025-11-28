@@ -161,8 +161,8 @@ bool BusImpl::listener() {
         }
 
         // forward tx_events
-        for (const auto& tx_event_frame : tx_event_frames) {
-        }
+        //for (const auto& tx_event_frame : tx_event_frames) {
+        //}
         rx_frames.clear();
         tx_event_frames.clear();
       }

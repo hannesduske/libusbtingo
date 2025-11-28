@@ -21,7 +21,7 @@ void waitForKeyPress() {
  * @brief Minimal example of a command line program that lists the serial numbers of all connected USBtingo devices. At the start all currently connected USBtingo serial numbers are printed. Subsequently, all connection and disconnection
  * events of USBtingo devices are printed.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   std::cout << "+======================================+" << std::endl;
   std::cout << "   USBtingoDetect utility application   " << std::endl;
   std::cout << "+======================================+" << std::endl;

@@ -206,11 +206,11 @@ bool Device::read_usbtingo_serial(std::uint32_t& serial) {
   return false;
 }
 
-bool Device::write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) {
+bool Device::write_bulk(std::uint8_t /*endpoint*/, BulkBuffer& /*buffer*/, std::size_t /*len*/) {
   return false;
 }
 
-bool Device::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) {
+bool Device::read_bulk(std::uint8_t /*endpoint*/, BulkBuffer& /*buffer*/, std::size_t& /*len*/) {
   return false;
 }
 
@@ -218,19 +218,19 @@ bool Device::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& l
 
 // virtual bool Device::read_bulk_async(std::size_t& len){}
 
-bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx) {
+bool Device::write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/) {
   return false;
 }
 
-bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data) {
+bool Device::write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::vector<std::uint8_t>& /*data*/) {
   return false;
 }
 
-bool Device::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len) {
+bool Device::write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::uint8_t* /*data*/, std::uint16_t /*len*/) {
   return false;
 }
 
-bool Device::read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) {
+bool Device::read_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::vector<std::uint8_t>& /*data*/, std::uint16_t /*len*/) {
   return false;
 }
 

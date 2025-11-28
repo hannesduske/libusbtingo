@@ -33,7 +33,7 @@ void printMessage(const usbtingo::bus::Message msg);
 /**
  * @brief Minimal example of a program that opens a Bus to send and receive CAN messages.
  */
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char* /*argv*/[]) {
   // Get all connected USBtingo devices
   std::cout << "Get all connected USBtingo devices" << std::endl;
 
