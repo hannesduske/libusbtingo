@@ -44,6 +44,6 @@ bool BasicBus::send(const bus::Message msg) {
   return Bus::send(msg.to_CanTxFrame());
 }
 
-}; // namespace bus
+} // namespace bus
 
-}; // namespace usbtingo
+} // namespace usbtingo

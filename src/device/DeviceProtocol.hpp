@@ -69,11 +69,11 @@ constexpr unsigned long TIMESTAMP_FACTOR    = 100000;
 
 static constexpr std::uint16_t serialize_uint16(std::uint8_t a0, std::uint8_t a1) {
   return std::uint16_t((a0 << 0) | (a1 << 8));
-};
+}
 
 static constexpr std::uint32_t serialize_uint32(std::uint8_t a0, std::uint8_t a1, std::uint8_t a2, std::uint8_t a3) {
   return std::uint32_t((a0 << 0) | (a1 << 8) | (a2 << 16) | (a3 << 24));
-};
+}
 
 enum class AsyncIoState {
   IDLE,

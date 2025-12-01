@@ -53,6 +53,6 @@ bool Bus::stop_logic_stream() {
   return m_pimpl->stop_logic_stream();
 }
 
-}; // namespace bus
+} // namespace bus
 
-}; // namespace usbtingo
+} // namespace usbtingo

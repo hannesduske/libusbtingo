@@ -72,7 +72,7 @@ bool StatusFrame::deserialize_status(const uint8_t* buf, StatusFrame& status) {
   status.nr_bytes_with_brs = serialize_uint32(buf[28], buf[29], buf[30], buf[31]);
 
   return true;
-};
+}
 
 bool CanTxFrame::serialize_can_frame(std::uint8_t* buf_out, const CanTxFrame& buf) {
   if (buf.message_type != USBTINGO_TXMSG_TYPE_CAN)
@@ -95,11 +95,11 @@ bool CanTxFrame::serialize_can_frame(std::uint8_t* buf_out, const CanTxFrame& bu
   std::copy_n(buf.data.begin(), can::Dlc::dlc_to_bytes_aligned(buf.dlc), &buf_out[12]);
 
   return true;
-};
+}
 
 std::size_t CanTxFrame::buffer_size_bytes(const CanTxFrame& buf) {
   return static_cast<std::size_t>(USBTINGO_HEADER_SIZE_BYTES + USBTINGO_TXMSG_FIX_SIZE_BYTES + can::Dlc::dlc_to_bytes_aligned(buf.dlc));
-};
+}
 
 bool TxEventFrame::deserialize_tx_event(const uint8_t* buf, TxEventFrame& buf_out) {
   if (buf[0] != USBTINGO_RXMSG_TYPE_TXEVENT)
@@ -124,7 +124,7 @@ bool TxEventFrame::deserialize_tx_event(const uint8_t* buf, TxEventFrame& buf_ou
   buf_out.txmm = buf[15];
 
   return true;
-};
+}
 
 bool CanRxFrame::deserialize_can_frame(const std::uint8_t* buf, CanRxFrame& buf_out) {
   if (buf[0] != USBTINGO_RXMSG_TYPE_CAN)
@@ -151,7 +151,7 @@ bool CanRxFrame::deserialize_can_frame(const std::uint8_t* buf, CanRxFrame& buf_
   std::copy_n(&buf[16], can::Dlc::dlc_to_bytes(buf_out.dlc), buf_out.data.data());
 
   return true;
-};
+}
 
 } // namespace device
 
