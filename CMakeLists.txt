@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.13)
 
 # Set build type Release if not specified otherwise (-DCMAKE_BUILD_TYPE=...). Has to be checked before project() is declared.
 if(NOT DEFINED CMAKE_BUILD_TYPE)
