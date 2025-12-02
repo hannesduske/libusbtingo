@@ -75,6 +75,7 @@ install(TARGETS usbtingo
     EXPORT usbtingoTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
 )
 
 # install cmake files
