@@ -13,7 +13,9 @@ message(STATUS " ___________________________ PROJECT ___________________________
 message(STATUS " Name                            : " ${PROJECT_NAME})
 message(STATUS " Version                         : " ${CMAKE_PROJECT_VERSION})
 message(STATUS "")
-
+message(STATUS " ____________________________ BUILD ____________________________")
+message(STATUS " Build Type                       : " ${CMAKE_BUILD_TYPE})
+message(STATUS "")
 message(STATUS " ___________________________ OPTIONS ___________________________")
 message(STATUS " USBTINGO_BUILD_SHARED_LIBS               : " ${USBTINGO_BUILD_SHARED_LIBS})
 message(STATUS " USBTINGO_BUILD_EXAMPLES                  : " ${USBTINGO_BUILD_EXAMPLES})
