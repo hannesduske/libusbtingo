@@ -1,6 +1,13 @@
 #########################################################
 # declare library
-add_library(usbtingo
+if(USBTINGO_BUILD_SHARED_LIBS)
+    add_library(usbtingo SHARED)
+else()
+    add_library(usbtingo STATIC)
+endif()
+
+target_sources(usbtingo
+  PRIVATE
   basic_bus/Message.cpp
   basic_bus/BasicBus.cpp
   basic_bus/BasicListener.cpp
@@ -13,7 +20,7 @@ add_library(usbtingo
   device/DeviceFactory.cpp
 )
 
-if(USE_WINAPI)
+if(USBTINGO_USE_WINAPI)
     list(APPEND SOURCES
         device/windows/WinDevice.cpp
     )
@@ -29,7 +36,7 @@ target_compile_definitions(usbtingo PRIVATE
   USBTINGO_EXPORT
 )
 
-if(BUILD_SHARED_LIBS)
+if(USBTINGO_BUILD_SHARED_LIBS)
   target_compile_definitions(usbtingo PUBLIC
     USBTINGO_SHARED
   )
@@ -40,7 +47,7 @@ target_include_directories(usbtingo PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-if(USE_WINAPI)
+if(USBTINGO_USE_WINAPI)
   # Build for Windows with Windows API
   target_link_libraries(usbtingo PRIVATE
     Winusb
@@ -56,7 +63,7 @@ else()
     ${LIBUSB_INCLUDE_DIR}
   )
 
-  if(BUILD_SHARED_LIBS)
+  if(USBTINGO_BUILD_SHARED_LIBS)
     target_link_libraries(usbtingo PRIVATE
       libusb::libusb
       Threads::Threads
@@ -101,9 +108,9 @@ install(FILES
 # cmake package configuration
 include(CMakePackageConfigHelpers)
 
-if(NOT USE_WINAPI)
+if(NOT USBTINGO_USE_WINAPI)
     set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)\nfind_dependency(Threads REQUIRED)")
-endif(NOT USE_WINAPI)
+endif()
 # 
 # find_dependency(libusb REQUIRED)
 

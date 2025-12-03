@@ -73,17 +73,17 @@ target_link_libraries( canfd-brs-test
 )
 
 # Option handling
-if(ENABLE_INTERACTIVE_TESTS)
+if(USBTINGO_ENABLE_INTERACTIVE_TESTS)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
         ENABLE_INTERACTIVE_TESTS
     )
-endif(ENABLE_INTERACTIVE_TESTS)
+endif()
 
-if(ENABLE_TESTS_WITH_OTHER_DEVICES)
+if(USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
         ENABLE_TESTS_WITH_OTHER_DEVICES
     )
-endif(ENABLE_TESTS_WITH_OTHER_DEVICES)
+endif()
 
 add_test(
     NAME unittest

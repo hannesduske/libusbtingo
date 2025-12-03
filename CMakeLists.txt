@@ -32,17 +32,17 @@ include(cmake/CollectDependencies.cmake)
 add_subdirectory(src)
 
 # Examples
-if(BUILD_EXAMPLES)
+if(USBTINGO_BUILD_EXAMPLES)
     add_subdirectory(apps/examples)
 endif()
 
 # Utilities
-if(BUILD_UTILS)
+if(USBTINGO_BUILD_UTILS)
     add_subdirectory(apps/utils)
 endif()
 
 # Tests
-if(BUILD_TESTS)
+if(USBTINGO_BUILD_TESTS)
     include(CTest)
     add_subdirectory(tests)
 endif()
