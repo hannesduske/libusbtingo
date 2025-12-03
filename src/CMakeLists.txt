@@ -77,32 +77,34 @@ else()
 endif()
 
 #########################################################
-# install library
-install(TARGETS usbtingo
-    EXPORT usbtingoTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
+if(USBTINGO_INSTALL)
+  # install library
+  install(TARGETS usbtingo
+      EXPORT usbtingoTargets
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+      RUNTIME DESTINATION bin
+  )
 
-# install cmake files
-install(EXPORT usbtingoTargets
-    FILE usbtingoTargets.cmake
-    NAMESPACE usbtingo::
-    DESTINATION lib/cmake/usbtingo
-)
+  # install cmake files
+  install(EXPORT usbtingoTargets
+      FILE usbtingoTargets.cmake
+      NAMESPACE usbtingo::
+      DESTINATION lib/cmake/usbtingo
+  )
 
-# install headers
-install(DIRECTORY
-    ${PROJECT_SOURCE_DIR}/include/
-    DESTINATION include
-)
+  # install headers
+  install(DIRECTORY
+      ${PROJECT_SOURCE_DIR}/include/
+      DESTINATION include
+  )
 
-# install Findlibusb script
-install(FILES
-  ${PROJECT_SOURCE_DIR}/cmake/Findlibusb.cmake
-  DESTINATION lib/cmake/usbtingo/Modules
-)
+  # install Findlibusb script
+  install(FILES
+    ${PROJECT_SOURCE_DIR}/cmake/Findlibusb.cmake
+    DESTINATION lib/cmake/usbtingo/Modules
+  )
+endif()
 
 #########################################################
 # cmake package configuration
@@ -125,8 +127,10 @@ write_basic_package_version_file(
         COMPATIBILITY AnyNewerVersion
 )
 
-install(FILES
-        "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
-        "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
-        DESTINATION lib/cmake/usbtingo
-)
+if(USBTINGO_INSTALL)
+  install(FILES
+          "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
+          "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
+          DESTINATION lib/cmake/usbtingo
+  )
+endif()

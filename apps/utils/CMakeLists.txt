@@ -46,11 +46,13 @@ if(BUILD_SHARED_LIBS)
     )
 endif()
 
-install(TARGETS
-    USBtingoDetect
-    USBtingoCansend
-    USBtingoCandump
+if(USBTINGO_INSTALL)
+    install(TARGETS
+        USBtingoDetect
+        USBtingoCansend
+        USBtingoCandump
 
-    EXPORT usbtingoTargets
-    RUNTIME DESTINATION bin
-)
+        EXPORT usbtingoTargets
+        RUNTIME DESTINATION bin
+    )
+endif()

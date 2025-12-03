@@ -48,7 +48,7 @@ if(USBTINGO_BUILD_TESTS)
 endif()
 
 # Packaging
-if(CMAKE_BUILD_TYPE MATCHES Release)
+if(USBTINGO_INSTALL AND CMAKE_BUILD_TYPE MATCHES Release)
     include(cmake/PackageGeneration.cmake REQUIERD)    
 endif()
 

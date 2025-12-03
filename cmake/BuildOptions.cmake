@@ -1,4 +1,5 @@
 # Options
+option(USBTINGO_INSTALL "Enable the installation of the library." on)
 option(USBTINGO_BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
 option(USBTINGO_BUILD_EXAMPLES "Build the minimal examples." off)
 option(USBTINGO_BUILD_UTILS "Build and install utility programs along with the library." on)
