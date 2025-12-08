@@ -1,10 +1,14 @@
 #########################################################
 # declare library
-if(USBTINGO_BUILD_SHARED_LIBS)
-    add_library(usbtingo SHARED)
+if(USBTINGO_BUILD_OBJECT_LIBS)
+  add_library(usbtingo OBJECT)
+elseif(USBTINGO_BUILD_SHARED_LIBS)
+  add_library(usbtingo SHARED)
 else()
-    add_library(usbtingo STATIC)
+  add_library(usbtingo STATIC)
 endif()
+
+add_library(usbtingo::usbtingo ALIAS usbtingo)
 
 target_sources(usbtingo
   PRIVATE
@@ -21,13 +25,13 @@ target_sources(usbtingo
 )
 
 if(USBTINGO_USE_WINAPI)
-    list(APPEND SOURCES
-        device/windows/WinDevice.cpp
-    )
+  list(APPEND SOURCES
+    device/windows/WinDevice.cpp
+  )
 else()
-    list(APPEND SOURCES
-        device/universal/UniversalDevice.cpp
-    )
+  list(APPEND SOURCES
+    device/universal/UniversalDevice.cpp
+  )
 endif()
 
 target_sources(usbtingo PRIVATE ${SOURCES})
@@ -43,8 +47,8 @@ if(USBTINGO_BUILD_SHARED_LIBS)
 endif()
 
 target_include_directories(usbtingo PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 if(USBTINGO_USE_WINAPI)
@@ -63,7 +67,7 @@ else()
     ${LIBUSB_INCLUDE_DIR}
   )
 
-  if(USBTINGO_BUILD_SHARED_LIBS)
+  if(USBTINGO_BUILD_SHARED_LIBS OR USBTINGO_BUILD_OBJECT_LIBS)
     target_link_libraries(usbtingo PRIVATE
       libusb::libusb
       Threads::Threads
@@ -77,26 +81,49 @@ else()
 endif()
 
 #########################################################
-if(USBTINGO_INSTALL)
+# cmake package configuration
+
+if(USBTINGO_INSTALL AND NOT USBTINGO_BUILD_OBJECT_LIBS)
+
+  include(CMakePackageConfigHelpers)
+
+  if(NOT USBTINGO_USE_WINAPI)
+      set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)\nfind_dependency(Threads REQUIRED)")
+  endif()
+
+  # find_dependency(libusb REQUIRED)
+
+  configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
+          "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
+          INSTALL_DESTINATION lib/cmake/usbtingo
+  )
+
+  write_basic_package_version_file(
+          "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
+          VERSION "${usbtingoVERSION}"
+          COMPATIBILITY AnyNewerVersion
+  )
+
+  #########################################################
   # install library
   install(TARGETS usbtingo
-      EXPORT usbtingoTargets
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib
-      RUNTIME DESTINATION bin
+    EXPORT usbtingoTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
   )
 
   # install cmake files
   install(EXPORT usbtingoTargets
-      FILE usbtingoTargets.cmake
-      NAMESPACE usbtingo::
-      DESTINATION lib/cmake/usbtingo
+    FILE usbtingoTargets.cmake
+    NAMESPACE usbtingo::
+    DESTINATION lib/cmake/usbtingo
   )
 
   # install headers
   install(DIRECTORY
-      ${PROJECT_SOURCE_DIR}/include/
-      DESTINATION include
+    ${PROJECT_SOURCE_DIR}/include/
+    DESTINATION include
   )
 
   # install Findlibusb script
@@ -104,33 +131,10 @@ if(USBTINGO_INSTALL)
     ${PROJECT_SOURCE_DIR}/cmake/Findlibusb.cmake
     DESTINATION lib/cmake/usbtingo/Modules
   )
-endif()
 
-#########################################################
-# cmake package configuration
-include(CMakePackageConfigHelpers)
-
-if(NOT USBTINGO_USE_WINAPI)
-    set(FIND_DEPENDENCIES "list(APPEND CMAKE_MODULE_PATH \"\${CMAKE_CURRENT_LIST_DIR}/Modules\")\nfind_dependency(libusb REQUIRED)\nfind_dependency(Threads REQUIRED)")
-endif()
-# 
-# find_dependency(libusb REQUIRED)
-
-configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
-        "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
-        INSTALL_DESTINATION lib/cmake/usbtingo
-)
-
-write_basic_package_version_file(
-        "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
-        VERSION "${usbtingoVERSION}"
-        COMPATIBILITY AnyNewerVersion
-)
-
-if(USBTINGO_INSTALL)
   install(FILES
-          "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
-          "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
-          DESTINATION lib/cmake/usbtingo
+    "${CMAKE_BINARY_DIR}/usbtingoConfig.cmake"
+    "${CMAKE_BINARY_DIR}/usbtingoConfigVersion.cmake"
+    DESTINATION lib/cmake/usbtingo
   )
 endif()

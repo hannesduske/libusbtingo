@@ -1,5 +1,6 @@
 # Options
 option(USBTINGO_INSTALL "Enable the installation of the library." on)
+option(USBTINGO_BUILD_OBJECT_LIBS "Build as object library. Automatically disables the installation of the library." off)
 option(USBTINGO_BUILD_SHARED_LIBS "Build as shared library. If set to OFF a static library is built." off)
 option(USBTINGO_BUILD_EXAMPLES "Build the minimal examples." off)
 option(USBTINGO_BUILD_UTILS "Build and install utility programs along with the library." on)
@@ -9,7 +10,6 @@ option(USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES "Enable tests that require other
 if(WIN32)
     option(USBTINGO_USE_WINAPI "Use the Windows API instead of libusb to interface the USBtingo. Requires the Windows SDK to be installed." on)
 endif()
-
 
 # Legacy deprecation
 if(DEFINED BUILD_SHARED_LIBS)
