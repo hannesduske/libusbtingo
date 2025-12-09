@@ -67,7 +67,7 @@ else()
     ${LIBUSB_INCLUDE_DIR}
   )
 
-  if(USBTINGO_BUILD_SHARED_LIBS OR USBTINGO_BUILD_OBJECT_LIBS)
+  if(USBTINGO_BUILD_SHARED_LIBS AND NOT USBTINGO_BUILD_OBJECT_LIBS)
     target_link_libraries(usbtingo PRIVATE
       libusb::libusb
       Threads::Threads
