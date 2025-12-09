@@ -1,17 +1,6 @@
 #########################################################
-# declare library
-if(USBTINGO_BUILD_OBJECT_LIBS)
-  add_library(usbtingo OBJECT)
-elseif(USBTINGO_BUILD_SHARED_LIBS)
-  add_library(usbtingo SHARED)
-else()
-  add_library(usbtingo STATIC)
-endif()
-
-add_library(usbtingo::usbtingo ALIAS usbtingo)
-
-target_sources(usbtingo
-  PRIVATE
+# library sources
+set(usbtingo_SOURCES
   basic_bus/Message.cpp
   basic_bus/BasicBus.cpp
   basic_bus/BasicListener.cpp
@@ -25,31 +14,50 @@ target_sources(usbtingo
 )
 
 if(USBTINGO_USE_WINAPI)
-  list(APPEND SOURCES
+  list(APPEND usbtingo_SOURCES
     device/windows/WinDevice.cpp
   )
 else()
-  list(APPEND SOURCES
+  list(APPEND usbtingo_SOURCES
     device/universal/UniversalDevice.cpp
   )
 endif()
 
-target_sources(usbtingo PRIVATE ${SOURCES})
 
-target_compile_definitions(usbtingo PRIVATE
-  USBTINGO_EXPORT
-)
-
-if(USBTINGO_BUILD_SHARED_LIBS)
-  target_compile_definitions(usbtingo PUBLIC
-    USBTINGO_SHARED
-  )
-endif()
-
-target_include_directories(usbtingo PUBLIC
+#########################################################
+# library includes
+set(usbtingo_INCLUDES
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+
+
+#########################################################
+# declare library
+
+# object library
+if(USBTINGO_BUILD_OBJECT_LIBS)
+  add_library(usbtingo OBJECT ${usbtingo_SOURCES})
+  add_library(usbtingo_iface INTERFACE)
+  target_include_directories(usbtingo_iface INTERFACE ${usbtingo_INCLUDES})
+
+# shared library
+elseif(USBTINGO_BUILD_SHARED_LIBS)
+  add_library(usbtingo SHARED ${usbtingo_SOURCES})
+  target_compile_definitions(usbtingo PRIVATE USBTINGO_EXPORT USBTINGO_SHARED)
+
+# static library
+else()
+  add_library(usbtingo STATIC ${usbtingo_SOURCES})
+
+endif()
+
+target_include_directories(usbtingo PUBLIC ${usbtingo_INCLUDES})
+add_library(usbtingo::usbtingo ALIAS usbtingo)
+
+
+#########################################################
+# library linking
 
 if(USBTINGO_USE_WINAPI)
   # Build for Windows with Windows API
@@ -57,6 +65,13 @@ if(USBTINGO_USE_WINAPI)
     Winusb
     SetupApi
   )
+
+  if(USBTINGO_BUILD_OBJECT_LIBS)
+    target_link_libraries(usbtingo_iface PRIVATE
+      Winusb
+      SetupApi
+    )
+  endif()
 
   target_compile_definitions(usbtingo PRIVATE
     USE_WINAPI
@@ -67,7 +82,12 @@ else()
     ${LIBUSB_INCLUDE_DIR}
   )
 
-  if(USBTINGO_BUILD_SHARED_LIBS AND NOT USBTINGO_BUILD_OBJECT_LIBS)
+  if(USBTINGO_BUILD_OBJECT_LIBS)
+    target_link_libraries(usbtingo_iface INTERFACE
+        libusb::libusb
+        Threads::Threads
+      )
+  elseif(USBTINGO_BUILD_SHARED_LIBS)
     target_link_libraries(usbtingo PRIVATE
       libusb::libusb
       Threads::Threads
