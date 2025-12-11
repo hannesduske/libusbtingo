@@ -9,8 +9,10 @@ namespace usbtingo {
 
 namespace device {
 
-// init static class member
-std::set<std::uint32_t> UniversalDevice::m_existing_devs = {};
+std::set<std::uint32_t>& UniversalDevice::get_existing_devs() {
+  static auto s_existing_devs = new std::set<std::uint32_t>;
+  return *s_existing_devs;
+}
 
 UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     : Device(serial)
@@ -65,26 +67,28 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
 }
 
 UniversalDevice::~UniversalDevice() {
+  auto& existing_devs = get_existing_devs();
   close();
   libusb_free_transfer(m_async_can);
   libusb_free_transfer(m_async_logic);
   libusb_free_transfer(m_async_status);
-  const auto it = std::find(m_existing_devs.begin(), m_existing_devs.end(), m_serial);
-  m_existing_devs.erase(it);
+  const auto it = std::find(existing_devs.begin(), existing_devs.end(), m_serial);
+  existing_devs.erase(it);
 }
 
 std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial) {
   // Only one instance per unique device
-  if (m_existing_devs.find(serial) != m_existing_devs.end())
+  auto& existing_devs = get_existing_devs();
+  if (existing_devs.find(serial) != existing_devs.end())
     return nullptr;
 
   const auto dev_map = UniversalDevice::detect_usbtingos();
   decltype(dev_map)::const_iterator it;
 
   // If serial==0, find next free device
-  if (serial == 0 && dev_map.size() > m_existing_devs.size()) {
+  if (serial == 0 && dev_map.size() > existing_devs.size()) {
     it     = std::find_if(dev_map.begin(), dev_map.end(), [&](auto const& p) {
-      return m_existing_devs.find(p.first) == m_existing_devs.end();
+      return existing_devs.find(p.first) == existing_devs.end();
     });
     serial = it->first;
   } else {
@@ -99,7 +103,7 @@ std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial) {
   if (!device->is_alive())
     return nullptr;
 
-  m_existing_devs.insert(serial);
+  existing_devs.insert(serial);
   return device;
 }
 
