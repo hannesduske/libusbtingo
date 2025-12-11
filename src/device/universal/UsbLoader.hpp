@@ -7,9 +7,6 @@
 
 #include "../DeviceProtocol.hpp"
 
-#include "SingletonTemplate.hpp"
-
-
 namespace usbtingo {
 
 namespace device {
@@ -18,7 +15,7 @@ namespace device {
  * @brief Helper class that initializes the libusb when the library is loaded and cleans up the libusb when the library is unloaded. This helper class is needed because there are static methods in the UniversalDevice which might be called
  * before one instance of the UniversalDevice is created. Initializing the libusb in the UniversalDevice constructor therefore doesn't work.
  */
-class UsbLoader : public Singleton<UsbLoader> {
+class UsbLoader {
 public:
   ~UsbLoader() {
     m_handler_running.store(0);
@@ -28,10 +25,14 @@ public:
     libusb_exit(m_ctx);
   }
 
+  static UsbLoader* getInstance() noexcept {
+    static UsbLoader* instance = new UsbLoader;
+    return instance;
+  }
+
   libusb_context* get_ctx() { return m_ctx; }
 
 private:
-  friend class Singleton<UsbLoader>;
   UsbLoader() {
 #if LIBUSB_API_VERSION >= 0x0100010A
     libusb_init_context(&m_ctx, NULL, 0);
