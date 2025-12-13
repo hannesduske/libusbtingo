@@ -59,8 +59,6 @@ public:
   bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
-  static std::set<std::uint32_t> m_existing_devs;
-
   UniversalHandle m_device_data;
 
   libusb_transfer* m_async_status;
@@ -70,6 +68,8 @@ private:
   std::promise<bool> m_promise_status;
   std::promise<bool> m_promise_logic;
   std::promise<bool> m_promise_can;
+
+  static std::set<std::uint32_t>& get_existing_devs();
 
   void handle_can_async_callback(libusb_transfer* transfer);
 

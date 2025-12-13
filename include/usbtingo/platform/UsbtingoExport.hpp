@@ -4,7 +4,7 @@
 #if defined(USBTINGO_SHARED) && (defined(_WIN32) || defined(_WIN64))
 // Disable compiler warning C4251 caused by members of standard library
 // https://learn.microsoft.com/cpp/error-messages/compiler-warnings/compiler-warning-level-1-c4251
-// #pragma warning(disable : 4251)
+ #pragma warning(disable : 4251)
 
 #ifdef USBTINGO_EXPORT
 #define USBTINGO_API __declspec(dllexport)
