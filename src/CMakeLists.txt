@@ -93,17 +93,19 @@ if(USBTINGO_INSTALL)
       DESTINATION lib/cmake/usbtingo
   )
 
-  # install headers
-  install(DIRECTORY
-      ${PROJECT_SOURCE_DIR}/include/
-      DESTINATION include
-  )
-
   # install Findlibusb script
   install(FILES
     ${PROJECT_SOURCE_DIR}/cmake/Findlibusb.cmake
     DESTINATION lib/cmake/usbtingo/Modules
   )
+
+  if(USBTINGO_INSTALL_DEV_COMPONENTS)
+    # install headers
+    install(DIRECTORY
+        ${PROJECT_SOURCE_DIR}/include/
+        DESTINATION include
+    )
+  endif()
 endif()
 
 #########################################################
