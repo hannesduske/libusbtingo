@@ -7,7 +7,7 @@ namespace usbtingo {
 
 namespace bus {
 
-class USBTINGO_API StatusListener {
+class USBTINGO_EXPORT StatusListener {
 public:
   /**
    * @brief New status callback that is triggered when a new status message arrives.

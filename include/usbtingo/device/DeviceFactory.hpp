@@ -10,7 +10,7 @@ namespace usbtingo {
 
 namespace device {
 
-class USBTINGO_API DeviceFactory {
+class USBTINGO_EXPORT DeviceFactory {
 public:
   /**
    * @brief Instantiate a valid Device. Factory methods performs checks to make sure the device exists and is working correctly.

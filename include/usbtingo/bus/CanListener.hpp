@@ -10,7 +10,7 @@ namespace usbtingo {
 
 namespace bus {
 
-class USBTINGO_API CanListener {
+class USBTINGO_EXPORT CanListener {
 public:
   /**
    * @brief Clear any previously set Can id filters.

@@ -7,7 +7,7 @@ namespace usbtingo {
 
 namespace bus {
 
-class USBTINGO_API LogicListener {
+class USBTINGO_EXPORT LogicListener {
 public:
   /**
    * @brief New logic data callback that is triggered when new logic data frame is received from the device.

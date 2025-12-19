@@ -13,7 +13,7 @@ namespace bus {
 
 class BusImpl;
 
-class USBTINGO_API BasicBus : private Bus {
+class USBTINGO_EXPORT BasicBus : private Bus {
 public:
   /**
    * @brief Constructor of the BasicBus. It is encouraged to use the BasicBus::create factory method instead of manually instantiating a BasicBus.
