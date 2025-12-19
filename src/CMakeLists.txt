@@ -32,16 +32,27 @@ endif()
 
 target_sources(usbtingo PRIVATE ${SOURCES})
 
-target_compile_definitions(usbtingo PRIVATE
-  USBTINGO_EXPORT
+# generate export header
+include(GenerateExportHeader)
+
+set(USBTINGO_GENERATED_INCLUDE_DIR
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
-if(USBTINGO_BUILD_SHARED_LIBS)
-  target_compile_definitions(usbtingo PUBLIC
-    USBTINGO_SHARED
-  )
-endif()
+generate_export_header(usbtingo
+  EXPORT_FILE_NAME ${USBTINGO_GENERATED_INCLUDE_DIR}/usbtingo/platform/UsbtingoExport.hpp
+)
 
+target_include_directories(usbtingo PUBLIC
+  $<BUILD_INTERFACE:${USBTINGO_GENERATED_INCLUDE_DIR}>
+)
+
+install(FILES
+  ${USBTINGO_GENERATED_INCLUDE_DIR}/usbtingo/platform/UsbtingoExport.hpp
+  DESTINATION ${SENSORRING_INSTALL_INCLUDE_DIR}/usbtingo/platform
+)
+
+# library includes
 target_include_directories(usbtingo PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>

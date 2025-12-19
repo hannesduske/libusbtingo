@@ -13,7 +13,7 @@ namespace device {
 /**
  * @brief Operation modes of the USBtingo.
  */
-enum class USBTINGO_API Mode {
+enum class USBTINGO_EXPORT Mode {
   OFF         = 0x00,
   ACTIVE      = 0x01,
   LISTEN_ONLY = 0x02
@@ -22,7 +22,7 @@ enum class USBTINGO_API Mode {
 /**
  * @brief Supported Bus protocols of the USBtingo.
  */
-enum class USBTINGO_API Protocol {
+enum class USBTINGO_EXPORT Protocol {
   CAN_2_0        = 0x00,
   CAN_FD         = 0x01,
   CAN_FD_NON_ISO = 0x02
@@ -37,7 +37,7 @@ typedef std::array<std::uint8_t, 512> BulkBuffer;
 /**
  * @brief Object representing the DeviceInfo stored on the USBtingo.
  */
-struct USBTINGO_API DeviceInfo {
+struct USBTINGO_EXPORT DeviceInfo {
   std::uint8_t fw_minor  = 0;
   std::uint8_t fw_major  = 0;
   std::uint8_t hw_model  = 0;
@@ -49,7 +49,7 @@ struct USBTINGO_API DeviceInfo {
 /**
  * @brief Status frame of the USBtingo.
  */
-struct USBTINGO_API StatusFrame {
+struct USBTINGO_EXPORT StatusFrame {
   std::uint8_t message_type       = 0;
   std::uint8_t operation_mode     = 0;
   std::uint8_t txeovf             = 0;
@@ -85,7 +85,7 @@ struct USBTINGO_API StatusFrame {
 /**
  * @brief CanRxFrame frame of the USBtingo.
  */
-struct USBTINGO_API CanRxFrame {
+struct USBTINGO_EXPORT CanRxFrame {
   std::uint8_t message_type         = 0;
   std::uint8_t message_size         = 0;
   std::uint32_t procts              = 0;
@@ -113,7 +113,7 @@ struct USBTINGO_API CanRxFrame {
 /**
  * @brief CanTxFrame frame of the USBtingo.
  */
-struct USBTINGO_API CanTxFrame {
+struct USBTINGO_EXPORT CanTxFrame {
   std::uint8_t message_type         = 1;
   std::uint8_t message_size         = 0;
   std::uint32_t id                  = 0;
@@ -146,7 +146,7 @@ struct USBTINGO_API CanTxFrame {
 /**
  * @brief TxEventFrame frame of the USBtingo.
  */
-struct USBTINGO_API TxEventFrame {
+struct USBTINGO_EXPORT TxEventFrame {
   std::uint8_t message_type = 0;
   std::uint8_t message_size = 0;
   std::uint32_t procts      = 0;
@@ -173,7 +173,7 @@ struct USBTINGO_API TxEventFrame {
 /**
  * @brief LogicFrame frame of the USBtingo.
  */
-struct USBTINGO_API LogicFrame {
+struct USBTINGO_EXPORT LogicFrame {
   std::array<std::uint8_t, 512> data = { 0 };
 };
 

@@ -18,7 +18,7 @@ namespace bus {
 
 class BusImpl;
 
-class USBTINGO_API Bus {
+class USBTINGO_EXPORT Bus {
 public:
   /**
    * @brief Constructor of the Bus

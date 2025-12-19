@@ -21,7 +21,7 @@ namespace device {
 // ToDo: Hide from interface
 enum class AsyncIoState;
 
-class USBTINGO_API Device {
+class USBTINGO_EXPORT Device {
 public:
   /**
    * @brief Default destructor

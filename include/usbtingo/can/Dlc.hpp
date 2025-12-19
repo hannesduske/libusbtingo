@@ -10,7 +10,7 @@ namespace usbtingo {
 
 namespace can {
 
-class USBTINGO_API Dlc {
+class USBTINGO_EXPORT Dlc {
 public:
   static constexpr std::uint8_t DLC_0_BYTES  = 0;
   static constexpr std::uint8_t DLC_1_BYTES  = 1;

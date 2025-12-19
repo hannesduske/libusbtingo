@@ -11,7 +11,7 @@ namespace usbtingo {
 
 namespace bus {
 
-class USBTINGO_API Message {
+class USBTINGO_EXPORT Message {
 public:
   /**
    * @brief Constructor
