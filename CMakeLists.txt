@@ -19,6 +19,9 @@ project(libusbtingo
     LANGUAGES CXX
 )
 
+# Includes and find modules
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 # Build Settings
 include(cmake/BuildSettings.cmake)
 

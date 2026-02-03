@@ -43,6 +43,7 @@ jobs:
 
       - name: Configure (Windows)
         if: runner.os == 'Windows'
+        shell: bash
         run: |
           cmake -B build \
             -G "Visual Studio 17 2022" \
