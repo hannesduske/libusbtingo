@@ -39,9 +39,8 @@ bool BasicBus::remove_listener(const bus::BasicListener* listener) {
   return Bus::remove_listener(reinterpret_cast<const bus::CanListener*>(listener));
 }
 
-bool BasicBus::send(const bus::Message msg) {
-  // auto is_fd = !m_pimpl->device->get_protocol() == Protocol::CAN_2_0;
-  return Bus::send(msg.to_CanTxFrame());
+bool BasicBus::send(const bus::Message msg, bool is_fd) {
+  return Bus::send(msg.to_CanTxFrame(is_fd));
 }
 
 } // namespace bus

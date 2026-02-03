@@ -39,6 +39,8 @@ add_executable( integrationtest-usbtingo
 
     basic_bus/integrationtest-BasicBus.cpp
 
+    can/integrationtest-Dlc.cpp
+
     device/integrationtest-Device.cpp
     device/integrationtest-DeviceFactory.cpp
 )
