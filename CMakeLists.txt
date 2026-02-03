@@ -43,7 +43,6 @@ endif()
 
 # Tests
 if(USBTINGO_BUILD_TESTS)
-    include(CTest)
     add_subdirectory(tests)
 endif()
 

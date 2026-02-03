@@ -1,4 +1,5 @@
-find_package(Catch2 3 REQUIRED)
+include(CTest)
+include(Catch)
 
 # Unit Tests
 add_executable( unittest-usbtingo

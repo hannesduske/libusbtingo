@@ -2,8 +2,8 @@
 
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/17)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Unit tests (master)](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml/badge.svg?branch=master)](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Amaster)
-[![Unit tests (develop)](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml/badge.svg?branch=develop)](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Adevelop)
+[![Unit tests (master)](https://img.shields.io/github/actions/workflow/status/hannesduske/libusbtingo/unit-tests.yml?branch=master&label=Unit%20tests%20(master))](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Amaster)
+[![Unit tests (develop)](https://img.shields.io/github/actions/workflow/status/hannesduske/libusbtingo/unit-tests.yml?branch=develop&label=Unit%20tests%20(develop))](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Adevelop)
 
 ____
 **🔧 A lightweight C++ API for the USBtingo — USB to CAN FD converter**
