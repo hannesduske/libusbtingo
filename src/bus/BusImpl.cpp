@@ -179,12 +179,6 @@ bool BusImpl::stop_logic_stream() {
   return m_device->stop_logic_stream();
 }
 
-device::Protocol BusImpl::get_protocol() const {
-  // Note: This accesses the device's protocol setting
-  // In a full implementation, this would be tracked in the Bus layer
-  return device::Protocol::CAN_2_0; // Default, should be retrieved from device
-}
-
 void BusImpl::listener() {
   device::LogicFrame logic_frame;
   device::StatusFrame status_frame;
@@ -309,6 +303,10 @@ void BusImpl::listener() {
     m_listener_state.store(ListenerState::IDLE);
   }
   m_state_cv.notify_all();
+}
+
+device::Device* BusImpl::get_device() const {
+  return m_device.get();
 }
 
 } // namespace bus

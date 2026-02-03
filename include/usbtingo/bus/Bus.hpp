@@ -112,6 +112,13 @@ public:
   Bus(const Bus&)            = delete;
   Bus& operator=(const Bus&) = delete;
 
+protected:
+  /**
+  * @brief Get the device pointer of the Bus.
+  * @return Pointer to the device.
+  */
+  device::Device* get_device();
+
 private:
   std::unique_ptr<BusImpl> m_pimpl;
 };

@@ -48,11 +48,7 @@ public:
   bool start_logic_stream(std::uint32_t samplerate_hz);
   bool stop_logic_stream();
 
-  /**
-   * @brief Get the current protocol of the underlying device.
-   * @return Current protocol setting
-   */
-  device::Protocol get_protocol() const;
+  device::Device* get_device() const;
 
 private:
   void listener();
