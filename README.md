@@ -1,5 +1,9 @@
 # Libusbtingo
 
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/17)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+____
 **🔧 A lightweight C++ API for the USBtingo — USB to CAN FD converter**
 
 `Libusbtingo` makes it easy to interact with the USBtingo, providing **high-level access** for sending and receiving CAN and CAN FD messages. It also supports using the USBtingo as a **1-channel logic analyzer** with a sample rate of up to 40 MHz.
@@ -30,7 +34,7 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
 - CMake
-- Some C++ compiler (e.g. MSVC)
+- Some C++17 compiler (e.g. MSVC)
 - Windows SDK **or** libusb
 
 > ℹ️
@@ -41,7 +45,7 @@ This option has not been tested and might require some additional configuration 
 ## 1.2 Requirements for Linux
 
 - CMake
-- Some C++ compiler
+- Some C++17 compiler (e.g. GCC, Clang)
 - libusb-1.0-0 and libusb-1.0-0-dev
 
 > ℹ️
@@ -168,6 +172,9 @@ cmake .. -DUSBTINGO_BUILD_SHARED_LIBS=ON -DUSBTINGO_BUILD_TESTS=OFF
 | USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
 | USBTINGO_USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed. |
 
+> ℹ️
+> **Testing:** To build and run the test suite, set `USBTINGO_BUILD_TESTS=ON`. This requires [Catch2](https://github.com/catchorg/Catch2) to be installed and available to CMake.
+
 > ⚠️
 > The legacy options `BUILD_SHARED_LIBS`, `BUILD_EXAMPLES`, `BUILD_UTILS`, `BUILD_TESTS`, `ENABLE_INTERACTIVE_TESTS`, `ENABLE_TESTS_WITH_OTHER_DEVICES`, and `USE_WINAPI` are deprecated and will show a warning. Use the `USBTINGO_*` prefixed options instead.
 
@@ -181,6 +188,7 @@ This library has two interfaces to access a CAN Bus with a USBtingo: The `BasicB
 The `BasicBus` is a simple, easy to use interface with reduced functionality.
 It is recommended for all applications that exchange simple CAN or CAN FD data messages and do not rely on advanced features of the USBtingo.
 The BasicBus automatically chooses the first USBtingo device it discovers and does not require manual configuration.
+An overload of `create()` that takes a device index is also available to select a specific USBtingo when multiple devices are connected.
 
 A `BasicBus` object can be directly instantiated using its static `create()` method.
 The returned `BasicBus` object is operational without any additional configuration, provided that a working USBtingo device is connected to the system.
@@ -447,6 +455,7 @@ Find the full code of this example [here](apps/examples/MinimalExampleLogicStrea
 The sample rate of the USBtingo is calculated as follows: **$samplerate = {120\,\mathrm{MHz}}/{prescaler}$**.
 The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **470 kHz ... 40 MHz**.
 If a sample rate outside of this interval is specified, it is automatically clamped to the upper or lower limit of this range.
+If `0` is passed as the sample rate, the rate is derived automatically from the CAN baudrate (10× the nominal or data baudrate, depending on the protocol).
 
 **Data returned by the logic analyzer**<br>
 The USBtingo transmits the logic data as 512 byte chunks with each bit representing a single logic value.
