@@ -38,6 +38,7 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 - Windows SDK **or** libusb
 
 > ℹ️
+**Libusb:**
 It is possible to use libusb instead of the Windows SDK.
 Refer to the [USBTINGO_USE_WINAPI](#16-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
@@ -173,7 +174,7 @@ cmake .. -DUSBTINGO_BUILD_SHARED_LIBS=ON -DUSBTINGO_BUILD_TESTS=OFF
 | USBTINGO_USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed. |
 
 > ℹ️
-> **Testing:** To build and run the test suite, set `USBTINGO_BUILD_TESTS=ON`. This requires [Catch2](https://github.com/catchorg/Catch2) to be installed and available to CMake.
+**Catch2:** The tests are built with [Catch2](https://github.com/catchorg/Catch2). When tests are enabled with `USBTINGO_BUILD_TESTS=ON`, CMake looks for a local Catch2 installation. If no Catch2 installation is found, the library will fetch it from GitHub.
 
 > ⚠️
 > The legacy options `BUILD_SHARED_LIBS`, `BUILD_EXAMPLES`, `BUILD_UTILS`, `BUILD_TESTS`, `ENABLE_INTERACTIVE_TESTS`, `ENABLE_TESTS_WITH_OTHER_DEVICES`, and `USE_WINAPI` are deprecated and will show a warning. Use the `USBTINGO_*` prefixed options instead.
