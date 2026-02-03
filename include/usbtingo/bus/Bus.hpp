@@ -90,7 +90,7 @@ public:
    * @param[in] msg Message to be sent on the Can bus. The CanTxFrame has to be configured manually before passing it to the send method.
    * @return Returns true if operation succeeds.
    */
-  bool send(const device::CanTxFrame msg);
+  bool send(const device::CanTxFrame& msg);
 
   /**
    * @brief Start the logic data stream.

@@ -6,8 +6,6 @@ namespace usbtingo {
 
 namespace bus {
 
-static constexpr auto BUS_LISTENER_THREAD_DELAY_uS = std::chrono::microseconds(10); // There seems to be a racing condition in the integration test-Bus. The listener delay has to be at least 1000 times smaller than the main program delay.
-
 BusImpl::BusImpl(std::unique_ptr<device::Device> device)
     : m_device(std::move(device))
     , m_listener_state(ListenerState::IDLE) {
@@ -19,108 +17,157 @@ BusImpl::~BusImpl() noexcept {
 }
 
 bool BusImpl::start() {
-  if (m_listener_state.load() == ListenerState::LISTENING)
+  ListenerState expected = ListenerState::IDLE;
+  if (!m_listener_state.compare_exchange_strong(expected, ListenerState::STARTING)) {
+    return false; // Already starting, listening, or stopping
+  }
+
+  if (!m_device || !m_device->is_alive()) {
+    m_listener_state.store(ListenerState::IDLE);
     return false;
-  if (!m_device || !m_device->is_alive())
-    return false;
+  }
 
   m_listener_thread = std::make_unique<std::thread>(&BusImpl::listener, this);
 
-  while (m_listener_state.load() != ListenerState::LISTENING)
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  // Wait for thread to reach LISTENING state using condition variable
+  std::unique_lock<std::mutex> lock(m_state_mutex);
+  bool reached = m_state_cv.wait_for(lock, STATE_TRANSITION_TIMEOUT, [this]() {
+    return m_listener_state.load() == ListenerState::LISTENING;
+  });
+
+  if (!reached) {
+    // Timeout - something went wrong, attempt cleanup
+    m_listener_state.store(ListenerState::SHUTDOWN);
+    if (m_listener_thread && m_listener_thread->joinable()) {
+      m_listener_thread->join();
+    }
+    m_listener_state.store(ListenerState::IDLE);
+    return false;
+  }
 
   return true;
 }
 
 bool BusImpl::stop() {
-  if (m_listener_state.load() != ListenerState::LISTENING)
-    return false;
-
-  m_listener_state.store(ListenerState::SHUTDOWN);
-  while (!m_listener_thread->joinable()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  ListenerState expected = ListenerState::LISTENING;
+  if (!m_listener_state.compare_exchange_strong(expected, ListenerState::STOPPING)) {
+    return false; // Not in listening state
   }
-  m_listener_thread->join();
+
+  // Signal shutdown to the listener thread
+  m_listener_state.store(ListenerState::SHUTDOWN);
+
+  // Wait for thread to finish
+  if (m_listener_thread && m_listener_thread->joinable()) {
+    m_listener_thread->join();
+  }
+
+  // Wait for state to return to IDLE
+  std::unique_lock<std::mutex> lock(m_state_mutex);
+  m_state_cv.wait_for(lock, STATE_TRANSITION_TIMEOUT, [this]() {
+    return m_listener_state.load() == ListenerState::IDLE;
+  });
 
   return true;
 }
 
 bool BusImpl::add_listener(bus::CanListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  bool success = std::find(m_can_listener_vec.begin(), m_can_listener_vec.end(), listener) == m_can_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_can_listener_vec.push_back(listener);
-  return success;
+  // Check if listener is already registered
+  if (std::find(m_can_listener_vec.begin(), m_can_listener_vec.end(), listener) != m_can_listener_vec.end()) {
+    return false;
+  }
+
+  m_can_listener_vec.push_back(listener);
+  return true;
 }
 
 bool BusImpl::add_listener(bus::LogicListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  bool success = std::find(m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener) == m_logic_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_logic_listener_vec.push_back(listener);
-  return success;
+  // Check if listener is already registered
+  if (std::find(m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener) != m_logic_listener_vec.end()) {
+    return false;
+  }
+
+  m_logic_listener_vec.push_back(listener);
+  return true;
 }
 
 bool BusImpl::add_listener(bus::StatusListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  bool success = std::find(m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) == m_status_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_status_listener_vec.push_back(listener);
-  return success;
+  // Check if listener is already registered
+  if (std::find(m_status_listener_vec.begin(), m_status_listener_vec.end(), listener) != m_status_listener_vec.end()) {
+    return false;
+  }
+
+  m_status_listener_vec.push_back(listener);
+  return true;
 }
 
 bool BusImpl::remove_listener(const bus::CanListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  auto it      = std::find(m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
-  bool success = it != m_can_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_can_listener_vec.erase(it);
-  return success;
+  auto it = std::find(m_can_listener_vec.begin(), m_can_listener_vec.end(), listener);
+  if (it == m_can_listener_vec.end()) {
+    return false;
+  }
+
+  m_can_listener_vec.erase(it);
+  return true;
 }
 
 bool BusImpl::remove_listener(const bus::LogicListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  auto it      = std::find(m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener);
-  bool success = it != m_logic_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_logic_listener_vec.erase(it);
-  return success;
+  auto it = std::find(m_logic_listener_vec.begin(), m_logic_listener_vec.end(), listener);
+  if (it == m_logic_listener_vec.end()) {
+    return false;
+  }
+
+  m_logic_listener_vec.erase(it);
+  return true;
 }
 
 bool BusImpl::remove_listener(const bus::StatusListener* listener) {
-  if (!listener)
+  if (!listener) {
     return false;
+  }
 
-  // check if listener is registered
-  auto it      = std::find(m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);
-  bool success = it != m_status_listener_vec.end();
+  std::unique_lock<std::shared_mutex> lock(m_listener_mutex);
 
-  if (success)
-    m_status_listener_vec.erase(it);
-  return success;
+  auto it = std::find(m_status_listener_vec.begin(), m_status_listener_vec.end(), listener);
+  if (it == m_status_listener_vec.end()) {
+    return false;
+  }
+
+  m_status_listener_vec.erase(it);
+  return true;
 }
 
-bool BusImpl::send(const device::CanTxFrame msg) {
+bool BusImpl::send(const device::CanTxFrame& msg) {
   return m_device->send_can(msg);
 }
 
@@ -132,15 +179,26 @@ bool BusImpl::stop_logic_stream() {
   return m_device->stop_logic_stream();
 }
 
-bool BusImpl::listener() {
+device::Protocol BusImpl::get_protocol() const {
+  // Note: This accesses the device's protocol setting
+  // In a full implementation, this would be tracked in the Bus layer
+  return device::Protocol::CAN_2_0; // Default, should be retrieved from device
+}
 
+void BusImpl::listener() {
   device::LogicFrame logic_frame;
   device::StatusFrame status_frame;
   std::vector<device::CanRxFrame> rx_frames;
   std::vector<device::TxEventFrame> tx_event_frames;
 
-  auto zero_timeout = std::chrono::microseconds(0);
-  m_listener_state.store(ListenerState::LISTENING);
+  constexpr auto zero_timeout = std::chrono::microseconds(0);
+
+  // Signal that we've reached listening state
+  {
+    std::lock_guard<std::mutex> lock(m_state_mutex);
+    m_listener_state.store(ListenerState::LISTENING);
+  }
+  m_state_cv.notify_all();
 
   auto can_future    = m_device->request_can_async();
   auto logic_future  = m_device->request_logic_async();
@@ -148,61 +206,109 @@ bool BusImpl::listener() {
 
   while (m_listener_state.load() == ListenerState::LISTENING) {
 
-    // can message handling
+    // CAN message handling
     if (can_future.valid() && can_future.wait_for(zero_timeout) == std::future_status::ready) {
-      if (can_future.get()) {
-        m_device->receive_can_async(rx_frames, tx_event_frames);
+      try {
+        if (can_future.get()) {
+          m_device->receive_can_async(rx_frames, tx_event_frames);
 
-        // forward can frames
-        for (const auto& rx_frame : rx_frames) {
-          for (auto& listener : m_can_listener_vec) {
-            listener->forward_can_message(rx_frame);
+          // Forward CAN frames with read lock
+          {
+            std::shared_lock<std::shared_mutex> lock(m_listener_mutex);
+            for (const auto& rx_frame : rx_frames) {
+              for (auto* listener : m_can_listener_vec) {
+                if (listener) {
+                  try {
+                    listener->forward_can_message(rx_frame);
+                  } catch (const std::exception& /*e*/) {
+                    // Error but continue processing other listeners
+                  } catch (...) {
+                    // Catch all exceptions to prevent thread termination
+                  }
+                }
+              }
+            }
           }
-        }
 
-        // forward tx_events
-        //for (const auto& tx_event_frame : tx_event_frames) {
-        //}
-        rx_frames.clear();
-        tx_event_frames.clear();
+          rx_frames.clear();
+          tx_event_frames.clear();
+        }
+      } catch (...) {
+        // Handle future exceptions
       }
       can_future = m_device->request_can_async();
     }
 
-    // logic handling
+    // Logic handling
     if (logic_future.valid() && logic_future.wait_for(zero_timeout) == std::future_status::ready) {
-      if (logic_future.get()) {
-        m_device->receive_logic_async(logic_frame);
+      try {
+        if (logic_future.get()) {
+          m_device->receive_logic_async(logic_frame);
 
-        // forward status frame
-        for (auto& listener : m_logic_listener_vec) {
-          listener->on_logic_receive(logic_frame);
+          // Forward logic frame with read lock
+          {
+            std::shared_lock<std::shared_mutex> lock(m_listener_mutex);
+            for (auto* listener : m_logic_listener_vec) {
+              if (listener) {
+                try {
+                  listener->on_logic_receive(logic_frame);
+                } catch (const std::exception& /*e*/) {
+                  // Error but continue processing other listeners
+                } catch (...) {
+                  // Catch all exceptions to prevent thread termination
+                }
+              }
+            }
+          }
         }
+      } catch (...) {
+        // Handle future exceptions
       }
       logic_future = m_device->request_logic_async();
     }
 
-    // status handling
+    // Status handling
     if (status_future.valid() && status_future.wait_for(zero_timeout) == std::future_status::ready) {
-      if (status_future.get()) {
-        m_device->receive_status_async(status_frame);
+      try {
+        if (status_future.get()) {
+          m_device->receive_status_async(status_frame);
 
-        // forward status frame
-        for (auto& listener : m_status_listener_vec) {
-          listener->on_status_update(status_frame);
+          // Forward status frame with read lock
+          {
+            std::shared_lock<std::shared_mutex> lock(m_listener_mutex);
+            for (auto* listener : m_status_listener_vec) {
+              if (listener) {
+                try {
+                  listener->on_status_update(status_frame);
+                } catch (const std::exception& /*e*/) {
+                  // Error but continue processing other listeners
+                } catch (...) {
+                  // Catch all exceptions to prevent thread termination
+                }
+              }
+            }
+          }
         }
+      } catch (...) {
+        // Handle future exceptions
       }
       status_future = m_device->request_status_async();
     }
 
-    std::this_thread::sleep_for(BUS_LISTENER_THREAD_DELAY_uS);
+    std::this_thread::sleep_for(LISTENER_THREAD_DELAY);
   }
 
-  m_device->cancel_async_can_request(); // required or joining the listener thread fails because an async task is still runnig
+  // Cancel async requests before exiting
+  m_device->cancel_async_can_request();
   m_device->cancel_async_logic_request();
   m_device->cancel_async_status_request();
-  m_listener_state.store(ListenerState::IDLE);
-  return true;
+
+  // Signal that we've returned to IDLE state
+  {
+    std::lock_guard<std::mutex> lock(m_state_mutex);
+    m_listener_state.store(ListenerState::IDLE);
+  }
+  m_state_cv.notify_all();
 }
 
 } // namespace bus

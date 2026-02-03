@@ -42,7 +42,7 @@ bool Bus::remove_listener(const bus::StatusListener* listener) {
   return m_pimpl->remove_listener(listener);
 }
 
-bool Bus::send(const device::CanTxFrame msg) {
+bool Bus::send(const device::CanTxFrame& msg) {
   return m_pimpl->send(msg);
 }
 
