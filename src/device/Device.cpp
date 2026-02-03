@@ -151,6 +151,21 @@ bool Device::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) {
   success = write_control(USBTINGO_CMD_SET_BAUDRATE, 1, 0, reinterpret_cast<std::uint8_t*>(&baudrate_data), 4);
   return success;
 }
+Protocol Device::get_protocol() const {
+  return m_protocol;
+}
+
+std::uint32_t Device::get_baudrate() const {
+  return m_baudrate;
+}
+
+std::uint32_t Device::get_data_baudrate() const {
+  return m_baudrate_data;
+}
+
+Mode Device::get_mode() const {
+  return m_mode;
+}
 
 bool Device::clear_errors() {
   return write_control(USBTINGO_CMD_CLEAR_ERRORFLAGS, 0xffff, 0);

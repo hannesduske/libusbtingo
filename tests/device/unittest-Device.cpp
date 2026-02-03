@@ -10,11 +10,43 @@
 
 
 using namespace usbtingo::device;
-using usbtingo::device::CanRxFrame;
-using usbtingo::device::Device;
-using usbtingo::device::DeviceInfo;
-using usbtingo::device::TxEventFrame;
 using usbtingo::test::MockDevice;
+using usbtingo::device::TxEventFrame;
+using usbtingo::device::CanRxFrame;
+using usbtingo::device::DeviceInfo;
+using usbtingo::device::Device;
+
+TEST_CASE("Unittest Device, getters and setters", "[device]") {
+  SECTION("Device setters and getters") {
+    MockDevice dev(0u, true);
+    
+    // Set and test Protocol
+    CHECK(dev.set_protocol(Protocol::CAN_2_0) == true);
+    CHECK(dev.get_protocol() == Protocol::CAN_2_0);
+
+    CHECK(dev.set_protocol(Protocol::CAN_FD) == true);
+    CHECK(dev.get_protocol() == Protocol::CAN_FD);
+
+    // Set and test Baudrate (classic)
+    CHECK(dev.set_baudrate(250000) == true);
+    CHECK(dev.get_baudrate() == 250000);
+    // Data baudrate should also be set to 250000 in this overload
+    CHECK(dev.get_data_baudrate() == 250000);
+
+    // Set and test Baudrate (with separate data rate)
+    CHECK(dev.set_baudrate(500000, 2000000) == true);
+    CHECK(dev.get_baudrate() == 500000);
+    CHECK(dev.get_data_baudrate() == 2000000);
+
+    // Set and test Mode
+    CHECK(dev.set_mode(Mode::ACTIVE) == true);
+    CHECK(dev.get_mode() == Mode::ACTIVE);
+
+    CHECK(dev.set_mode(Mode::OFF) == true);
+    CHECK(dev.get_mode() == Mode::OFF);
+  }
+}
+
 
 TEST_CASE("Unittest Device, get_serial and get_device_info", "[device]") {
 

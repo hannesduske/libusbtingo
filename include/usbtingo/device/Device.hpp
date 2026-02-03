@@ -106,6 +106,29 @@ public:
    * @return Returns true if setting the mode succeeded
    */
   bool set_mode(Mode mode);
+  /**
+   * @brief Get the protocol of the device.
+   * @return Returns the current protocol of the device.
+   */
+  Protocol get_protocol() const;
+
+  /**
+   * @brief Get the baudrate of the device.
+   * @return Returns the current baudrate of the device.
+   */
+  std::uint32_t get_baudrate() const;
+
+  /**
+   * @brief Get the data baudrate of the device.
+   * @return Returns the current data baudrate of the device.
+   */
+  std::uint32_t get_data_baudrate() const;
+
+  /**
+   * @brief Get the mode of the device.
+   * @return Returns the current mode of the device.
+   */
+  Mode get_mode() const;
 
   /**
    * @brief Clear the error counter overflow flags.
