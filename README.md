@@ -12,9 +12,10 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 1.  [Building and installing the library](#1-building-and-installing-the-library) <br>
 1.1 [Requirements for Windows](#11-requirements-for-windows)  <br>
 1.2 [Requirements for Linux](#12-requirements-for-linux)  <br>
-1.3 [Building the library from source](#13-building-the-library-from-source)  <br>
-1.4 [Installing the library](#14-installing-the-library)  <br>
-1.5 [CMake Options](#15-cmake-options)  <br>
+1.3 [Using the library in other CMake projects](#13-using-the-library-in-other-cmake-projects)  <br>
+1.4 [Building the library from source](#14-building-the-library-from-source)  <br>
+1.5 [Installing the library](#15-installing-the-library)  <br>
+1.6 [CMake Options](#16-cmake-options)  <br>
 2.  [How to use the library](#2-how-to-use-the-library)  <br>
 2.1 [BasicBus](#21-basicbus)  <br>
 2.2 [Bus](#22-bus)  <br>
@@ -58,7 +59,48 @@ sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\
 sudo udevadm control --reload-rules
 ```
 
-## 1.3 Building the library from source
+## 1.3 Using the library in other CMake projects
+
+You can integrate libusbtingo directly into your own CMake project using [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html). This fetches the library at configure time if it is not already installed.
+
+Add the following to your `CMakeLists.txt` (e.g. before defining targets that use usbtingo):
+
+```cmake
+find_package(usbtingo QUIET)
+
+if(usbtingo_FOUND)
+  set(USBTINGO_INSTALLED ON)
+else()
+  message(STATUS "Did not find libusbtingo. Fetching it from GitHub...")
+  set(USBTINGO_INSTALLED OFF)
+
+  include(FetchContent)
+  FetchContent_Declare(
+    usbtingo
+    URL https://github.com/hannesduske/libusbtingo/archive/v1.1.4.zip  # specific version
+    # URL https://github.com/hannesduske/libusbtingo/archive/refs/heads/master.zip  # latest from master
+  )
+
+  set(USBTINGO_INSTALL_DEV_COMPONENTS OFF)
+  set(USBTINGO_BUILD_EXAMPLES OFF)
+  set(USBTINGO_BUILD_UTILS OFF)
+  set(USBTINGO_BUILD_TESTS OFF)
+
+  FetchContent_MakeAvailable(usbtingo)
+  add_library(usbtingo::usbtingo ALIAS usbtingo)
+endif()
+```
+
+Then link your executable or library against libusbtingo like normal:
+
+```cmake
+add_executable(my_own_app main.cpp)
+target_link_libraries(my_own_app PRIVATE usbtingo::usbtingo)
+```
+
+If you use the installed package (`usbtingo_FOUND` is true), the same `usbtingo::usbtingo` target is used, so your executable definition does not need to change.
+
+## 1.4 Building the library from source
 The library is built with a standard CMake workflow which is almost identical for Windows and Linux.
 Use the following commands to build the library.
 ```sh
@@ -76,7 +118,7 @@ For the MSVC compiler on Windows, you need to specify which configuration you wa
 cmake --build . --config=Release
 ```
 
-## 1.4 Installing the library
+## 1.5 Installing the library
 
 The library can be installed to CMakes default location with the `cmake --install` command.
 The default install location is `C:/Program Files (x86)/libusbtingo` on Windows and `/usr/local` on Linux.
@@ -105,7 +147,7 @@ This enables other packages to find this library.
 > ⚠️
 Update the linker cache when installing a **shared library** by running `sudo ldconfig` after the installation.
 
-## 1.5 CMake Options
+## 1.6 CMake Options
 
 The build can be configured with CMake options.
 Options can be set by calling `cmake ..` with the flag `-D`.
