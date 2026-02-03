@@ -35,7 +35,7 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 
 > ℹ️
 It is possible to use libusb instead of the Windows SDK.
-Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
+Refer to the [USBTINGO_USE_WINAPI](#15-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
 
 ## 1.2 Requirements for Linux
@@ -153,18 +153,23 @@ The build can be configured with CMake options.
 Options can be set by calling `cmake ..` with the flag `-D`.
 For example, the following command builds the library as a shared library and disables tests.
 ```sh
-cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
+cmake .. -DUSBTINGO_BUILD_SHARED_LIBS=ON -DUSBTINGO_BUILD_TESTS=OFF
 ```
 
 | CMake Option | Default value | Description |
 |---|---|---|
-| BUILD_SHARED_LIBS | OFF | Build libusbtingo as shared library. If set to OFF a static library is built. |
-| BUILD_EXAMPLES | ON | Build the minimal examples. |
-| BUILD_UTILS | ON | Build and install utility programs along with the library. |
-| BUILD_TESTS | ON | Build the test utilities for the library. Requires Catch2. |
-| ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
-| ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
-| USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
+| USBTINGO_INSTALL | ON | Enable the installation of the library. |
+| USBTINGO_INSTALL_DEV_COMPONENTS | ON | Enable the installation of the components required for development, i.e. the libraries headers. |
+| USBTINGO_BUILD_SHARED_LIBS | OFF | Build libusbtingo as shared library. If set to OFF a static library is built. |
+| USBTINGO_BUILD_EXAMPLES | OFF | Build the minimal examples. |
+| USBTINGO_BUILD_UTILS | ON | Build and install utility programs along with the library. |
+| USBTINGO_BUILD_TESTS | OFF | Build the test utilities for the library. Requires Catch2. |
+| USBTINGO_ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
+| USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
+| USBTINGO_USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed. |
+
+> ⚠️
+> The legacy options `BUILD_SHARED_LIBS`, `BUILD_EXAMPLES`, `BUILD_UTILS`, `BUILD_TESTS`, `ENABLE_INTERACTIVE_TESTS`, `ENABLE_TESTS_WITH_OTHER_DEVICES`, and `USE_WINAPI` are deprecated and will show a warning. Use the `USBTINGO_*` prefixed options instead.
 
 # 2. How to use the library
 
