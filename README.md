@@ -1,5 +1,11 @@
 # Libusbtingo
 
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white)](https://en.cppreference.com/w/cpp/17)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Unit tests (master)](https://img.shields.io/github/actions/workflow/status/hannesduske/libusbtingo/unit-tests.yml?branch=master&label=Unit%20tests%20(master))](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Amaster)
+[![Unit tests (develop)](https://img.shields.io/github/actions/workflow/status/hannesduske/libusbtingo/unit-tests.yml?branch=develop&label=Unit%20tests%20(develop))](https://github.com/hannesduske/libusbtingo/actions/workflows/unit-tests.yml?query=branch%3Adevelop)
+
+____
 **🔧 A lightweight C++ API for the USBtingo — USB to CAN FD converter**
 
 `Libusbtingo` makes it easy to interact with the USBtingo, providing **high-level access** for sending and receiving CAN and CAN FD messages. It also supports using the USBtingo as a **1-channel logic analyzer** with a sample rate of up to 40 MHz.
@@ -12,9 +18,10 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 1.  [Building and installing the library](#1-building-and-installing-the-library) <br>
 1.1 [Requirements for Windows](#11-requirements-for-windows)  <br>
 1.2 [Requirements for Linux](#12-requirements-for-linux)  <br>
-1.3 [Building the library from source](#13-building-the-library-from-source)  <br>
-1.4 [Installing the library](#14-installing-the-library)  <br>
-1.5 [CMake Options](#15-cmake-options)  <br>
+1.3 [Using the library in other CMake projects](#13-using-the-library-in-other-cmake-projects)  <br>
+1.4 [Building the library from source](#14-building-the-library-from-source)  <br>
+1.5 [Installing the library](#15-installing-the-library)  <br>
+1.6 [CMake Options](#16-cmake-options)  <br>
 2.  [How to use the library](#2-how-to-use-the-library)  <br>
 2.1 [BasicBus](#21-basicbus)  <br>
 2.2 [Bus](#22-bus)  <br>
@@ -29,18 +36,19 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 # 1. Building and installing the library
 ## 1.1 Requirements for Windows
 - CMake
-- Some C++ compiler (e.g. MSVC)
+- Some C++17 compiler (e.g. MSVC)
 - Windows SDK **or** libusb
 
 > ℹ️
+**Libusb:**
 It is possible to use libusb instead of the Windows SDK.
-Refer to the [USE_WINAPI](#15-cmake-options) option for further details.
+Refer to the [USBTINGO_USE_WINAPI](#16-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
 
 ## 1.2 Requirements for Linux
 
 - CMake
-- Some C++ compiler
+- Some C++17 compiler (e.g. GCC, Clang)
 - libusb-1.0-0 and libusb-1.0-0-dev
 
 > ℹ️
@@ -58,7 +66,48 @@ sudo bash -c $'echo \'SUBSYSTEM=="usb", ATTRS{product}=="USBtingo", MODE="0666"\
 sudo udevadm control --reload-rules
 ```
 
-## 1.3 Building the library from source
+## 1.3 Using the library in other CMake projects
+
+You can integrate libusbtingo directly into your own CMake project using [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html). This fetches the library at configure time if it is not already installed.
+
+Add the following to your `CMakeLists.txt` (e.g. before defining targets that use usbtingo):
+
+```cmake
+find_package(usbtingo QUIET)
+
+if(usbtingo_FOUND)
+  set(USBTINGO_INSTALLED ON)
+else()
+  message(STATUS "Did not find libusbtingo. Fetching it from GitHub...")
+  set(USBTINGO_INSTALLED OFF)
+
+  include(FetchContent)
+  FetchContent_Declare(
+    usbtingo
+    URL https://github.com/hannesduske/libusbtingo/archive/v1.1.4.zip  # specific version
+    # URL https://github.com/hannesduske/libusbtingo/archive/refs/heads/master.zip  # latest from master
+  )
+
+  set(USBTINGO_INSTALL_DEV_COMPONENTS OFF)
+  set(USBTINGO_BUILD_EXAMPLES OFF)
+  set(USBTINGO_BUILD_UTILS OFF)
+  set(USBTINGO_BUILD_TESTS OFF)
+
+  FetchContent_MakeAvailable(usbtingo)
+  add_library(usbtingo::usbtingo ALIAS usbtingo)
+endif()
+```
+
+Then link your executable or library against libusbtingo like normal:
+
+```cmake
+add_executable(my_own_app main.cpp)
+target_link_libraries(my_own_app PRIVATE usbtingo::usbtingo)
+```
+
+If you use the installed package (`usbtingo_FOUND` is true), the same `usbtingo::usbtingo` target is used, so your executable definition does not need to change.
+
+## 1.4 Building the library from source
 The library is built with a standard CMake workflow which is almost identical for Windows and Linux.
 Use the following commands to build the library.
 ```sh
@@ -76,7 +125,7 @@ For the MSVC compiler on Windows, you need to specify which configuration you wa
 cmake --build . --config=Release
 ```
 
-## 1.4 Installing the library
+## 1.5 Installing the library
 
 The library can be installed to CMakes default location with the `cmake --install` command.
 The default install location is `C:/Program Files (x86)/libusbtingo` on Windows and `/usr/local` on Linux.
@@ -105,24 +154,32 @@ This enables other packages to find this library.
 > ⚠️
 Update the linker cache when installing a **shared library** by running `sudo ldconfig` after the installation.
 
-## 1.5 CMake Options
+## 1.6 CMake Options
 
 The build can be configured with CMake options.
 Options can be set by calling `cmake ..` with the flag `-D`.
 For example, the following command builds the library as a shared library and disables tests.
 ```sh
-cmake .. -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=OFF
+cmake .. -DUSBTINGO_BUILD_SHARED_LIBS=ON -DUSBTINGO_BUILD_TESTS=OFF
 ```
 
 | CMake Option | Default value | Description |
 |---|---|---|
-| BUILD_SHARED_LIBS | OFF | Build libusbtingo as shared library. If set to OFF a static library is built. |
-| BUILD_EXAMPLES | ON | Build the minimal examples. |
-| BUILD_UTILS | ON | Build and install utility programs along with the library. |
-| BUILD_TESTS | ON | Build the test utilities for the library. Requires Catch2. |
-| ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
-| ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
-| USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed.
+| USBTINGO_INSTALL | ON | Enable the installation of the library. |
+| USBTINGO_INSTALL_DEV_COMPONENTS | ON | Enable the installation of the components required for development, i.e. the libraries headers. |
+| USBTINGO_BUILD_SHARED_LIBS | OFF | Build libusbtingo as shared library. If set to OFF a static library is built. |
+| USBTINGO_BUILD_EXAMPLES | OFF | Build the minimal examples. |
+| USBTINGO_BUILD_UTILS | ON | Build and install utility programs along with the library. |
+| USBTINGO_BUILD_TESTS | OFF | Build the test utilities for the library. Requires Catch2. |
+| USBTINGO_ENABLE_INTERACTIVE_TESTS | OFF | Enable tests that have to be confirmed manually. |
+| USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES | OFF | Enable tests that require other CAN devices to send and acknowledge CAN messages. |
+| USBTINGO_USE_WINAPI | ON | This option is only available on Windows platforms. Choose which USB backend is used. The default backend is the Windows API. When this option is turned OFF, libusb is used instead. This requires libusb to be installed. |
+
+> ℹ️
+**Catch2:** The tests are built with [Catch2](https://github.com/catchorg/Catch2). When tests are enabled with `USBTINGO_BUILD_TESTS=ON`, CMake looks for a local Catch2 installation. If no Catch2 installation is found, the library will fetch it from GitHub.
+
+> ⚠️
+> The legacy options `BUILD_SHARED_LIBS`, `BUILD_EXAMPLES`, `BUILD_UTILS`, `BUILD_TESTS`, `ENABLE_INTERACTIVE_TESTS`, `ENABLE_TESTS_WITH_OTHER_DEVICES`, and `USE_WINAPI` are deprecated and will show a warning. Use the `USBTINGO_*` prefixed options instead.
 
 # 2. How to use the library
 
@@ -134,13 +191,14 @@ This library has two interfaces to access a CAN Bus with a USBtingo: The `BasicB
 The `BasicBus` is a simple, easy to use interface with reduced functionality.
 It is recommended for all applications that exchange simple CAN or CAN FD data messages and do not rely on advanced features of the USBtingo.
 The BasicBus automatically chooses the first USBtingo device it discovers and does not require manual configuration.
+An overload of `create()` that takes a device index is also available to select a specific USBtingo when multiple devices are connected.
 
 A `BasicBus` object can be directly instantiated using its static `create()` method.
 The returned `BasicBus` object is operational without any additional configuration, provided that a working USBtingo device is connected to the system.
 
 ## 2.2 Bus
 The `Bus` interface offers full control over the USBtingo device and grants access to the raw data buffers that are exchanged with the USBtingo.
-This interface is more complex and is recommended in cases where simplified the BasicBus does not meet the application requirements.
+This interface is more complex and is recommended in cases where the simplified BasicBus does not meet the application requirements.
 
 `Bus` objects require a valid `Device` that has to be configured before passing it to a `Bus`.
 The `Device` configuration includes all CAN bus parameters, i.e. its protocol, baudrate and all advanced options.
@@ -148,7 +206,7 @@ Refer to [DeviceFactory](#24-devicefactory) for how to safely instantiate `Devic
 
 ## 2.3 Device
 The `Device` represents the connected USBtingo and implements all necessary interface methods.
-After creating a valid `Deivce` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
+After creating a valid `Device` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
 After the configuration is complete, a `Device` can be used to instantiate a `BasicBus` or a `Bus` which handles all further communication with the USBtingo.
 
 > ℹ️
@@ -187,7 +245,7 @@ After the configuration, the program sends all entered messages on the CAN Bus.
  After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages arrive.
 
 > ℹ️
- Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
+ Only one of the utility applications can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  
 # 4. Minimal examples
 
@@ -208,6 +266,7 @@ Find the full code of this example [here](apps/examples/MinimalExampleBasicBus/M
 
 #include <cstdint>
 #include <chrono>
+#include <thread>
 
 using namespace usbtingo;
 using namespace std::literals::chrono_literals;
@@ -283,7 +342,7 @@ Following is a minimal example on how to use the `Bus` to send and receive CAN m
 This is a shortened version of the `MinimalExampleBus.cpp`.
 Find the full code of this example [here](apps/examples/MinimalExampleBus/MinimalExampleBus.cpp).
 
-**MinimalExampleBasicBus.cpp**
+**MinimalExampleBus.cpp**
 ```c++
 #include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/bus/Bus.hpp"
@@ -341,7 +400,8 @@ int main(int argc, char *argv[])
     device::CanTxFrame tx_msg1;
     tx_msg1.id = testid;
     tx_msg1.dlc = can::Dlc::bytes_to_dlc(testdata.size());
-    tx_msg1.fdf = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    bool is_fd = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    tx_msg1.fdf = is_fd;
     std::copy(testdata.begin(), testdata.end(), tx_msg1.data.data());
 
     // Variant 2: Create a tx message with the Message class.
@@ -354,8 +414,8 @@ int main(int argc, char *argv[])
         bus->send(tx_msg1);   
         std::this_thread::sleep_for(1000ms);
         
-        // Send message with variant 2
-        bus->send(tx_msg2.to_CanTxFrame());   
+        // Send message with variant 2 (pass is_fd for CAN FD)
+        bus->send(tx_msg2.to_CanTxFrame(is_fd));   
         std::this_thread::sleep_for(1000ms);
 
         // Do something else ...
@@ -369,7 +429,7 @@ int main(int argc, char *argv[])
 
 <br>
 
-**MinimalBasicListener.hpp**
+**MinimalCanListener.hpp**
 ```c++
 #pragma once
 
@@ -395,9 +455,10 @@ Find the full code of this example [here](apps/examples/MinimalExampleLogicStrea
 
 
 **Calculating the sample rate**<br>
-The sample rate of the USBtingo is calculated as follows: **$samplerate = {120MHz}/{prescaler}$**.
-The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **47 kHz ... 40 Mhz**.
+The sample rate of the USBtingo is calculated as follows: **$samplerate = {120\,\mathrm{MHz}}/{prescaler}$**.
+The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **470 kHz ... 40 MHz**.
 If a sample rate outside of this interval is specified, it is automatically clamped to the upper or lower limit of this range.
+If `0` is passed as the sample rate, the rate is derived automatically from the CAN baudrate (10× the nominal or data baudrate, depending on the protocol).
 
 **Data returned by the logic analyzer**<br>
 The USBtingo transmits the logic data as 512 byte chunks with each bit representing a single logic value.
@@ -421,7 +482,7 @@ constexpr std::size_t       device_index    = 0;
 constexpr std::uint32_t     samplerate_hz   = 1000000;
 
 /**
- * @brief Minimal example of a program that opens a the logic data stream and prints it to the command line.
+ * @brief Minimal example of a program that opens the logic data stream and prints it to the command line.
  */
 int main(int argc, char *argv[])
 {

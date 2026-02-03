@@ -42,7 +42,7 @@ struct USBTINGO_EXPORT DeviceInfo {
   std::uint8_t fw_major  = 0;
   std::uint8_t hw_model  = 0;
   std::uint8_t channels  = 0;
-  std::uint32_t uniqe_id = 0;
+  std::uint32_t unique_id = 0;
   std::uint32_t clock_hz = 0;
 };
 
@@ -130,7 +130,7 @@ struct USBTINGO_EXPORT CanTxFrame {
   /**
    * @brief Convert a raw buffer from a USBtingo transmission to a CanTxFrame.
    * @param[out] buf_out Pointer to the raw buffer to which the raw buffer values are written.
-   * @param[in] buf Reference to the CanRxFrame which will be convereted to a raw buffer.
+   * @param[in] buf Reference to the CanRxFrame which will be converted to a raw buffer.
    * @return Returns true if operation succeeds. Returns false if the data in the input buffer has an invalid format.
    */
   static bool serialize_can_frame(uint8_t* buf_out, const CanTxFrame& frame);

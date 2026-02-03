@@ -1,0 +1,66 @@
+# Unit-test workflow: build and run unit tests on GitHub-hosted runners.
+# Integration tests and hardware-dependent tests (DeviceFactory, Bus, BasicBus,
+# canfd-brs) are not run, as runners have no connected USB devices.
+
+name: Unit tests
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            libusb-1.0-0-dev \
+            pkg-config
+
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DUSBTINGO_BUILD_TESTS=ON \
+            -DUSBTINGO_ENABLE_INTERACTIVE_TESTS=OFF \
+            -DUSBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES=OFF
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cmake -B build \
+            -G "Visual Studio 17 2022" \
+            -A x64 \
+            -DUSBTINGO_BUILD_TESTS=ON \
+            -DUSBTINGO_ENABLE_INTERACTIVE_TESTS=OFF \
+            -DUSBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Run unit tests (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd build && ctest -R unittest --output-on-failure
+
+      - name: Run unit tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd build && ctest -R unittest -C Release --output-on-failure

@@ -136,7 +136,7 @@ m2=n</panel_attributes><additional_attributes>10;10;160;10</additional_attribute
 + fw_major  : uint8_t 
 + hw_model  : uint8_t 
 + channels  : uint8_t 
-+ uniqe_id  : uint32_t
++ unique_id  : uint32_t
 + clock_hz  : uint32_t 
 
 --

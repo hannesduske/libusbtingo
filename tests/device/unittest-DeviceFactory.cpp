@@ -14,11 +14,10 @@ TEST_CASE("Unittest DeviceFactory", "[device_factory]") {
     auto dev = DeviceFactory::create(TEST_SN);
     CHECK(dev != nullptr);
     CHECK(dev->is_alive());
-    
   }
 
   SECTION("Instantiate invalid device through factory") {
-    std::vector<std::uint32_t> sn_vec = {1, 42 }; // Not 0!
+    std::vector<std::uint32_t> sn_vec = { 1, 42 }; // Not 0!
 
     for (const auto sn : sn_vec) {
       auto dev = DeviceFactory::create(sn);

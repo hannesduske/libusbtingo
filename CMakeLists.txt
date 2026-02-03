@@ -8,7 +8,7 @@ endif()
 # Project version
 set(CMAKE_PROJECT_VERSION_MAJOR 1)
 set(CMAKE_PROJECT_VERSION_MINOR 1)
-set(CMAKE_PROJECT_VERSION_PATCH 2)
+set(CMAKE_PROJECT_VERSION_PATCH 4)
 set(CMAKE_PROJECT_VERSION "${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH}")
 
 # Declare Project
@@ -18,6 +18,9 @@ project(libusbtingo
     HOMEPAGE_URL "https://github.com/hannesduske/libusbtingo"
     LANGUAGES CXX
 )
+
+# Includes and find modules
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Build Settings
 include(cmake/BuildSettings.cmake)
@@ -43,14 +46,13 @@ endif()
 
 # Tests
 if(USBTINGO_BUILD_TESTS)
-    include(CTest)
     add_subdirectory(tests)
 endif()
 
 # Packaging
 if(USBTINGO_INSTALL AND CMAKE_BUILD_TYPE MATCHES Release)
-    include(cmake/PackageGeneration.cmake REQUIERD)    
+    include(cmake/PackageGeneration.cmake REQUIRED)    
 endif()
 
 # Build Summary
-include(cmake/ShowSummary.cmake REQUIERD)
+include(cmake/ShowSummary.cmake REQUIRED)
