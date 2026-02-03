@@ -8,7 +8,7 @@ endif()
 # Project version
 set(CMAKE_PROJECT_VERSION_MAJOR 1)
 set(CMAKE_PROJECT_VERSION_MINOR 1)
-set(CMAKE_PROJECT_VERSION_PATCH 2)
+set(CMAKE_PROJECT_VERSION_PATCH 4)
 set(CMAKE_PROJECT_VERSION "${CMAKE_PROJECT_VERSION_MAJOR}.${CMAKE_PROJECT_VERSION_MINOR}.${CMAKE_PROJECT_VERSION_PATCH}")
 
 # Declare Project
@@ -49,8 +49,8 @@ endif()
 
 # Packaging
 if(USBTINGO_INSTALL AND CMAKE_BUILD_TYPE MATCHES Release)
-    include(cmake/PackageGeneration.cmake REQUIERD)    
+    include(cmake/PackageGeneration.cmake REQUIRED)    
 endif()
 
 # Build Summary
-include(cmake/ShowSummary.cmake REQUIERD)
+include(cmake/ShowSummary.cmake REQUIRED)

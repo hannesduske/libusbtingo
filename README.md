@@ -35,7 +35,7 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 
 > ℹ️
 It is possible to use libusb instead of the Windows SDK.
-Refer to the [USBTINGO_USE_WINAPI](#15-cmake-options) option for further details.
+Refer to the [USBTINGO_USE_WINAPI](#16-cmake-options) option for further details.
 This option has not been tested and might require some additional configuration of the CMake files.
 
 ## 1.2 Requirements for Linux
@@ -187,7 +187,7 @@ The returned `BasicBus` object is operational without any additional configurati
 
 ## 2.2 Bus
 The `Bus` interface offers full control over the USBtingo device and grants access to the raw data buffers that are exchanged with the USBtingo.
-This interface is more complex and is recommended in cases where simplified the BasicBus does not meet the application requirements.
+This interface is more complex and is recommended in cases where the simplified BasicBus does not meet the application requirements.
 
 `Bus` objects require a valid `Device` that has to be configured before passing it to a `Bus`.
 The `Device` configuration includes all CAN bus parameters, i.e. its protocol, baudrate and all advanced options.
@@ -195,7 +195,7 @@ Refer to [DeviceFactory](#24-devicefactory) for how to safely instantiate `Devic
 
 ## 2.3 Device
 The `Device` represents the connected USBtingo and implements all necessary interface methods.
-After creating a valid `Deivce` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
+After creating a valid `Device` with the `DeviceFactory` it has to be configured with the desired CAN parameters.
 After the configuration is complete, a `Device` can be used to instantiate a `BasicBus` or a `Bus` which handles all further communication with the USBtingo.
 
 > ℹ️
@@ -234,7 +234,7 @@ After the configuration, the program sends all entered messages on the CAN Bus.
  After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages arrive.
 
 > ℹ️
- Only one of the utility application can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
+ Only one of the utility applications can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
  
 # 4. Minimal examples
 
@@ -255,6 +255,7 @@ Find the full code of this example [here](apps/examples/MinimalExampleBasicBus/M
 
 #include <cstdint>
 #include <chrono>
+#include <thread>
 
 using namespace usbtingo;
 using namespace std::literals::chrono_literals;
@@ -330,7 +331,7 @@ Following is a minimal example on how to use the `Bus` to send and receive CAN m
 This is a shortened version of the `MinimalExampleBus.cpp`.
 Find the full code of this example [here](apps/examples/MinimalExampleBus/MinimalExampleBus.cpp).
 
-**MinimalExampleBasicBus.cpp**
+**MinimalExampleBus.cpp**
 ```c++
 #include "usbtingo/can/Dlc.hpp"
 #include "usbtingo/bus/Bus.hpp"
@@ -388,7 +389,8 @@ int main(int argc, char *argv[])
     device::CanTxFrame tx_msg1;
     tx_msg1.id = testid;
     tx_msg1.dlc = can::Dlc::bytes_to_dlc(testdata.size());
-    tx_msg1.fdf = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    bool is_fd = (protocol == device::Protocol::CAN_2_0) ? false : true;
+    tx_msg1.fdf = is_fd;
     std::copy(testdata.begin(), testdata.end(), tx_msg1.data.data());
 
     // Variant 2: Create a tx message with the Message class.
@@ -401,8 +403,8 @@ int main(int argc, char *argv[])
         bus->send(tx_msg1);   
         std::this_thread::sleep_for(1000ms);
         
-        // Send message with variant 2
-        bus->send(tx_msg2.to_CanTxFrame());   
+        // Send message with variant 2 (pass is_fd for CAN FD)
+        bus->send(tx_msg2.to_CanTxFrame(is_fd));   
         std::this_thread::sleep_for(1000ms);
 
         // Do something else ...
@@ -416,7 +418,7 @@ int main(int argc, char *argv[])
 
 <br>
 
-**MinimalBasicListener.hpp**
+**MinimalCanListener.hpp**
 ```c++
 #pragma once
 
@@ -442,8 +444,8 @@ Find the full code of this example [here](apps/examples/MinimalExampleLogicStrea
 
 
 **Calculating the sample rate**<br>
-The sample rate of the USBtingo is calculated as follows: **$samplerate = {120MHz}/{prescaler}$**.
-The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **47 kHz ... 40 Mhz**.
+The sample rate of the USBtingo is calculated as follows: **$samplerate = {120\,\mathrm{MHz}}/{prescaler}$**.
+The value of the prescaler is limited to the interval of 3 ... 255, resulting in sample rates between **470 kHz ... 40 MHz**.
 If a sample rate outside of this interval is specified, it is automatically clamped to the upper or lower limit of this range.
 
 **Data returned by the logic analyzer**<br>
@@ -468,7 +470,7 @@ constexpr std::size_t       device_index    = 0;
 constexpr std::uint32_t     samplerate_hz   = 1000000;
 
 /**
- * @brief Minimal example of a program that opens a the logic data stream and prints it to the command line.
+ * @brief Minimal example of a program that opens the logic data stream and prints it to the command line.
  */
 int main(int argc, char *argv[])
 {
