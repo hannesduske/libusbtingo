@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <catch2/catch_test_macros.hpp>
+#include <cstdint>
 
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
@@ -41,5 +43,12 @@ TEST_CASE("Integration Test DeviceFactory", "[device_factory]") {
     dev1.reset();
     auto dev3 = DeviceFactory::create(sn);
     REQUIRE(dev3);
+  }
+
+  SECTION("create with serial not in detected list returns nullptr") {
+    const auto max_sn = *std::max_element(sn_vec.begin(), sn_vec.end());
+    const std::uint32_t invalid_serial = max_sn + 1u;
+    auto dev = DeviceFactory::create(invalid_serial);
+    CHECK(dev == nullptr);
   }
 }

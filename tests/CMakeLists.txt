@@ -4,6 +4,7 @@ find_package(Catch2 3 REQUIRED)
 add_executable( unittest-usbtingo
     basic_bus/unittest-Message.cpp
     basic_bus/unittest-BasicListener.cpp
+    basic_bus/unittest-BasicBus.cpp
 
     bus/unittest-Bus.cpp
     bus/unittest-CanListener.cpp

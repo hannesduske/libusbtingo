@@ -104,12 +104,36 @@ public:
   }
 
   bool read_usbtingo_serial(std::uint32_t& serial) override {
+    if (!m_is_alive)
+      return false;
     serial = m_serial;
     return true;
   }
 
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/) override {
+    return m_write_control_succeeds;
+  }
+
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::vector<std::uint8_t>& /*data*/) override {
+    return m_write_control_succeeds;
+  }
+
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::uint8_t* /*data*/, std::uint16_t /*len*/) override {
+    return m_write_control_succeeds;
+  }
+
+  /**
+   * @brief Exposes protected process_can_buffer for unit testing.
+   */
+  bool test_process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<device::CanRxFrame>& rx_frames, std::vector<device::TxEventFrame>& tx_event_frames) {
+    return process_can_buffer(rx_buffer, rx_len, rx_frames, tx_event_frames);
+  }
+
+  void set_write_control_succeeds(bool value) { m_write_control_succeeds = value; }
+
 private:
   bool m_is_alive;
+  bool m_write_control_succeeds = false;
 
   device::CanRxFrame m_msg;
   std::promise<bool> m_new_msg_promise;
