@@ -42,3 +42,6 @@ release/
 # VS
 .vs/
 CMakeSettings.json
+
+# Test artifacts
+Testing/

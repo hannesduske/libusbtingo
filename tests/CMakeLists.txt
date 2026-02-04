@@ -33,6 +33,11 @@ target_link_libraries( unittest-usbtingo
     usbtingo
 )
 
+catch_discover_tests(unittest-usbtingo
+    PROPERTIES LABELS "unit"
+)
+
+
 # Integration Tests
 add_executable( integrationtest-usbtingo
     bus/integrationtest-Bus.cpp
@@ -58,25 +63,6 @@ target_link_libraries( integrationtest-usbtingo
     usbtingo
 )
 
-# Additional Standalone Tests
-add_executable( canfd-brs-test
-    bus/canfd_brs_test.cpp
-)
-
-target_include_directories( canfd-brs-test
-    PRIVATE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
-)
-
-target_link_libraries( canfd-brs-test
-    PRIVATE
-    Catch2::Catch2WithMain
-    usbtingo
-)
-
-# Option handling
 if(USBTINGO_ENABLE_INTERACTIVE_TESTS)
     target_compile_definitions(integrationtest-usbtingo PRIVATE
         ENABLE_INTERACTIVE_TESTS
@@ -89,12 +75,30 @@ if(USBTINGO_ENABLE_TESTS_WITH_OTHER_DEVICES)
     )
 endif()
 
-add_test(
-    NAME unittest
-    COMMAND unittest-usbtingo
+catch_discover_tests(integrationtest-usbtingo
+    PROPERTIES LABELS "integration"
 )
 
-add_test(
-    NAME integration_test
-    COMMAND integrationtest-usbtingo
+
+# Additional Standalone Tests
+add_executable( canfd-brs-test-usbtingo
+    bus/canfd_brs_test.cpp
 )
+
+target_include_directories( canfd-brs-test-usbtingo
+    PRIVATE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/tests>
+)
+
+target_link_libraries( canfd-brs-test-usbtingo
+    PRIVATE
+    Catch2::Catch2WithMain
+    usbtingo
+)
+
+# Not in the default test scope
+#catch_discover_tests(canfd-brs-test-usbtingo
+#    PROPERTIES LABELS "canfd-brs"
+#) 

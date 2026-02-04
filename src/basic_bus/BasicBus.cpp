@@ -1,7 +1,7 @@
 #include "usbtingo/basic_bus/BasicBus.hpp"
 
-#include "usbtingo/device/DeviceFactory.hpp"
 #include "device/DeviceProtocol.hpp"
+#include "usbtingo/device/DeviceFactory.hpp"
 
 namespace usbtingo {
 

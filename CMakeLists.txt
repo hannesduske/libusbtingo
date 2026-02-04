@@ -46,6 +46,7 @@ endif()
 
 # Tests
 if(USBTINGO_BUILD_TESTS)
+    include(CTest) # Including CTest here enables running "ctest" directly in the build directory
     add_subdirectory(tests)
 endif()
 
