@@ -15,10 +15,12 @@ using usbtingo::device::TxEventFrame;
 using usbtingo::device::CanRxFrame;
 using usbtingo::device::DeviceInfo;
 using usbtingo::device::Device;
+using usbtingo::device::Mode;
+using usbtingo::device::Protocol;
 
 TEST_CASE("Unittest Device, getters and setters", "[device]") {
   SECTION("Device setters and getters") {
-    MockDevice dev(0u, true);
+    MockDevice dev(0u, true, true);
     
     // Set and test Protocol
     CHECK(dev.set_protocol(Protocol::CAN_2_0) == true);

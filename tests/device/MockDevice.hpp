@@ -11,9 +11,10 @@ namespace test {
 
 class MockDevice : public device::Device {
 public:
-  MockDevice(uint32_t serial, bool is_alive)
+  MockDevice(uint32_t serial, bool is_alive = false, bool write_control_succeeds = false)
       : Device(serial)
       , m_is_alive(is_alive)
+      , m_write_control_succeeds(write_control_succeeds)
       , m_msg({ 0 })
       , m_status() {}
 
@@ -133,7 +134,7 @@ public:
 
 private:
   bool m_is_alive;
-  bool m_write_control_succeeds = false;
+  bool m_write_control_succeeds;
 
   device::CanRxFrame m_msg;
   std::promise<bool> m_new_msg_promise;
