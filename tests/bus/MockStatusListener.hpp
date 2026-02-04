@@ -16,29 +16,30 @@ public:
       : StatusListener()
       , m_new_status(false)
       , m_last_status() {
+  }
 
-      };
-
-  void on_status_update(device::StatusFrame status) override {
+  void on_status_update(const device::StatusFrame& status) override {
     std::lock_guard<std::mutex> guard(m_mutex);
     m_new_status  = true;
     m_last_status = status;
-  };
+  }
 
   bool has_new_status() {
     std::lock_guard<std::mutex> guard(m_mutex);
     bool val     = m_new_status;
     m_new_status = false;
     return val;
-  };
+  }
 
-  device::StatusFrame get_new_status() const { return m_last_status; };
+  device::StatusFrame get_new_status() const {
+    std::lock_guard<std::mutex> guard(m_mutex);
+    return m_last_status;
+  }
 
 private:
+  mutable std::mutex m_mutex;
   bool m_new_status;
   device::StatusFrame m_last_status;
-
-  std::mutex m_mutex;
 };
 
 } // namespace test

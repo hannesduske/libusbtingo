@@ -9,7 +9,7 @@ using namespace usbtingo;
 
 class MinimalLogicListener : public usbtingo::bus::LogicListener {
 public:
-  void on_logic_receive(const device::LogicFrame msg) override {
+  void on_logic_receive(const device::LogicFrame& msg) override {
     // Do something with the received message, e.g. print it to the command line
     const auto& data = msg.data;
     for (std::size_t i = 0; i < data.size(); ++i) {

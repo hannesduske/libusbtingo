@@ -77,7 +77,7 @@ TEST_CASE("Integration test DLC conversion with real device", "[dlc][integration
         }
       }
 
-      const bool success = bus->send(msg, true);
+      const bool success = bus->send(msg);
       std::cout << (success ? " [OK]" : " [FAIL]") << std::endl;
       CHECK(success);
 

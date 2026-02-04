@@ -10,7 +10,7 @@ using namespace usbtingo;
 
 class MinimalCanListener : public usbtingo::bus::CanListener {
 public:
-  void on_can_receive(const device::CanRxFrame msg) override {
+  void on_can_receive(const device::CanRxFrame& msg) override {
     // Do something with the received message, e.g. print it to the command line
     auto len = can::Dlc::dlc_to_bytes(static_cast<std::uint8_t>(msg.dlc));
 
