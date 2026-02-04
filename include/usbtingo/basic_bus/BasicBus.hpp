@@ -6,7 +6,6 @@
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
 
-
 namespace usbtingo {
 
 namespace bus {
@@ -62,7 +61,7 @@ public:
    * @param[in] is_fd Flag to indicate if the message is a CAN FD message.
    * @return Returns true if operation succeeds.
    */
-  bool send(const bus::Message msg, bool is_fd=false);
+  bool send(const bus::Message& msg);
 };
 
 } // namespace bus

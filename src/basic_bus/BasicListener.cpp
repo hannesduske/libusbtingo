@@ -1,9 +1,6 @@
 #include "usbtingo/basic_bus/BasicListener.hpp"
 
-#include <algorithm>
-
 #include "usbtingo/can/Dlc.hpp"
-
 
 namespace usbtingo {
 
@@ -25,12 +22,20 @@ std::vector<std::uint32_t> BasicListener::get_ids() {
   return CanListener::get_ids();
 }
 
-void BasicListener::on_can_receive(const device::CanRxFrame msg) {
+void BasicListener::on_can_receive(const device::CanRxFrame& msg) {
   on_can_receive(Message(msg));
 }
 
-void BasicListener::forward_can_message(const device::CanRxFrame msg) {
+void BasicListener::forward_can_message(const device::CanRxFrame& msg) {
   CanListener::forward_can_message(msg);
+}
+
+CanListener* BasicListener::as_can_listener() {
+  return static_cast<CanListener*>(this);
+}
+
+const CanListener* BasicListener::as_can_listener() const {
+  return static_cast<const CanListener*>(this);
 }
 
 } // namespace bus

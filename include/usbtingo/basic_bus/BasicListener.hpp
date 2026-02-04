@@ -14,6 +14,11 @@ namespace bus {
 class USBTINGO_EXPORT BasicListener : private CanListener {
 public:
   /**
+   * @brief Virtual destructor for proper cleanup of derived classes.
+   */
+  virtual ~BasicListener() = default;
+
+  /**
    * @brief Clear any previously set Can id filters.
    * @return Returns true if operation succeeds.
    */
@@ -43,19 +48,30 @@ public:
    */
   virtual void on_can_receive(const bus::Message msg) = 0;
 
-public:
   /**
    * @brief Message forwarding that is called by the BasicBus to trigger the on_can_receive() callback.
    * @param[in] msg New Can message
    */
-  void forward_can_message(device::CanRxFrame msg);
+  void forward_can_message(const device::CanRxFrame& msg);
+
+  /**
+   * @brief Get pointer to the underlying CanListener base class.
+   * @return Pointer to CanListener base
+   */
+  CanListener* as_can_listener();
+
+  /**
+   * @brief Get pointer to the underlying CanListener base class.
+   * @return Pointer to CanListener base
+   */
+  const CanListener* as_can_listener() const;
 
 private:
   /**
    * @brief Implementation of the message callback of the CanListener base class.
    * @param[in] msg New Can message
    */
-  void on_can_receive(device::CanRxFrame msg) override;
+  void on_can_receive(const device::CanRxFrame& msg) override;
 };
 
 } // namespace bus
