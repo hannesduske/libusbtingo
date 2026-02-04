@@ -328,7 +328,7 @@ using namespace usbtingo;
 
 class MinimalBasicListener : public usbtingo::bus::BasicListener{
 public:
-    void on_can_receive(const usbtingo::bus::Message msg) override
+    void on_can_receive(const usbtingo::bus::Message& msg) override
     {
         // This callback is executed whenever a new CAN message is received.
         // Do something with the received message here, e.g. print it to the command line ...
@@ -439,7 +439,7 @@ using namespace usbtingo;
 
 class MinimalCanListener : public usbtingo::bus::CanListener{
 public:
-    void on_can_receive(const device::CanRxFrame msg) override
+    void on_can_receive(const device::CanRxFrame& msg) override
     {
         // This callback is executed whenever a new CAN message is received.
         // Do something with the received message here, e.g. print it to the command line ...
@@ -530,7 +530,7 @@ using namespace usbtingo;
 
 class MinimalLogicListener : public usbtingo::bus::LogicListener{
 public:
-    void on_logic_receive(const device::LogicFrame msg) override
+    void on_logic_receive(const device::LogicFrame& data) override
     {
         // This callback is executed whenever a new logic frame is received.
         // Do something with the received data here, e.g. print it to the command line or save it to a file...
