@@ -12,6 +12,7 @@
 #include <thread>
 #include <vector>
 
+#include "device/DeviceProtocol.hpp"
 #include "usbtingo/bus/CanListener.hpp"
 #include "usbtingo/bus/LogicListener.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
@@ -52,9 +53,6 @@ public:
 
 private:
   void listener();
-
-  static constexpr auto LISTENER_THREAD_DELAY  = std::chrono::microseconds(10);
-  static constexpr auto STATE_TRANSITION_TIMEOUT  = std::chrono::seconds(5);
 
   std::unique_ptr<device::Device> m_device;
 

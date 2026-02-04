@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <chrono>
 #include <cstdint>
 #include <string>
@@ -64,8 +63,11 @@ constexpr std::uint8_t USBTINGO_FLAGS_EFBI = 0x02;
 constexpr std::uint8_t USBTINGO_FLAGS_PXHD = 0x03;
 constexpr std::uint8_t USBTINGO_FLAGS_DAR  = 0x04;
 
-static constexpr auto USBTINGO_THREAD_DELAY = std::chrono::microseconds(10);
-constexpr unsigned long TIMESTAMP_FACTOR    = 100000;
+constexpr std::uint8_t USBTINGO_FLAGS_DISABLE_AUTO_RETRANSMIT = 0x10;
+
+static constexpr auto USBTINGO_THREAD_DELAY           = std::chrono::microseconds(10);
+static constexpr auto USBTINGO_LISTENER_THREAD_DELAY  = std::chrono::microseconds(10);
+static constexpr auto USBTINGO_STATE_TRANSITION_TIMEOUT = std::chrono::seconds(5);
 
 static constexpr std::uint16_t serialize_uint16(std::uint8_t a0, std::uint8_t a1) {
   return std::uint16_t((a0 << 0) | (a1 << 8));

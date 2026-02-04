@@ -31,7 +31,7 @@ bool BusImpl::start() {
 
   // Wait for thread to reach LISTENING state using condition variable
   std::unique_lock<std::mutex> lock(m_state_mutex);
-  bool reached = m_state_cv.wait_for(lock, STATE_TRANSITION_TIMEOUT, [this]() {
+  bool reached = m_state_cv.wait_for(lock, device::USBTINGO_STATE_TRANSITION_TIMEOUT, [this]() {
     return m_listener_state.load() == ListenerState::LISTENING;
   });
 
@@ -64,7 +64,7 @@ bool BusImpl::stop() {
 
   // Wait for state to return to IDLE
   std::unique_lock<std::mutex> lock(m_state_mutex);
-  m_state_cv.wait_for(lock, STATE_TRANSITION_TIMEOUT, [this]() {
+  m_state_cv.wait_for(lock, device::USBTINGO_STATE_TRANSITION_TIMEOUT, [this]() {
     return m_listener_state.load() == ListenerState::IDLE;
   });
 
@@ -289,7 +289,7 @@ void BusImpl::listener() {
       status_future = m_device->request_status_async();
     }
 
-    std::this_thread::sleep_for(LISTENER_THREAD_DELAY);
+    std::this_thread::sleep_for(device::USBTINGO_LISTENER_THREAD_DELAY);
   }
 
   // Cancel async requests before exiting
