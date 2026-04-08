@@ -5,6 +5,8 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <mutex>
+#include <set>
 #include <string>
 #include <thread>
 #include <vector>
@@ -106,6 +108,29 @@ public:
    * @return Returns true if setting the mode succeeded
    */
   bool set_mode(Mode mode);
+  /**
+   * @brief Get the protocol of the device.
+   * @return Returns the current protocol of the device.
+   */
+  Protocol get_protocol() const;
+
+  /**
+   * @brief Get the baudrate of the device.
+   * @return Returns the current baudrate of the device.
+   */
+  std::uint32_t get_baudrate() const;
+
+  /**
+   * @brief Get the data baudrate of the device.
+   * @return Returns the current data baudrate of the device.
+   */
+  std::uint32_t get_data_baudrate() const;
+
+  /**
+   * @brief Get the mode of the device.
+   * @return Returns the current mode of the device.
+   */
+  Mode get_mode() const;
 
   /**
    * @brief Clear the error counter overflow flags.
@@ -268,6 +293,9 @@ public:
   bool read_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data, std::size_t len);
 
 protected:
+  using Mutex = std::recursive_mutex;
+  using LockGuard = std::lock_guard<Mutex>;
+
   /**
    * @brief Private constructor. Use the DeviceFactory to instantiate reals devices.
    */
@@ -303,6 +331,18 @@ protected:
   virtual bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len);
 
   virtual bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len);
+
+  /**
+   * @brief Get the mutex protecting access to the existing devices set
+   * @return Reference to the recursive mutex
+   */
+  static Mutex& get_existing_devs_mutex();
+
+  /**
+   * @brief Get the set of serial numbers of all existing device instances
+   * @return Reference to the set of existing device serials
+   */
+  static std::set<std::uint32_t>& get_existing_devs();
 
 protected:
   std::uint32_t m_serial;

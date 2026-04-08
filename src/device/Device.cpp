@@ -33,6 +33,16 @@ Device::~Device() {
   // close();
 }
 
+Device::Mutex& Device::get_existing_devs_mutex() {
+  static auto* s_mutex = new Mutex;
+  return *s_mutex;
+}
+
+std::set<std::uint32_t>& Device::get_existing_devs() {
+  static auto* s_existing_devs = new std::set<std::uint32_t>;
+  return *s_existing_devs;
+}
+
 std::uint32_t Device::get_serial() const {
   return m_serial;
 }
@@ -78,28 +88,48 @@ bool Device::start_logic_stream(std::uint32_t samplerate_hz) {
 }
 
 bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_len, std::vector<CanRxFrame>& rx_frames, std::vector<TxEventFrame>& tx_event_frames) {
+  if (!rx_buffer || rx_len == 0) {
+    return true; // Empty buffer is valid
+  }
 
-  std::size_t msg_idx = 0, package_counter = 0;
+  std::size_t msg_idx = 0;
+  std::size_t package_counter = 0;
 
-  // package_counter as timeout, theoretically max. 42 tx_event messages per transfer
+  // Package counter as safety limit - max. ~42 tx_event messages per transfer
   while (msg_idx < rx_len && package_counter < USB_BULK_MAX_MESSAGE_COUNT) {
-
-    if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_CAN) {
-      CanRxFrame rx_frame = { 0 };
-      if (CanRxFrame::deserialize_can_frame(&rx_buffer[msg_idx], rx_frame))
-        rx_frames.push_back(rx_frame);
-    } else if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_TXEVENT) {
-      TxEventFrame tx_event_frame = { 0 };
-      if (TxEventFrame::deserialize_tx_event(&rx_buffer[msg_idx], tx_event_frame))
-        tx_event_frames.push_back(tx_event_frame);
-    } else if (rx_buffer[msg_idx] == USBTINGO_RXMSG_TYPE_PADDING) {
+    // Bounds check: ensure we can read the message type and length bytes
+    if (msg_idx + USBTINGO_HEADER_SIZE_BYTES > rx_len) {
+      break; // Not enough data for header
     }
 
-    msg_idx += USBTINGO_HEADER_SIZE_BYTES + (rx_buffer[msg_idx + 1] * 4);
+    const std::uint8_t msg_type = rx_buffer[msg_idx];
+    const std::uint8_t msg_length_words = rx_buffer[msg_idx + 1];
+    const std::size_t msg_data_size = static_cast<std::size_t>(msg_length_words) * 4;
+    const std::size_t total_msg_size = USBTINGO_HEADER_SIZE_BYTES + msg_data_size;
+
+    // Bounds check: ensure the full message is within buffer
+    if (msg_idx + total_msg_size > rx_len) {
+      break; // Message extends beyond buffer
+    }
+
+    if (msg_type == USBTINGO_RXMSG_TYPE_CAN) {
+      CanRxFrame rx_frame = {0};
+      if (CanRxFrame::deserialize_can_frame(&rx_buffer[msg_idx], rx_frame)) {
+        rx_frames.push_back(rx_frame);
+      }
+    } else if (msg_type == USBTINGO_RXMSG_TYPE_TXEVENT) {
+      TxEventFrame tx_event_frame = {0};
+      if (TxEventFrame::deserialize_tx_event(&rx_buffer[msg_idx], tx_event_frame)) {
+        tx_event_frames.push_back(tx_event_frame);
+      }
+    }
+    // USBTINGO_RXMSG_TYPE_PADDING (0x80) is silently skipped
+
+    msg_idx += total_msg_size;
     package_counter++;
   }
 
-  return (package_counter < USB_BULK_MAX_MESSAGE_COUNT) ? true : false;
+  return package_counter < USB_BULK_MAX_MESSAGE_COUNT;
 }
 
 bool Device::set_mode(Mode mode) {
@@ -130,6 +160,21 @@ bool Device::set_baudrate(std::uint32_t baudrate, std::uint32_t baudrate_data) {
 
   success = write_control(USBTINGO_CMD_SET_BAUDRATE, 1, 0, reinterpret_cast<std::uint8_t*>(&baudrate_data), 4);
   return success;
+}
+Protocol Device::get_protocol() const {
+  return m_protocol;
+}
+
+std::uint32_t Device::get_baudrate() const {
+  return m_baudrate;
+}
+
+std::uint32_t Device::get_data_baudrate() const {
+  return m_baudrate_data;
+}
+
+Mode Device::get_mode() const {
+  return m_mode;
 }
 
 bool Device::clear_errors() {

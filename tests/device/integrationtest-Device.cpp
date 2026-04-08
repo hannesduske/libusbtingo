@@ -254,7 +254,6 @@ TEST_CASE("Integration Test Device, I/O Operation", "[device]") {
 
 #ifdef ENABLE_INTERACTIVE_TESTS
     std::string response;
-    std::cin.ignore();
     std::cout << "Sending ONE CAN 2.0 message at a baudrate of " << baud << " after pressing ENTER ..." << std::endl;
     while (std::cin.get() != '\n') {
     }

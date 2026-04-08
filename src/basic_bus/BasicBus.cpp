@@ -1,5 +1,6 @@
 #include "usbtingo/basic_bus/BasicBus.hpp"
 
+#include "device/DeviceProtocol.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 
 namespace usbtingo {
@@ -16,15 +17,17 @@ std::unique_ptr<BasicBus> BasicBus::create(std::uint32_t baudrate, std::uint32_t
 
 std::unique_ptr<BasicBus> BasicBus::create(std::size_t idx, std::uint32_t baudrate, std::uint32_t data_baudrate, device::Protocol protocol, device::Mode mode) {
   auto serial_vec = device::DeviceFactory::detect_available_devices();
-  if (serial_vec.size() <= idx)
+  if (serial_vec.size() <= idx) {
     return nullptr;
+  }
 
   auto device = device::DeviceFactory::create(serial_vec.at(idx));
-  if (!device)
+  if (!device) {
     return nullptr;
+  }
 
   device->set_mode(device::Mode::OFF);
-  device->set_protocol(protocol, 0b00010000); // disable automatic retransmission of failed messages
+  device->set_protocol(protocol, device::USBTINGO_FLAGS_DISABLE_AUTO_RETRANSMIT);
   device->set_baudrate(baudrate, data_baudrate);
   device->set_mode(mode);
 
@@ -32,16 +35,22 @@ std::unique_ptr<BasicBus> BasicBus::create(std::size_t idx, std::uint32_t baudra
 }
 
 bool BasicBus::add_listener(bus::BasicListener* listener) {
-  return Bus::add_listener(reinterpret_cast<bus::CanListener*>(listener));
+  if (!listener) {
+    return false;
+  }
+  return Bus::add_listener(listener->as_can_listener());
 }
 
 bool BasicBus::remove_listener(const bus::BasicListener* listener) {
-  return Bus::remove_listener(reinterpret_cast<const bus::CanListener*>(listener));
+  if (!listener) {
+    return false;
+  }
+  return Bus::remove_listener(listener->as_can_listener());
 }
 
-bool BasicBus::send(const bus::Message msg) {
-  // auto is_fd = !m_pimpl->device->get_protocol() == Protocol::CAN_2_0;
-  return Bus::send(msg.to_CanTxFrame());
+bool BasicBus::send(const bus::Message& msg) {
+  const bool is_fd = (get_device()->get_protocol() != device::Protocol::CAN_2_0);
+  return Bus::send(msg.to_CanTxFrame(is_fd));
 }
 
 } // namespace bus

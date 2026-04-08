@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
@@ -30,16 +31,6 @@ public:
 
   bool is_open() const override;
 
-  /*
-      bool clear_errors() override;
-
-      bool disable_all_filters() override;
-
-      bool add_std_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) override;
-
-      bool add_ext_filter(std::uint8_t filterid, std::uint32_t enabled, std::uint32_t filter, std::uint32_t mask) override;
-  */
-
   bool cancel_async_can_request() override;
 
   bool cancel_async_logic_request() override;
@@ -59,36 +50,43 @@ public:
   bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
+  bool allocate_transfers();
+  void free_transfers();
+  void setup_transfer(libusb_transfer* transfer, std::uint8_t endpoint, unsigned char* buffer, int length, libusb_transfer_type type);
+
   UniversalHandle m_device_data;
 
-  libusb_transfer* m_async_status;
-  libusb_transfer* m_async_logic;
-  libusb_transfer* m_async_can;
+  libusb_transfer* m_async_status = nullptr;
+  libusb_transfer* m_async_logic  = nullptr;
+  libusb_transfer* m_async_can    = nullptr;
 
+  // Mutex to protect promise access and prevent race conditions
+  std::mutex m_promise_mutex;
   std::promise<bool> m_promise_status;
   std::promise<bool> m_promise_logic;
   std::promise<bool> m_promise_can;
 
-  static std::set<std::uint32_t>& get_existing_devs();
-
   void handle_can_async_callback(libusb_transfer* transfer);
-
   void handle_logic_async_callback(libusb_transfer* transfer);
-
   void handle_status_async_callback(libusb_transfer* transfer);
 
   static std::map<std::uint32_t, libusb_device*> detect_usbtingos();
 
+  /**
+   * @brief Parse a serial number string to uint32_t with exception handling.
+   * @param buffer Buffer containing the serial number string
+   * @param serial Output serial number
+   * @return true if parsing succeeded, false otherwise
+   */
+  static bool parse_serial_number(const unsigned char* buffer, std::uint32_t& serial);
+
   bool read_usbtingo_serial(std::uint32_t& serial) override;
 
   bool write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) override;
-
   bool read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) override;
 
   bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx) override;
-
   bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data) override;
-
   bool write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len) override;
 
   bool read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) override;

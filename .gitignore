@@ -2,7 +2,7 @@
 *.d
 
 # Build directories
-build/
+build*/
 debug/
 release/
 
@@ -42,3 +42,6 @@ release/
 # VS
 .vs/
 CMakeSettings.json
+
+# Test artifacts
+Testing/

@@ -2,19 +2,21 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <future>
 #include <memory>
 #include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <thread>
 #include <vector>
 
+#include "device/DeviceProtocol.hpp"
 #include "usbtingo/bus/CanListener.hpp"
 #include "usbtingo/bus/LogicListener.hpp"
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
-
 
 namespace usbtingo {
 
@@ -22,7 +24,9 @@ namespace bus {
 
 enum class ListenerState {
   IDLE,
+  STARTING,
   LISTENING,
+  STOPPING,
   SHUTDOWN
 };
 
@@ -41,31 +45,28 @@ public:
   bool remove_listener(const bus::LogicListener* listener);
   bool remove_listener(const bus::StatusListener* listener);
 
-  bool send(const device::CanTxFrame msg);
+  bool send(const device::CanTxFrame& msg);
   bool start_logic_stream(std::uint32_t samplerate_hz);
   bool stop_logic_stream();
 
+  device::Device* get_device() const;
+
 private:
-  // void get_device(device::SerialNumber sn);
-  // std::chrono::time_point<std::chrono::system_clock> timestamp_convert();
-  // bool recv_internal(const can::Message& msg, std::chrono::milliseconds timeout);
-  // bool tx_prepare_buffer();
-  // bool command_write(device::Command);
-  // bool register_read(std::uint8_t addr, device::Register& reg);
-  // bool register_write(device::Register reg);
-  // bool deviceinfo_read();
-  // bool apply_filters(std::vector<can::Filter> filter);
+  void listener();
 
   std::unique_ptr<device::Device> m_device;
 
+  // Listener vectors protected by shared mutex for read-heavy access patterns
+  mutable std::shared_mutex m_listener_mutex;
   std::vector<bus::CanListener*> m_can_listener_vec;
   std::vector<bus::LogicListener*> m_logic_listener_vec;
   std::vector<bus::StatusListener*> m_status_listener_vec;
 
+  // State management with condition variable for efficient synchronization
   std::atomic<ListenerState> m_listener_state;
+  std::mutex m_state_mutex;
+  std::condition_variable m_state_cv;
   std::unique_ptr<std::thread> m_listener_thread;
-
-  bool listener();
 };
 
 } // namespace bus

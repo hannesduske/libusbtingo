@@ -57,6 +57,9 @@ target_include_directories(usbtingo PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+target_include_directories(usbtingo PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 if(USBTINGO_USE_WINAPI)
   # Build for Windows with Windows API

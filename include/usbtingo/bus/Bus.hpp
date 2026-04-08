@@ -90,7 +90,7 @@ public:
    * @param[in] msg Message to be sent on the Can bus. The CanTxFrame has to be configured manually before passing it to the send method.
    * @return Returns true if operation succeeds.
    */
-  bool send(const device::CanTxFrame msg);
+  bool send(const device::CanTxFrame& msg);
 
   /**
    * @brief Start the logic data stream.
@@ -111,6 +111,13 @@ public:
 
   Bus(const Bus&)            = delete;
   Bus& operator=(const Bus&) = delete;
+
+protected:
+  /**
+  * @brief Get the device pointer of the Bus.
+  * @return Pointer to the device.
+  */
+  device::Device* get_device();
 
 private:
   std::unique_ptr<BusImpl> m_pimpl;

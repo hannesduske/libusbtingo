@@ -58,9 +58,9 @@ jobs:
       - name: Run unit tests (Linux)
         if: runner.os == 'Linux'
         run: |
-          cd build && ctest -R unittest --output-on-failure
+          ctest --test-dir build -L unit --output-on-failure
 
       - name: Run unit tests (Windows)
         if: runner.os == 'Windows'
         run: |
-          cd build && ctest -R unittest -C Release --output-on-failure
+          ctest --test-dir build -L unit -C Release --output-on-failure

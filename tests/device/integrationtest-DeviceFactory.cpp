@@ -15,6 +15,24 @@ TEST_CASE("Integration Test DeviceFactory", "[device_factory]") {
     FAIL("At least one USBtingo device must be connected to run this test.");
   }
 
+  SECTION("Instantiate valid device from serial number 0") {
+    constexpr std::uint32_t TEST_SN = 0;
+
+    auto dev = DeviceFactory::create(TEST_SN);
+    CHECK(dev != nullptr);
+    CHECK(dev->is_alive());
+  }
+
+  SECTION("Instantiate invalid device through factory") {
+    std::vector<std::uint32_t> sn_vec = { 1, 42 }; // Not 0!
+
+    for (const auto sn : sn_vec) {
+      auto dev = DeviceFactory::create(sn);
+
+      CHECK(dev == nullptr);
+    }
+  }
+
   SECTION("List and instantiate connected devices") {
     for (const auto& sn : sn_vec) {
       auto dev = DeviceFactory::create(sn);
