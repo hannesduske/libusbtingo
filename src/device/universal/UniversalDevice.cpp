@@ -10,16 +10,6 @@ namespace usbtingo {
 
 namespace device {
 
-std::mutex& UniversalDevice::get_existing_devs_mutex() {
-  static auto* s_mutex = new std::mutex;
-  return *s_mutex;
-}
-
-std::set<std::uint32_t>& UniversalDevice::get_existing_devs() {
-  static auto* s_existing_devs = new std::set<std::uint32_t>;
-  return *s_existing_devs;
-}
-
 bool UniversalDevice::parse_serial_number(const unsigned char* buffer, std::uint32_t& serial) {
   try {
     serial = static_cast<std::uint32_t>(std::stoul(reinterpret_cast<const char*>(buffer), nullptr, 16));
@@ -150,6 +140,9 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
       }
     };
   }
+
+  LockGuard lock(get_existing_devs_mutex());
+  get_existing_devs().insert(m_serial);
 }
 
 UniversalDevice::~UniversalDevice() {
@@ -157,13 +150,12 @@ UniversalDevice::~UniversalDevice() {
   free_transfers();
 
   // Remove from existing devices set with thread safety
-  std::lock_guard<std::mutex> lock(get_existing_devs_mutex());
-  auto& existing_devs = get_existing_devs();
-  existing_devs.erase(m_serial);
+  LockGuard lock(get_existing_devs_mutex());
+  get_existing_devs().erase(m_serial);
 }
 
 std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial) {
-  std::lock_guard<std::mutex> lock(get_existing_devs_mutex());
+  LockGuard lock(get_existing_devs_mutex());
   auto& existing_devs = get_existing_devs();
 
   // Only one instance per unique device
@@ -197,7 +189,6 @@ std::unique_ptr<Device> UniversalDevice::create_device(std::uint32_t serial) {
     return nullptr;
   }
 
-  existing_devs.insert(serial);
   return device;
 }
 

@@ -66,10 +66,6 @@ private:
   std::promise<bool> m_promise_logic;
   std::promise<bool> m_promise_can;
 
-  // Static mutex for protecting access to the existing devices set
-  static std::mutex& get_existing_devs_mutex();
-  static std::set<std::uint32_t>& get_existing_devs();
-
   void handle_can_async_callback(libusb_transfer* transfer);
   void handle_logic_async_callback(libusb_transfer* transfer);
   void handle_status_async_callback(libusb_transfer* transfer);

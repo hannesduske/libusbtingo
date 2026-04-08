@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <array>
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
@@ -69,8 +70,6 @@ public:
   bool receive_status_async(StatusFrame& status_frame) override;
 
 private:
-  static std::set<std::uint32_t> m_existing_devs;
-
   WinHandle m_device_data;
 
   OVERLAPPED m_async_status;

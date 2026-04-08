@@ -33,6 +33,16 @@ Device::~Device() {
   // close();
 }
 
+Device::Mutex& Device::get_existing_devs_mutex() {
+  static auto* s_mutex = new Mutex;
+  return *s_mutex;
+}
+
+std::set<std::uint32_t>& Device::get_existing_devs() {
+  static auto* s_existing_devs = new std::set<std::uint32_t>;
+  return *s_existing_devs;
+}
+
 std::uint32_t Device::get_serial() const {
   return m_serial;
 }
