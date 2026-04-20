@@ -1,10 +1,15 @@
+/**
+ * @file DeviceFactory.hpp
+ * @brief Factory for creating USBtingo device instances
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <memory>
 #include <vector>
 
 #include "usbtingo/device/Device.hpp"
-
 
 namespace usbtingo {
 

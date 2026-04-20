@@ -1,10 +1,15 @@
+/**
+ * @file CanListener.hpp
+ * @brief CAN message listener interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <vector>
 
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 

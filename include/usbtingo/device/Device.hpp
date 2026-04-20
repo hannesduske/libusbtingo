@@ -1,3 +1,9 @@
+/**
+ * @file Device.hpp
+ * @brief USBtingo device interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <atomic>
@@ -13,7 +19,6 @@
 
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 
@@ -293,7 +298,7 @@ public:
   bool read_mcan_registers(std::uint16_t address, std::vector<uint32_t>& data, std::size_t len);
 
 protected:
-  using Mutex = std::recursive_mutex;
+  using Mutex     = std::recursive_mutex;
   using LockGuard = std::lock_guard<Mutex>;
 
   /**

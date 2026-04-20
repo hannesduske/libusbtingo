@@ -1,3 +1,9 @@
+/**
+ * @file USBtingoDetect.cpp
+ * @brief Utility to detect connected USBtingo devices
+ * @author Hannes Duske
+ */
+
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -5,7 +11,6 @@
 #include <thread>
 
 #include "usbtingo/device/DeviceFactory.hpp"
-
 
 using namespace std::literals::chrono_literals;
 

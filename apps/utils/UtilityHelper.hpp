@@ -1,3 +1,9 @@
+/**
+ * @file UtilityHelper.hpp
+ * @brief Helper functions for utility applications
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <cstdint>

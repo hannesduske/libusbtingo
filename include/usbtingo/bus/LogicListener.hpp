@@ -1,3 +1,9 @@
+/**
+ * @file LogicListener.hpp
+ * @brief Logic analyzer data listener interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include "usbtingo/device/DeviceHelper.hpp"

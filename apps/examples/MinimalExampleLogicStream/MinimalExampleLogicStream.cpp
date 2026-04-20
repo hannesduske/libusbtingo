@@ -1,3 +1,9 @@
+/**
+ * @file MinimalExampleLogicStream.cpp
+ * @brief Example demonstrating logic stream usage with the USBtingo
+ * @author Hannes Duske
+ */
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -6,7 +12,6 @@
 #include "usbtingo/device/DeviceFactory.hpp"
 
 #include "MinimalLogicListener.hpp"
-
 
 using namespace usbtingo;
 using namespace std::literals::chrono_literals;

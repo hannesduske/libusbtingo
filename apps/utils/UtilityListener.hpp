@@ -1,10 +1,15 @@
+/**
+ * @file UtilityListener.hpp
+ * @brief Listener implementation for utility applications
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <iostream>
 #include <usbtingo/basic_bus/BasicListener.hpp>
 
 #include "UtilityHelper.hpp"
-
 
 class UtilityListener : public usbtingo::bus::BasicListener {
 public:

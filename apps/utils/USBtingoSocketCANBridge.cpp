@@ -1,3 +1,9 @@
+/**
+ * @file USBtingoSocketCANBridge.cpp
+ * @brief Bridge between USBtingo and SocketCAN
+ * @author Hannes Duske
+ */
+
 #include <atomic>
 #include <csignal>
 #include <cstring>

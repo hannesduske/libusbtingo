@@ -1,10 +1,15 @@
+/**
+ * @file DeviceHelper.hpp
+ * @brief Helper types and functions for USBtingo devices
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <array>
 #include <cstdint>
 
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 
@@ -38,12 +43,12 @@ typedef std::array<std::uint8_t, 512> BulkBuffer;
  * @brief Object representing the DeviceInfo stored on the USBtingo.
  */
 struct USBTINGO_EXPORT DeviceInfo {
-  std::uint8_t fw_minor  = 0;
-  std::uint8_t fw_major  = 0;
-  std::uint8_t hw_model  = 0;
-  std::uint8_t channels  = 0;
+  std::uint8_t fw_minor   = 0;
+  std::uint8_t fw_major   = 0;
+  std::uint8_t hw_model   = 0;
+  std::uint8_t channels   = 0;
   std::uint32_t unique_id = 0;
-  std::uint32_t clock_hz = 0;
+  std::uint32_t clock_hz  = 0;
 };
 
 /**

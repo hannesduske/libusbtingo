@@ -1,3 +1,9 @@
+/**
+ * @file McanProtocol.hpp
+ * @brief MCAN protocol definitions
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <cstdint>

@@ -1,9 +1,14 @@
+/**
+ * @file MinimalLogicListener.hpp
+ * @brief Example logic listener implementation
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <bitset>
 #include <iostream>
 #include <usbtingo/bus/LogicListener.hpp>
-
 
 using namespace usbtingo;
 

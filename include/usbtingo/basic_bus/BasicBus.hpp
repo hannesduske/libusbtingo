@@ -1,3 +1,9 @@
+/**
+ * @file BasicBus.hpp
+ * @brief Basic CAN bus interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <memory>

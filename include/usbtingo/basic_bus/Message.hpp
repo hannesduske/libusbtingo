@@ -1,3 +1,9 @@
+/**
+ * @file Message.hpp
+ * @brief Basic bus message types
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -5,7 +11,6 @@
 
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 

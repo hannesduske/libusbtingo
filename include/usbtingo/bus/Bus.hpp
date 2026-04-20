@@ -1,3 +1,9 @@
+/**
+ * @file Bus.hpp
+ * @brief High-level CAN bus interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <chrono>
@@ -8,7 +14,6 @@
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 using namespace std::literals::chrono_literals;
 
@@ -114,9 +119,9 @@ public:
 
 protected:
   /**
-  * @brief Get the device pointer of the Bus.
-  * @return Pointer to the device.
-  */
+   * @brief Get the device pointer of the Bus.
+   * @return Pointer to the device.
+   */
   device::Device* get_device();
 
 private:

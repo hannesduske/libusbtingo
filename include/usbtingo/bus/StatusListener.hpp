@@ -1,3 +1,9 @@
+/**
+ * @file StatusListener.hpp
+ * @brief Status message listener interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include "usbtingo/device/DeviceHelper.hpp"

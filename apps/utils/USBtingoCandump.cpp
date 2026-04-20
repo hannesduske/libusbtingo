@@ -1,8 +1,13 @@
+/**
+ * @file USBtingoCandump.cpp
+ * @brief Utility to dump received CAN messages from USBtingo
+ * @author Hannes Duske
+ */
+
 #include <iostream>
 
 #include "UtilityHelper.hpp"
 #include "UtilityListener.hpp"
-
 
 /**
  * @brief Minimal example of a command line program that prints out all received CAN messages. After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages

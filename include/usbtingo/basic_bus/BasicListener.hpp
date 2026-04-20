@@ -1,3 +1,9 @@
+/**
+ * @file BasicListener.hpp
+ * @brief Basic message listener interface
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <vector>
@@ -5,7 +11,6 @@
 #include "usbtingo/basic_bus/Message.hpp"
 #include "usbtingo/bus/CanListener.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 
