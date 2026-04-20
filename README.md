@@ -28,6 +28,7 @@ Feel free to fork, improve, and submit a pull request — looking forward to you
 2.3 [Device](#23-device)  <br>
 2.4 [DeviceFactory](#24-devicefactory) <br>
 3.  [Utility applications](#3-utility-applications) <br>
+3.1 [USBtingoSocketCANBridge (Linux)](#31-usbtingosocketcanbridge-linux) <br>
 4.  [Minimal examples](#4-minimal-examples) <br>
 4.1 [Using the BasicBus](#41-using-the-basicbus) <br>
 4.2 [Using the Bus](#42-using-the-bus) <br>
@@ -244,9 +245,69 @@ After the configuration, the program sends all entered messages on the CAN Bus.
  Minimal example of a command line program that prints out all received CAN messages.
  After the configuration, a listener is registered as an observer of the CAN Bus instance that gets notified asynchronously when new messages arrive.
 
+**USBtingoSocketCANBridge** (Linux only)<br>
+Bridges a USBtingo device to a Linux SocketCAN virtual interface (`vcan`), allowing any number of standard CAN tools and applications to communicate through the USBtingo simultaneously.
+See [USBtingoSocketCANBridge](#31-usbtingosocketcanbridge-linux) for details.
+
 > ℹ️
- Only one of the utility applications can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side.
+ Only one of the utility applications can access a USBtingo device at a time. It is currently not possible to run the USBtingoCansend and USBtingoCandump example side by side. Use the `USBtingoSocketCANBridge` to allow multiple applications to share a single device.
  
+## 3.1 USBtingoSocketCANBridge (Linux)
+
+The `USBtingoSocketCANBridge` bridges a USBtingo device to a Linux SocketCAN virtual CAN interface. This allows multiple applications to communicate through a single USBtingo device simultaneously using the standard SocketCAN API. All tools from the [can-utils](https://github.com/linux-can/can-utils) package (e.g. `candump`, `cansend`, `cangen`, `canplayer`) work out of the box.
+
+**Setup**
+
+Create and bring up a virtual CAN interface (requires root privileges, one-time setup):
+```sh
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+```
+
+> ℹ️
+The `vcan` kernel module must be available on your system. On Ubuntu/Debian, it is included in the default kernel. The interface persists until reboot or manual removal.
+
+**Usage**
+
+Start the bridge:
+```sh
+USBtingoSocketCANBridge [options]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `-i <interface>` | SocketCAN interface name | `vcan0` |
+| `-s <serial>` | USBtingo serial number (hex or decimal) | auto-detect |
+| `-b <baudrate>` | CAN baudrate in bit/s | `500000` |
+| `-d <data_baudrate>` | CAN FD data baudrate in bit/s | same as `-b` |
+| `-p <protocol>` | Protocol: `can20`, `canfd`, `canfd-noniso` | `canfd` |
+| `-h` | Print help | — |
+
+**Example**
+
+Start the bridge with 1 Mbit/s CAN FD:
+```sh
+./USBtingoSocketCANBridge -i vcan0 -b 1000000 -p canfd
+```
+
+Then use standard CAN tools in separate terminals:
+```sh
+# Terminal 1: Monitor all traffic
+candump vcan0
+
+# Terminal 2: Send a CAN message
+cansend vcan0 123#DEADBEEF
+
+# Terminal 3: Generate test traffic
+cangen vcan0 -g 10
+```
+
+Stop the bridge with `Ctrl+C`.
+
+> ⚠️
+ The `vcan` interface does not enforce hardware bitrate settings — frames are accepted regardless of size. The actual baudrate is only enforced on the physical CAN bus by the USBtingo device. Timestamps on received frames are kernel-generated, not hardware timestamps from the USBtingo.
+
 # 4. Minimal examples
 
 Refer to the utility applications `USBtingoDetect`, `USBtingoCansend` and `USBtingoCandump` in the `apps/utils` directory for examples on how to use this library. Below are two additional minimal examples on how to use the `BasicBus` and the `Bus`.
