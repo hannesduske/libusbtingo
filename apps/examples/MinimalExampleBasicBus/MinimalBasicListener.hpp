@@ -1,10 +1,15 @@
+/**
+ * @file MinimalBasicListener.hpp
+ * @brief Example basic listener implementation
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <iomanip>
 #include <iostream>
 #include <usbtingo/basic_bus/BasicListener.hpp>
 #include <usbtingo/can/Dlc.hpp>
-
 
 using namespace usbtingo;
 

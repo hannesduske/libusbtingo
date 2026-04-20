@@ -1,3 +1,9 @@
+/**
+ * @file MinimalExampleBus.cpp
+ * @brief Example demonstrating Bus usage with the USBtingo
+ * @author Hannes Duske
+ */
+
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -10,7 +16,6 @@
 #include "usbtingo/device/DeviceFactory.hpp"
 
 #include "MinimalCanListener.hpp"
-
 
 using namespace usbtingo;
 using namespace std::literals::chrono_literals;

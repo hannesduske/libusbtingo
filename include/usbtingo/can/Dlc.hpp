@@ -1,10 +1,15 @@
+/**
+ * @file Dlc.hpp
+ * @brief CAN Data Length Code utilities
+ * @author Hannes Duske
+ */
+
 #pragma once
 
 #include <cstdint>
 
 #include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/platform/UsbtingoExport.hpp"
-
 
 namespace usbtingo {
 

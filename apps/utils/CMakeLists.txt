@@ -46,6 +46,24 @@ if(BUILD_SHARED_LIBS)
     )
 endif()
 
+if(NOT WIN32)
+    add_executable(USBtingoSocketCANBridge
+        USBtingoSocketCANBridge.cpp
+    )
+
+    target_link_libraries(USBtingoSocketCANBridge
+        usbtingo
+        Threads::Threads
+    )
+
+    if(BUILD_SHARED_LIBS)
+        set_target_properties(USBtingoSocketCANBridge PROPERTIES
+            INSTALL_RPATH "$ORIGIN/../lib"
+            BUILD_RPATH "${CMAKE_BINARY_DIR}/lib"
+        )
+    endif()
+endif()
+
 if(USBTINGO_INSTALL)
     install(TARGETS
         USBtingoDetect
@@ -55,4 +73,13 @@ if(USBTINGO_INSTALL)
         EXPORT usbtingoTargets
         RUNTIME DESTINATION bin
     )
+
+    if(NOT WIN32)
+        install(TARGETS
+            USBtingoSocketCANBridge
+
+            EXPORT usbtingoTargets
+            RUNTIME DESTINATION bin
+        )
+    endif()
 endif()

@@ -1,7 +1,12 @@
+/**
+ * @file USBtingoCansend.cpp
+ * @brief Utility to send CAN messages via USBtingo
+ * @author Hannes Duske
+ */
+
 #include <iostream>
 
 #include "UtilityHelper.hpp"
-
 
 /**
  * @brief Minimal example of a command line program that sends CAN messages. After the configuration, the program sends all entered messages on the CAN Bus.
