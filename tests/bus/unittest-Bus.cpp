@@ -10,7 +10,6 @@
 #include "usbtingo/bus/Bus.hpp"
 #include "usbtingo/device/DeviceHelper.hpp"
 
-
 // Convenience
 using usbtingo::bus::Bus;
 using usbtingo::device::CanRxFrame;
@@ -68,12 +67,12 @@ TEST_CASE("Unittest Bus, send", "[bus]") {
 
   SECTION("send returns false when device send_can fails") {
     CanTxFrame tx_frame = { 0 };
-    tx_frame.id  = 0x123;
-    tx_frame.dlc = 4;
-    tx_frame.data[0] = 0x01;
-    tx_frame.data[1] = 0x02;
-    tx_frame.data[2] = 0x03;
-    tx_frame.data[3] = 0x04;
+    tx_frame.id         = 0x123;
+    tx_frame.dlc        = 4;
+    tx_frame.data[0]    = 0x01;
+    tx_frame.data[1]    = 0x02;
+    tx_frame.data[2]    = 0x03;
+    tx_frame.data[3]    = 0x04;
 
     CHECK(bus.send(tx_frame) == false);
   }
@@ -82,12 +81,12 @@ TEST_CASE("Unittest Bus, send", "[bus]") {
 TEST_CASE("Unittest Bus, BusImpl start stop and message dispatch", "[bus]") {
 
   CanRxFrame testmsg = { 0 };
-  testmsg.id   = 42;
-  testmsg.dlc  = 4;
-  testmsg.data[0] = 0x00;
-  testmsg.data[1] = 0x01;
-  testmsg.data[2] = 0x02;
-  testmsg.data[3] = 0x03;
+  testmsg.id         = 42;
+  testmsg.dlc        = 4;
+  testmsg.data[0]    = 0x00;
+  testmsg.data[1]    = 0x01;
+  testmsg.data[2]    = 0x02;
+  testmsg.data[3]    = 0x03;
 
   std::uint32_t sn = 42;
   auto mockdev     = std::make_unique<MockDevice>(sn, true);

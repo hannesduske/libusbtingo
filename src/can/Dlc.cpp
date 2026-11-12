@@ -2,13 +2,13 @@
 
 #include <algorithm>
 #include <array>
-
+#include <iterator>
 
 namespace usbtingo {
 
 namespace can {
 
-static constexpr std::array<std::uint8_t, 16> DLC_TO_BYTES_MAP = {0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64};
+static constexpr std::array<std::uint8_t, 16> DLC_TO_BYTES_MAP = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64 };
 
 std::uint8_t Dlc::bytes_to_dlc(std::size_t len) {
   const auto element = std::find_if(DLC_TO_BYTES_MAP.begin(), DLC_TO_BYTES_MAP.end(), [len](std::uint8_t val) {

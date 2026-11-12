@@ -64,9 +64,9 @@ TEST_CASE("Integration Test DeviceFactory", "[device_factory]") {
   }
 
   SECTION("create with serial not in detected list returns nullptr") {
-    const auto max_sn = *std::max_element(sn_vec.begin(), sn_vec.end());
+    const auto max_sn                  = *std::max_element(sn_vec.begin(), sn_vec.end());
     const std::uint32_t invalid_serial = max_sn + 1u;
-    auto dev = DeviceFactory::create(invalid_serial);
+    auto dev                           = DeviceFactory::create(invalid_serial);
     CHECK(dev == nullptr);
   }
 }

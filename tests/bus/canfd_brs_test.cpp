@@ -16,7 +16,6 @@
 #include "usbtingo/device/DeviceFactory.hpp"
 #include "usbtingo/device/McanProtocol.hpp"
 
-
 // Convenience
 using namespace usbtingo::device;
 

@@ -5,7 +5,6 @@
 #include "device/MockDevice.hpp"
 #include "usbtingo/bus/Bus.hpp"
 
-
 // Convenience
 using usbtingo::bus::Bus;
 using usbtingo::device::CanRxFrame;

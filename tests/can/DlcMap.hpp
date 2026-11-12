@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <map>
 
-
 namespace usbtingo {
 
 namespace test {
@@ -79,7 +78,6 @@ static std::map<std::size_t, std::uint8_t> test_bytes_to_dlc = {
   { 63, 15 },
   { 64, 15 }
 };
-
 
 // Map from DLC code to number of bytes
 static std::map<std::uint8_t, std::size_t> test_dlc_to_bytes = {

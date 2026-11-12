@@ -15,7 +15,6 @@
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 
-
 // Convenience
 using usbtingo::bus::Bus;
 using usbtingo::can::Dlc;

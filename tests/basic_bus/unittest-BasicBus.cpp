@@ -6,7 +6,6 @@
 #include "usbtingo/basic_bus/Message.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 
-
 using usbtingo::bus::BasicBus;
 using usbtingo::bus::Message;
 using usbtingo::device::DeviceFactory;
@@ -56,9 +55,9 @@ TEST_CASE("Unittest BasicBus, send", "[basic_bus]") {
 TEST_CASE("Unittest BasicBus, create factory", "[basic_bus]") {
 
   SECTION("create with index out of range returns nullptr") {
-    auto devices = DeviceFactory::detect_available_devices();
+    auto devices                 = DeviceFactory::detect_available_devices();
     std::size_t out_of_range_idx = devices.size() + 99u;
-    auto bus = BasicBus::create(out_of_range_idx, 500000u, 500000u, Protocol::CAN_2_0);
+    auto bus                     = BasicBus::create(out_of_range_idx, 500000u, 500000u, Protocol::CAN_2_0);
     CHECK(bus == nullptr);
   }
 

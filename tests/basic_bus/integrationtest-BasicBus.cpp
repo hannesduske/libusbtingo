@@ -13,7 +13,6 @@
 #include "usbtingo/device/Device.hpp"
 #include "usbtingo/device/DeviceFactory.hpp"
 
-
 // Convenience
 using usbtingo::bus::BasicBus;
 using usbtingo::can::Dlc;

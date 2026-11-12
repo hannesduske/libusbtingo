@@ -6,7 +6,6 @@
 
 #include "DeviceProtocol.hpp"
 
-
 namespace usbtingo {
 
 namespace device {

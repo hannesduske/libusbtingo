@@ -3,9 +3,8 @@
 #include <cstring>
 
 #include "device/DeviceProtocol.hpp"
-#include "usbtingo/device/DeviceHelper.hpp"
 #include "usbtingo/can/Dlc.hpp"
-
+#include "usbtingo/device/DeviceHelper.hpp"
 
 using usbtingo::device::CanRxFrame;
 using usbtingo::device::CanTxFrame;
@@ -13,7 +12,7 @@ using usbtingo::device::Mode;
 using usbtingo::device::StatusFrame;
 using usbtingo::device::TxEventFrame;
 
-using namespace usbtingo::device;  // USBTINGO_* constants
+using namespace usbtingo::device; // USBTINGO_* constants
 
 TEST_CASE("Unittest Status", "[status]") {
 
@@ -83,31 +82,31 @@ TEST_CASE("Unittest StatusFrame deserialize_status", "[device_helper]") {
 
   SECTION("Valid status buffer") {
     std::uint8_t buf[32] = { 0 };
-    buf[0]  = USBTINGO_RXMSG_TYPE_STATUS;
-    buf[1]  = 1;  // ACTIVE
-    buf[2]  = 0x03;  // txeovf=1, rxovf=1
-    buf[8]  = 10;  // tec
-    buf[9]  = (1 << 7) | 5;  // rp=1, rec=5
-    buf[10] = 0;
-    buf[12] = (1 << 7) | (1 << 6) | (1 << 5);  // bo, ew, ep
-    buf[13] = 2;  // dlec
-    buf[14] = 1;  // tdvc
-    buf[16] = 0x01;
-    buf[17] = 0x00;
-    buf[18] = 0x00;
-    buf[19] = 0x00;  // nr_std_frames = 1
-    buf[20] = 0x02;
-    buf[21] = 0x00;
-    buf[22] = 0x00;
-    buf[23] = 0x00;  // nr_ext_frames = 2
-    buf[24] = 0x0a;
-    buf[25] = 0x00;
-    buf[26] = 0x00;
-    buf[27] = 0x00;  // nr_bytes_wo_brs = 10
-    buf[28] = 0x14;
-    buf[29] = 0x00;
-    buf[30] = 0x00;
-    buf[31] = 0x00;  // nr_bytes_with_brs = 20
+    buf[0]               = USBTINGO_RXMSG_TYPE_STATUS;
+    buf[1]               = 1;            // ACTIVE
+    buf[2]               = 0x03;         // txeovf=1, rxovf=1
+    buf[8]               = 10;           // tec
+    buf[9]               = (1 << 7) | 5; // rp=1, rec=5
+    buf[10]              = 0;
+    buf[12]              = (1 << 7) | (1 << 6) | (1 << 5); // bo, ew, ep
+    buf[13]              = 2;                              // dlec
+    buf[14]              = 1;                              // tdvc
+    buf[16]              = 0x01;
+    buf[17]              = 0x00;
+    buf[18]              = 0x00;
+    buf[19]              = 0x00; // nr_std_frames = 1
+    buf[20]              = 0x02;
+    buf[21]              = 0x00;
+    buf[22]              = 0x00;
+    buf[23]              = 0x00; // nr_ext_frames = 2
+    buf[24]              = 0x0a;
+    buf[25]              = 0x00;
+    buf[26]              = 0x00;
+    buf[27]              = 0x00; // nr_bytes_wo_brs = 10
+    buf[28]              = 0x14;
+    buf[29]              = 0x00;
+    buf[30]              = 0x00;
+    buf[31]              = 0x00; // nr_bytes_with_brs = 20
 
     StatusFrame status;
     REQUIRE(StatusFrame::deserialize_status(buf, status) == true);
@@ -130,7 +129,7 @@ TEST_CASE("Unittest StatusFrame deserialize_status", "[device_helper]") {
 
   SECTION("Invalid message type returns false") {
     std::uint8_t buf[32] = { 0 };
-    buf[0] = USBTINGO_RXMSG_TYPE_CAN;  // wrong type
+    buf[0]               = USBTINGO_RXMSG_TYPE_CAN; // wrong type
     StatusFrame status;
     CHECK(StatusFrame::deserialize_status(buf, status) == false);
   }
@@ -140,18 +139,18 @@ TEST_CASE("Unittest CanRxFrame deserialize_can_frame", "[device_helper]") {
 
   SECTION("Valid standard ID frame, 4 bytes data") {
     std::uint8_t buf[32] = { 0 };
-    buf[0]  = USBTINGO_RXMSG_TYPE_CAN;
-    buf[1]  = 3;  // message_size
-    buf[10] = 0x8C;  // standard id 0x123: id = (buf[11]&0x1f)<<6 | (buf[10]>>2) => 0x8C, 0x04
-    buf[11] = 0x04;  // id high bits, no esi/xtd/rtr
-    buf[12] = 0x00;
-    buf[13] = 0x00;  // rxts = 0
-    buf[14] = 0x04;  // dlc = 4
-    buf[15] = 0;
-    buf[16] = 0xde;
-    buf[17] = 0xad;
-    buf[18] = 0xbe;
-    buf[19] = 0xef;
+    buf[0]               = USBTINGO_RXMSG_TYPE_CAN;
+    buf[1]               = 3;    // message_size
+    buf[10]              = 0x8C; // standard id 0x123: id = (buf[11]&0x1f)<<6 | (buf[10]>>2) => 0x8C, 0x04
+    buf[11]              = 0x04; // id high bits, no esi/xtd/rtr
+    buf[12]              = 0x00;
+    buf[13]              = 0x00; // rxts = 0
+    buf[14]              = 0x04; // dlc = 4
+    buf[15]              = 0;
+    buf[16]              = 0xde;
+    buf[17]              = 0xad;
+    buf[18]              = 0xbe;
+    buf[19]              = 0xef;
 
     CanRxFrame frame;
     REQUIRE(CanRxFrame::deserialize_can_frame(buf, frame) == true);
@@ -166,7 +165,7 @@ TEST_CASE("Unittest CanRxFrame deserialize_can_frame", "[device_helper]") {
 
   SECTION("Invalid message type returns false") {
     std::uint8_t buf[32] = { 0 };
-    buf[0] = USBTINGO_RXMSG_TYPE_STATUS;
+    buf[0]               = USBTINGO_RXMSG_TYPE_STATUS;
     CanRxFrame frame;
     CHECK(CanRxFrame::deserialize_can_frame(buf, frame) == false);
   }
@@ -175,7 +174,7 @@ TEST_CASE("Unittest CanRxFrame deserialize_can_frame", "[device_helper]") {
 TEST_CASE("Unittest CanTxFrame serialize_can_frame and buffer_size_bytes", "[device_helper]") {
 
   SECTION("Serialize valid CAN frame, standard ID") {
-    CanTxFrame frame = { 0 };
+    CanTxFrame frame   = { 0 };
     frame.message_type = USBTINGO_TXMSG_TYPE_CAN;
     frame.id           = 0x42;
     frame.dlc          = 4;
@@ -195,7 +194,7 @@ TEST_CASE("Unittest CanTxFrame serialize_can_frame and buffer_size_bytes", "[dev
   }
 
   SECTION("Invalid message type returns false") {
-    CanTxFrame frame = { 0 };
+    CanTxFrame frame   = { 0 };
     frame.message_type = USBTINGO_RXMSG_TYPE_CAN;
     std::uint8_t buf[128];
     CHECK(CanTxFrame::serialize_can_frame(buf, frame) == false);
@@ -203,14 +202,14 @@ TEST_CASE("Unittest CanTxFrame serialize_can_frame and buffer_size_bytes", "[dev
 
   SECTION("buffer_size_bytes for DLC 0") {
     CanTxFrame frame = { 0 };
-    frame.dlc = 0;
+    frame.dlc        = 0;
     std::size_t size = CanTxFrame::buffer_size_bytes(frame);
     CHECK(size == USBTINGO_HEADER_SIZE_BYTES + USBTINGO_TXMSG_FIX_SIZE_BYTES + 0);
   }
 
   SECTION("buffer_size_bytes for DLC 4") {
     CanTxFrame frame = { 0 };
-    frame.dlc = 4;
+    frame.dlc        = 4;
     std::size_t size = CanTxFrame::buffer_size_bytes(frame);
     CHECK(size == USBTINGO_HEADER_SIZE_BYTES + USBTINGO_TXMSG_FIX_SIZE_BYTES + 4);
   }
@@ -218,7 +217,7 @@ TEST_CASE("Unittest CanTxFrame serialize_can_frame and buffer_size_bytes", "[dev
 
 TEST_CASE("Unittest CanTxFrame serialize then parse as RX format", "[device_helper]") {
 
-  CanTxFrame tx_frame = { 0 };
+  CanTxFrame tx_frame   = { 0 };
   tx_frame.message_type = USBTINGO_TXMSG_TYPE_CAN;
   tx_frame.id           = 0x123;
   tx_frame.dlc          = 8;
@@ -234,11 +233,11 @@ TEST_CASE("Unittest CanTxFrame serialize then parse as RX format", "[device_help
 
   // Build an RX-format buffer with same id/dlc/data (RX layout differs from TX)
   std::uint8_t rx_buf[128] = { 0 };
-  rx_buf[0]  = USBTINGO_RXMSG_TYPE_CAN;
-  rx_buf[1]  = 4;
-  rx_buf[10] = 0x8C;
-  rx_buf[11] = 0x04;
-  rx_buf[14] = (1 << 5) | (1 << 4) | 8;
+  rx_buf[0]                = USBTINGO_RXMSG_TYPE_CAN;
+  rx_buf[1]                = 4;
+  rx_buf[10]               = 0x8C;
+  rx_buf[11]               = 0x04;
+  rx_buf[14]               = (1 << 5) | (1 << 4) | 8;
   for (int i = 0; i < 8; i++)
     rx_buf[16 + i] = static_cast<std::uint8_t>(0x10 + i);
 
@@ -254,14 +253,14 @@ TEST_CASE("Unittest TxEventFrame deserialize_tx_event", "[device_helper]") {
 
   SECTION("Valid TX event buffer, standard ID") {
     std::uint8_t buf[32] = { 0 };
-    buf[0]  = USBTINGO_RXMSG_TYPE_TXEVENT;
-    buf[1]  = 4;
-    buf[10] = 0x8C;
-    buf[11] = 0x04;  // standard id 0x123
-    buf[12] = 0x00;
-    buf[13] = 0x01;  // txts = 256
-    buf[14] = (1 << 5) | (1 << 4) | 4;  // fdf, brs, dlc=4
-    buf[15] = 99;   // txmm
+    buf[0]               = USBTINGO_RXMSG_TYPE_TXEVENT;
+    buf[1]               = 4;
+    buf[10]              = 0x8C;
+    buf[11]              = 0x04; // standard id 0x123
+    buf[12]              = 0x00;
+    buf[13]              = 0x01;                    // txts = 256
+    buf[14]              = (1 << 5) | (1 << 4) | 4; // fdf, brs, dlc=4
+    buf[15]              = 99;                      // txmm
 
     TxEventFrame frame;
     REQUIRE(TxEventFrame::deserialize_tx_event(buf, frame) == true);
@@ -276,7 +275,7 @@ TEST_CASE("Unittest TxEventFrame deserialize_tx_event", "[device_helper]") {
 
   SECTION("Invalid message type returns false") {
     std::uint8_t buf[32] = { 0 };
-    buf[0] = USBTINGO_RXMSG_TYPE_CAN;
+    buf[0]               = USBTINGO_RXMSG_TYPE_CAN;
     TxEventFrame frame;
     CHECK(TxEventFrame::deserialize_tx_event(buf, frame) == false);
   }
