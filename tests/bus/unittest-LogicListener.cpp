@@ -3,7 +3,6 @@
 
 #include "bus/MockLogicListener.hpp"
 
-
 // Convenience
 using usbtingo::device::LogicFrame;
 using usbtingo::test::MockLogicListener;

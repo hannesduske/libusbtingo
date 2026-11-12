@@ -6,7 +6,6 @@
 #include "usbtingo/basic_bus/Message.hpp"
 #include "usbtingo/can/Dlc.hpp"
 
-
 // Convenience
 using usbtingo::bus::Message;
 using usbtingo::can::Dlc;

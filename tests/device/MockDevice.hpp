@@ -111,17 +111,11 @@ public:
     return true;
   }
 
-  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/) override {
-    return m_write_control_succeeds;
-  }
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/) override { return m_write_control_succeeds; }
 
-  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::vector<std::uint8_t>& /*data*/) override {
-    return m_write_control_succeeds;
-  }
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::vector<std::uint8_t>& /*data*/) override { return m_write_control_succeeds; }
 
-  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::uint8_t* /*data*/, std::uint16_t /*len*/) override {
-    return m_write_control_succeeds;
-  }
+  bool write_control(std::uint8_t /*cmd*/, std::uint16_t /*val*/, std::uint16_t /*idx*/, std::uint8_t* /*data*/, std::uint16_t /*len*/) override { return m_write_control_succeeds; }
 
   /**
    * @brief Exposes protected process_can_buffer for unit testing.

@@ -14,7 +14,6 @@
 
 #include "WinHandle.hpp"
 
-
 namespace usbtingo {
 
 namespace device {

@@ -4,7 +4,6 @@
 
 #include "DlcMap.hpp"
 
-
 // Convenience
 using usbtingo::can::Dlc;
 using usbtingo::test::test_bytes_to_dlc;

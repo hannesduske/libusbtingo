@@ -1,8 +1,8 @@
 #include "WinDevice.hpp"
 
-#include <algorithm>
 #include <SetupAPI.h>
 #include <Usbiodef.h>
+#include <algorithm>
 
 namespace usbtingo {
 
@@ -33,7 +33,7 @@ std::unique_ptr<Device> WinDevice::create_device(std::uint32_t serial) {
   // Only one instance per unique device
   LockGuard lock(get_existing_devs_mutex());
   auto& existing_devs = get_existing_devs();
-  
+
   if (existing_devs.find(serial) != existing_devs.end())
     return nullptr;
 

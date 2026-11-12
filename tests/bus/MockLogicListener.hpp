@@ -5,7 +5,6 @@
 #include "usbtingo/bus/LogicListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
-
 namespace usbtingo {
 
 namespace test {
@@ -15,8 +14,7 @@ public:
   MockLogicListener()
       : LogicListener()
       , m_new_frame(false)
-      , m_last_frame() {
-  }
+      , m_last_frame() {}
 
   void on_logic_receive(const device::LogicFrame& data) override {
     std::lock_guard<std::mutex> guard(m_mutex);

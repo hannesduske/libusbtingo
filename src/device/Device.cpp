@@ -5,7 +5,6 @@
 
 #include "DeviceProtocol.hpp"
 
-
 namespace usbtingo {
 
 namespace device {
@@ -93,7 +92,7 @@ bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_le
     return true; // Empty buffer is valid
   }
 
-  std::size_t msg_idx = 0;
+  std::size_t msg_idx         = 0;
   std::size_t package_counter = 0;
 
   // Package counter as safety limit - max. ~42 tx_event messages per transfer
@@ -103,10 +102,10 @@ bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_le
       break; // Not enough data for header
     }
 
-    const std::uint8_t msg_type = rx_buffer[msg_idx];
+    const std::uint8_t msg_type         = rx_buffer[msg_idx];
     const std::uint8_t msg_length_words = rx_buffer[msg_idx + 1];
-    const std::size_t msg_data_size = static_cast<std::size_t>(msg_length_words) * 4;
-    const std::size_t total_msg_size = USBTINGO_HEADER_SIZE_BYTES + msg_data_size;
+    const std::size_t msg_data_size     = static_cast<std::size_t>(msg_length_words) * 4;
+    const std::size_t total_msg_size    = USBTINGO_HEADER_SIZE_BYTES + msg_data_size;
 
     // Bounds check: ensure the full message is within buffer
     if (msg_idx + total_msg_size > rx_len) {
@@ -114,12 +113,12 @@ bool Device::process_can_buffer(const std::uint8_t* rx_buffer, std::size_t rx_le
     }
 
     if (msg_type == USBTINGO_RXMSG_TYPE_CAN) {
-      CanRxFrame rx_frame = {0};
+      CanRxFrame rx_frame = { 0 };
       if (CanRxFrame::deserialize_can_frame(&rx_buffer[msg_idx], rx_frame)) {
         rx_frames.push_back(rx_frame);
       }
     } else if (msg_type == USBTINGO_RXMSG_TYPE_TXEVENT) {
-      TxEventFrame tx_event_frame = {0};
+      TxEventFrame tx_event_frame = { 0 };
       if (TxEventFrame::deserialize_tx_event(&rx_buffer[msg_idx], tx_event_frame)) {
         tx_event_frames.push_back(tx_event_frame);
       }
@@ -237,12 +236,12 @@ bool Device::read_usbtingo_info() {
   if (!read_control(USBTINGO_CMD_GET_DEVICEINFO, 0, 0, data, 12))
     return false;
 
-  m_device_info.fw_minor = data.at(0);
-  m_device_info.fw_major = data.at(1);
-  m_device_info.hw_model = data.at(2);
-  m_device_info.channels = data.at(3);
+  m_device_info.fw_minor  = data.at(0);
+  m_device_info.fw_major  = data.at(1);
+  m_device_info.hw_model  = data.at(2);
+  m_device_info.channels  = data.at(3);
   m_device_info.unique_id = serialize_uint32(data.at(4), data.at(5), data.at(6), data.at(7));
-  m_device_info.clock_hz = serialize_uint32(data.at(8), data.at(9), data.at(10), data.at(11));
+  m_device_info.clock_hz  = serialize_uint32(data.at(8), data.at(9), data.at(10), data.at(11));
 
   return true;
 }

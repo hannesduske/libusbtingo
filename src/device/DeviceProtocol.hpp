@@ -5,7 +5,6 @@
 #include <string>
 #include <string_view>
 
-
 namespace usbtingo {
 
 namespace device {
@@ -66,8 +65,8 @@ constexpr std::uint8_t USBTINGO_FLAGS_DAR  = 0x04;
 
 constexpr std::uint8_t USBTINGO_FLAGS_DISABLE_AUTO_RETRANSMIT = 0x10;
 
-static constexpr auto USBTINGO_THREAD_DELAY           = std::chrono::microseconds(10);
-static constexpr auto USBTINGO_LISTENER_THREAD_DELAY  = std::chrono::microseconds(10);
+static constexpr auto USBTINGO_THREAD_DELAY             = std::chrono::microseconds(10);
+static constexpr auto USBTINGO_LISTENER_THREAD_DELAY    = std::chrono::microseconds(10);
 static constexpr auto USBTINGO_STATE_TRANSITION_TIMEOUT = std::chrono::seconds(5);
 
 static constexpr std::uint16_t serialize_uint16(std::uint8_t a0, std::uint8_t a1) {

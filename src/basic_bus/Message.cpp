@@ -6,7 +6,6 @@
 #include "../device/DeviceProtocol.hpp"
 #include "usbtingo/can/Dlc.hpp"
 
-
 namespace usbtingo {
 
 namespace bus {

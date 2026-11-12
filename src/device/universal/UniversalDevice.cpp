@@ -84,8 +84,7 @@ void UniversalDevice::free_transfers() {
   }
 }
 
-void UniversalDevice::setup_transfer(libusb_transfer* transfer, std::uint8_t endpoint,
-                                     unsigned char* buffer, int length, libusb_transfer_type type) {
+void UniversalDevice::setup_transfer(libusb_transfer* transfer, std::uint8_t endpoint, unsigned char* buffer, int length, libusb_transfer_type type) {
   transfer->dev_handle = m_device_data.Handle;
   transfer->endpoint   = endpoint;
   transfer->type       = type;
@@ -97,7 +96,7 @@ void UniversalDevice::setup_transfer(libusb_transfer* transfer, std::uint8_t end
 
 UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     : Device(serial)
-    , m_device_data({0}) {
+    , m_device_data({ 0 }) {
 
   if (!allocate_transfers()) {
     // Leave in invalid state - is_alive() will return false
@@ -109,9 +108,7 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     UniversalDevice::read_usbtingo_info();
 
     // Setup CAN transfer
-    setup_transfer(m_async_can, USBTINGO_EP3_CANMSG_IN,
-                   static_cast<unsigned char*>(m_buffer_can.data()),
-                   USB_BULK_BUFFER_SIZE, LIBUSB_TRANSFER_TYPE_BULK);
+    setup_transfer(m_async_can, USBTINGO_EP3_CANMSG_IN, static_cast<unsigned char*>(m_buffer_can.data()), USB_BULK_BUFFER_SIZE, LIBUSB_TRANSFER_TYPE_BULK);
     m_async_can->callback = [](libusb_transfer* transfer) {
       auto* instance = static_cast<UniversalDevice*>(transfer->user_data);
       if (instance) {
@@ -120,9 +117,7 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     };
 
     // Setup logic transfer
-    setup_transfer(m_async_logic, USBTINGO_EP2_LOGIC_IN,
-                   static_cast<unsigned char*>(m_buffer_logic.data()),
-                   USB_BULK_BUFFER_SIZE, LIBUSB_TRANSFER_TYPE_BULK);
+    setup_transfer(m_async_logic, USBTINGO_EP2_LOGIC_IN, static_cast<unsigned char*>(m_buffer_logic.data()), USB_BULK_BUFFER_SIZE, LIBUSB_TRANSFER_TYPE_BULK);
     m_async_logic->callback = [](libusb_transfer* transfer) {
       auto* instance = static_cast<UniversalDevice*>(transfer->user_data);
       if (instance) {
@@ -131,9 +126,7 @@ UniversalDevice::UniversalDevice(std::uint32_t serial, libusb_device* dev)
     };
 
     // Setup status transfer (interrupt type)
-    setup_transfer(m_async_status, USBTINGO_EP1_STATUS_IN,
-                   static_cast<unsigned char*>(m_buffer_status.data()),
-                   USB_BULK_BUFFER_SIZE_STATUS, LIBUSB_TRANSFER_TYPE_INTERRUPT);
+    setup_transfer(m_async_status, USBTINGO_EP1_STATUS_IN, static_cast<unsigned char*>(m_buffer_status.data()), USB_BULK_BUFFER_SIZE_STATUS, LIBUSB_TRANSFER_TYPE_INTERRUPT);
     m_async_status->callback = [](libusb_transfer* transfer) {
       auto* instance = static_cast<UniversalDevice*>(transfer->user_data);
       if (instance) {
@@ -207,7 +200,7 @@ std::vector<std::uint32_t> UniversalDevice::detect_available_devices() {
 std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos() {
   std::map<std::uint32_t, libusb_device*> dev_map;
 
-  libusb_device** devs = nullptr;
+  libusb_device** devs   = nullptr;
   const int device_count = libusb_get_device_list(get_usb_ctx(), &devs);
 
   // Failed to fetch USB Devices
@@ -235,8 +228,8 @@ std::map<std::uint32_t, libusb_device*> UniversalDevice::detect_usbtingos() {
       continue;
     }
 
-    unsigned char buffer[16] = {0};
-    const int result = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buffer, sizeof(buffer));
+    unsigned char buffer[16] = { 0 };
+    const int result         = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, buffer, sizeof(buffer));
 
     if (result > 0) {
       std::uint32_t serial = 0;
@@ -465,7 +458,7 @@ bool UniversalDevice::read_usbtingo_serial(std::uint32_t& serial) {
     return false;
   }
 
-  unsigned char buffer[16] = {0};
+  unsigned char buffer[16] = { 0 };
   if (libusb_get_string_descriptor_ascii(m_device_data.Handle, desc.iManufacturer, buffer, sizeof(buffer)) < 0) {
     return false;
   }
@@ -504,12 +497,11 @@ bool UniversalDevice::write_control(std::uint8_t cmd, std::uint16_t val, std::ui
     return false;
   }
 
-  const std::uint8_t request_type  = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
-  const std::uint16_t length       = static_cast<std::uint16_t>(data.size());
-  constexpr unsigned int timeout   = 0;
+  const std::uint8_t request_type = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
+  const std::uint16_t length      = static_cast<std::uint16_t>(data.size());
+  constexpr unsigned int timeout  = 0;
 
-  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx,
-                                 static_cast<unsigned char*>(data.data()), length, timeout) >= 0;
+  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx, static_cast<unsigned char*>(data.data()), length, timeout) >= 0;
 }
 
 bool UniversalDevice::write_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::uint8_t* data, std::uint16_t len) {
@@ -519,12 +511,10 @@ bool UniversalDevice::write_control(std::uint8_t cmd, std::uint16_t val, std::ui
 
   const std::uint8_t request_type = USB_REQUEST_HOST2DEVICE | USB_REQUEST_TYPE_VENDOR;
 
-  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx,
-                                 reinterpret_cast<unsigned char*>(data), len, 0) >= 0;
+  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx, reinterpret_cast<unsigned char*>(data), len, 0) >= 0;
 }
 
-bool UniversalDevice::read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx,
-                                   std::vector<std::uint8_t>& data, std::uint16_t len) {
+bool UniversalDevice::read_control(std::uint8_t cmd, std::uint16_t val, std::uint16_t idx, std::vector<std::uint8_t>& data, std::uint16_t len) {
   if (!m_device_data.HandlesOpen) {
     return false;
   }
@@ -534,8 +524,7 @@ bool UniversalDevice::read_control(std::uint8_t cmd, std::uint16_t val, std::uin
 
   const std::uint8_t request_type = USB_REQUEST_DEVICE2HOST | USB_REQUEST_TYPE_VENDOR;
 
-  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx,
-                                 reinterpret_cast<unsigned char*>(data.data()), len, 0) >= 0;
+  return libusb_control_transfer(m_device_data.Handle, request_type, cmd, val, idx, reinterpret_cast<unsigned char*>(data.data()), len, 0) >= 0;
 }
 
 bool UniversalDevice::write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t len) {
@@ -543,9 +532,7 @@ bool UniversalDevice::write_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std:
     return false;
   }
 
-  return libusb_bulk_transfer(m_device_data.Handle, endpoint,
-                              reinterpret_cast<unsigned char*>(buffer.data()),
-                              static_cast<int>(len), nullptr, 0) == 0;
+  return libusb_bulk_transfer(m_device_data.Handle, endpoint, reinterpret_cast<unsigned char*>(buffer.data()), static_cast<int>(len), nullptr, 0) == 0;
 }
 
 bool UniversalDevice::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::size_t& len) {
@@ -553,11 +540,9 @@ bool UniversalDevice::read_bulk(std::uint8_t endpoint, BulkBuffer& buffer, std::
     return false;
   }
 
-  int actual_len = 0;
-  const int result = libusb_bulk_transfer(m_device_data.Handle, endpoint,
-                                          reinterpret_cast<unsigned char*>(buffer.data()),
-                                          static_cast<int>(len), &actual_len, 0);
-  len = static_cast<std::size_t>(actual_len);
+  int actual_len   = 0;
+  const int result = libusb_bulk_transfer(m_device_data.Handle, endpoint, reinterpret_cast<unsigned char*>(buffer.data()), static_cast<int>(len), &actual_len, 0);
+  len              = static_cast<std::size_t>(actual_len);
   return result == 0;
 }
 

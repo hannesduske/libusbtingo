@@ -5,7 +5,6 @@
 #include "usbtingo/bus/StatusListener.hpp"
 #include "usbtingo/device/Device.hpp"
 
-
 namespace usbtingo {
 
 namespace test {
@@ -15,8 +14,7 @@ public:
   MockStatusListener()
       : StatusListener()
       , m_new_status(false)
-      , m_last_status() {
-  }
+      , m_last_status() {}
 
   void on_status_update(const device::StatusFrame& status) override {
     std::lock_guard<std::mutex> guard(m_mutex);

@@ -13,8 +13,7 @@ public:
   MockCanListener()
       : CanListener()
       , m_new_msg(false)
-      , m_msg_vec() {
-  }
+      , m_msg_vec() {}
 
   void on_can_receive(const device::CanRxFrame& msg) override {
     std::lock_guard<std::mutex> guard(m_mutex);

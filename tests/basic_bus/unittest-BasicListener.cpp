@@ -6,7 +6,6 @@
 
 #include "MockBasicListener.hpp"
 
-
 // Convenience
 using usbtingo::bus::Message;
 using usbtingo::device::CanRxFrame;

@@ -59,8 +59,8 @@ TEST_CASE("Integration test DLC conversion with real device", "[dlc][integration
       // Verify DLC is in valid range (would fail before fix for sizes > 8)
       CHECK(expected_dlc <= 15);
 
-      std::cout << "  ID=0x" << std::hex << std::setw(3) << std::setfill('0') << msg.id << std::dec << std::setfill(' ') << " | " << std::setw(2) << data_size << " bytes"
-                << " | DLC=" << std::setw(2) << static_cast<int>(expected_dlc) << " | Data: ";
+      std::cout << "  ID=0x" << std::hex << std::setw(3) << std::setfill('0') << msg.id << std::dec << std::setfill(' ') << " | " << std::setw(2) << data_size << " bytes" << " | DLC=" << std::setw(2) << static_cast<int>(expected_dlc)
+                << " | Data: ";
 
       // Print data content (first few bytes for longer messages)
       if (data_size == 0) {

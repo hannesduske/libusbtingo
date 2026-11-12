@@ -8,20 +8,19 @@
 
 #include "MockDevice.hpp"
 
-
 using namespace usbtingo::device;
-using usbtingo::test::MockDevice;
-using usbtingo::device::TxEventFrame;
 using usbtingo::device::CanRxFrame;
-using usbtingo::device::DeviceInfo;
 using usbtingo::device::Device;
+using usbtingo::device::DeviceInfo;
 using usbtingo::device::Mode;
 using usbtingo::device::Protocol;
+using usbtingo::device::TxEventFrame;
+using usbtingo::test::MockDevice;
 
 TEST_CASE("Unittest Device, getters and setters", "[device]") {
   SECTION("Device setters and getters") {
     MockDevice dev(0u, true, true);
-    
+
     // Set and test Protocol
     CHECK(dev.set_protocol(Protocol::CAN_2_0) == true);
     CHECK(dev.get_protocol() == Protocol::CAN_2_0);
@@ -49,7 +48,6 @@ TEST_CASE("Unittest Device, getters and setters", "[device]") {
   }
 }
 
-
 TEST_CASE("Unittest Device, get_serial and get_device_info", "[device]") {
 
   SECTION("get_serial returns value passed to Device constructor") {
@@ -58,7 +56,7 @@ TEST_CASE("Unittest Device, get_serial and get_device_info", "[device]") {
   }
 
   SECTION("get_device_info returns default when not fetched") {
-    auto dev  = std::make_unique<MockDevice>(0u, true);
+    auto dev        = std::make_unique<MockDevice>(0u, true);
     DeviceInfo info = dev->get_device_info();
     CHECK(info.fw_major == 0);
     CHECK(info.fw_minor == 0);
@@ -120,17 +118,17 @@ TEST_CASE("Unittest Device, process_can_buffer", "[device]") {
 
   SECTION("Parse single CAN frame from buffer") {
     std::uint8_t buf[32] = { 0 };
-    buf[0]  = USBTINGO_RXMSG_TYPE_CAN;
-    buf[1]  = 4;
-    buf[10] = 0x8C;
-    buf[11] = 0x04;
-    buf[14] = 4;
-    buf[16] = 0xde;
-    buf[17] = 0xad;
-    buf[18] = 0xbe;
-    buf[19] = 0xef;
+    buf[0]               = USBTINGO_RXMSG_TYPE_CAN;
+    buf[1]               = 4;
+    buf[10]              = 0x8C;
+    buf[11]              = 0x04;
+    buf[14]              = 4;
+    buf[16]              = 0xde;
+    buf[17]              = 0xad;
+    buf[18]              = 0xbe;
+    buf[19]              = 0xef;
 
-    auto dev   = std::make_unique<MockDevice>(0u, true);
+    auto dev = std::make_unique<MockDevice>(0u, true);
     std::vector<CanRxFrame> rx_frames;
     std::vector<TxEventFrame> tx_event_frames;
 
@@ -149,25 +147,25 @@ TEST_CASE("Unittest Device, process_can_buffer", "[device]") {
 
   SECTION("Parse CAN frame and TX event from buffer") {
     std::uint8_t buf[64] = { 0 };
-    buf[0]  = USBTINGO_RXMSG_TYPE_CAN;
-    buf[1]  = 4;
-    buf[10] = 0x8C;
-    buf[11] = 0x04;
-    buf[14] = 4;
-    buf[16] = 0x11;
-    buf[17] = 0x22;
-    buf[18] = 0x33;
-    buf[19] = 0x44;
+    buf[0]               = USBTINGO_RXMSG_TYPE_CAN;
+    buf[1]               = 4;
+    buf[10]              = 0x8C;
+    buf[11]              = 0x04;
+    buf[14]              = 4;
+    buf[16]              = 0x11;
+    buf[17]              = 0x22;
+    buf[18]              = 0x33;
+    buf[19]              = 0x44;
 
     std::size_t can_len = USBTINGO_HEADER_SIZE_BYTES + buf[1] * 4;
-    buf[can_len + 0]  = USBTINGO_RXMSG_TYPE_TXEVENT;
-    buf[can_len + 1]  = 4;
-    buf[can_len + 10] = 0x8C;
-    buf[can_len + 11] = 0x04;
-    buf[can_len + 14] = 4;
-    buf[can_len + 15] = 99;
+    buf[can_len + 0]    = USBTINGO_RXMSG_TYPE_TXEVENT;
+    buf[can_len + 1]    = 4;
+    buf[can_len + 10]   = 0x8C;
+    buf[can_len + 11]   = 0x04;
+    buf[can_len + 14]   = 4;
+    buf[can_len + 15]   = 99;
 
-    auto dev   = std::make_unique<MockDevice>(0u, true);
+    auto dev = std::make_unique<MockDevice>(0u, true);
     std::vector<CanRxFrame> rx_frames;
     std::vector<TxEventFrame> tx_event_frames;
 
@@ -183,10 +181,10 @@ TEST_CASE("Unittest Device, process_can_buffer", "[device]") {
 
   SECTION("Padding message is skipped") {
     std::uint8_t buf[32] = { 0 };
-    buf[0] = USBTINGO_RXMSG_TYPE_PADDING;
-    buf[1] = 4;
+    buf[0]               = USBTINGO_RXMSG_TYPE_PADDING;
+    buf[1]               = 4;
 
-    auto dev   = std::make_unique<MockDevice>(0u, true);
+    auto dev = std::make_unique<MockDevice>(0u, true);
     std::vector<CanRxFrame> rx_frames;
     std::vector<TxEventFrame> tx_event_frames;
 
