@@ -1,5 +1,6 @@
 #include "usbtingo/device/Device.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 #include "DeviceProtocol.hpp"

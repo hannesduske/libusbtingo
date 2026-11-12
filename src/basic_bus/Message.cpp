@@ -1,5 +1,6 @@
 #include "usbtingo/basic_bus/Message.hpp"
 
+#include <algorithm>
 #include <array>
 
 #include "../device/DeviceProtocol.hpp"

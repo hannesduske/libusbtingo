@@ -1,5 +1,6 @@
 #include "UniversalDevice.hpp"
 
+#include <algorithm>
 #include <libusb-1.0/libusb.h>
 #include <stdexcept>
 #include <string>

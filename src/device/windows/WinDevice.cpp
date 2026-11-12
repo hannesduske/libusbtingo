@@ -1,5 +1,6 @@
 #include "WinDevice.hpp"
 
+#include <algorithm>
 #include <SetupAPI.h>
 #include <Usbiodef.h>
 
